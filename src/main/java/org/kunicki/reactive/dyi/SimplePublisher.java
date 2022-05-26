@@ -16,13 +16,15 @@ public class SimplePublisher implements Flow.Publisher<Integer> {
     @Override
     public void subscribe(Flow.Subscriber<? super Integer> subscriber) {
         subscriber.onSubscribe(new SimpleSubscription(subscriber));
+        iterator.forEachRemaining(subscriber::onNext);
+        subscriber.onComplete();
     }
 
     public static void main(String[] args) {
         new SimplePublisher(10).subscribe(new Flow.Subscriber<>() {
             @Override
             public void onSubscribe(Flow.Subscription subscription) {
-
+                System.out.println("onSubscribe " + subscription);
             }
 
             @Override

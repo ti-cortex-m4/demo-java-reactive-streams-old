@@ -1,5 +1,6 @@
 package org.kunicki.reactive.integration;
 
+import akka.NotUsed;
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.Flow;
@@ -16,9 +17,9 @@ import java.util.concurrent.Flow.Publisher;
 public class IntegrationApp {
 
     public static void main(String[] args) {
-        var reactorPublisher = reactorPublisher();
-        var akkaStreamsProcessor = akkaStreamsProcessor();
+        Publisher<Long> reactorPublisher = reactorPublisher();
 
+        Processor<Long, Long> akkaStreamsProcessor = akkaStreamsProcessor();
         reactorPublisher.subscribe(akkaStreamsProcessor);
 
         Flowable
@@ -27,12 +28,12 @@ public class IntegrationApp {
     }
 
     private static Publisher<Long> reactorPublisher() {
-        var numberFlux = Flux.interval(Duration.ofSeconds(1));
+        Flux<Long> numberFlux = Flux.interval(Duration.ofSeconds(1));
         return JdkFlowAdapter.publisherToFlowPublisher(numberFlux);
     }
 
     private static Processor<Long, Long> akkaStreamsProcessor() {
-        var negatingFlow = Flow.of(Long.class).map(i -> -i);
+        Flow<Long, Long, NotUsed> negatingFlow = Flow.of(Long.class).map(i -> -i);
         return JavaFlowSupport.Flow.toProcessor(negatingFlow).run(materializer);
     }
 
