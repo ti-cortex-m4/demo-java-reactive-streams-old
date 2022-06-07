@@ -1,5 +1,8 @@
 package chapter17.a;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -8,6 +11,8 @@ import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.Stream;
 
 public class Exercise1 {
+
+    private static final Logger logger = LoggerFactory.getLogger(Exercise1.class);
 
     public static void main(String[] args) {
         SubmissionPublisher<String> publisher = new SubmissionPublisher<>();
