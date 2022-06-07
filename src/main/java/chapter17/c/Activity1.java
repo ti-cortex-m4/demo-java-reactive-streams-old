@@ -1,4 +1,6 @@
-package chapter17;
+package chapter17.c;
+
+import chapter17.b.NumberPublisher;
 
 import java.io.IOException;
 import java.nio.file.Files;

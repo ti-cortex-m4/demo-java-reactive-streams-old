@@ -1,4 +1,4 @@
-package chapter17;
+package chapter17.b;
 
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
