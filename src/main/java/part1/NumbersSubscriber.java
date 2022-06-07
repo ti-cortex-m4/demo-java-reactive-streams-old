@@ -1,8 +1,13 @@
 package part1;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.Flow;
 
-public class LipsumSubscriber implements Flow.Subscriber<String> {
+public class NumbersSubscriber implements Flow.Subscriber<Integer> {
+
+    private static final Logger logger = LoggerFactory.getLogger(NumbersSubscriber.class);
 
     private Flow.Subscription subscription;
 
@@ -13,20 +18,19 @@ public class LipsumSubscriber implements Flow.Subscriber<String> {
     }
 
     @Override
-    public void onNext(String item) {
-        System.out.println(item);
+    public void onNext(Integer item) {
+        logger.info("Subscriber.onNext: {}", item);
         this.subscription.request(1);
     }
 
     @Override
     public void onError(Throwable throwable) {
-        System.out.println("error: " + throwable.getMessage());
-
+        logger.info("Subscriber.onError: {}", throwable.getMessage());
         throwable.printStackTrace();
     }
 
     @Override
     public void onComplete() {
-        System.out.println("completed");
+        logger.info("Subscriber.onComplete");
     }
 }
