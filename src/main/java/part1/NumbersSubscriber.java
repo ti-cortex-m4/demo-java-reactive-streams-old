@@ -13,6 +13,7 @@ public class NumbersSubscriber implements Flow.Subscriber<Integer> {
 
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
+        logger.info("Subscriber.onSubscribe: {}", subscription);
         this.subscription = subscription;
         this.subscription.request(1);
     }
