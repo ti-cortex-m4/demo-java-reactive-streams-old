@@ -6,7 +6,7 @@ import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.Flow;
 import akka.stream.javadsl.JavaFlowSupport;
 import io.reactivex.Flowable;
-import org.reactivestreams.FlowAdapters;
+//import org.reactivestreams.FlowAdapters;
 import reactor.adapter.JdkFlowAdapter;
 import reactor.core.publisher.Flux;
 
@@ -15,7 +15,7 @@ import java.util.concurrent.Flow.Processor;
 import java.util.concurrent.Flow.Publisher;
 
 public class IntegrationApp {
-
+/*
     public static void main(String[] args) {
         Publisher<Long> reactorPublisher = reactorPublisher();
 
@@ -39,4 +39,5 @@ public class IntegrationApp {
 
     private static ActorSystem actorSystem = ActorSystem.create();
     private static ActorMaterializer materializer = ActorMaterializer.create(actorSystem);
+ */
 }
