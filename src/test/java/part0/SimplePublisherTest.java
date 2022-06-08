@@ -1,4 +1,4 @@
-package org.kunicki.reactive.dyi;
+package part0;
 
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowPublisherVerification;
