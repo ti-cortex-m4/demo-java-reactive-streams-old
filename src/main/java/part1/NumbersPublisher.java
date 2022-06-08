@@ -30,10 +30,11 @@ public class NumbersPublisher extends SubmissionPublisher<Integer> {
 
         IntStream.range(0, publisher.count)
             .forEach(i -> {
-                logger.info("Publish: {}", i);
+                logger.info("Publisher.submit: {}", i);
                 publisher.submit(i);
             });
 
+        logger.info("Publisher.close");
         publisher.close();
     }
 }
