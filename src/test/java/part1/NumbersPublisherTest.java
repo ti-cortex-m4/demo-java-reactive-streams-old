@@ -13,7 +13,7 @@ public class NumbersPublisherTest extends FlowPublisherVerification<Integer> {
 
     @Override
     public Flow.Publisher<Integer> createFlowPublisher(long elements) {
-        return new NumbersPublisher((int) elements);
+        return new NumbersPublisher1((int) elements);
     }
 
     @Override
