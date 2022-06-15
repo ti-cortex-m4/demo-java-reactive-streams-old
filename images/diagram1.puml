@@ -2,10 +2,10 @@
 
 scale 1.1
 title Reactive Streams
-hide footbox
+'hide footbox
 skinparam monochrome true
-skinparam defaultFontName Source Sans Pro
-skinparam titleFontSize 15
+'skinparam defaultFontName Source Sans Pro
+'skinparam titleFontSize 15
 skinparam sequenceMessageAlign center
 
 'skinparam sequence {
@@ -18,6 +18,10 @@ skinparam sequenceMessageAlign center
 'ParticipantBackgroundColor white
 'ParticipantFontColor black
 '}
+
+participant Publisher
+participant Subscription
+participant Subscriber
 
 Subscriber -> Publisher : subscribe()
 Publisher -> Subscription : new()
