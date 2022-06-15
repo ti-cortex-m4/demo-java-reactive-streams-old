@@ -2,7 +2,7 @@
 
 scale 1.1
 title Reactive Streams
-'hide footbox
+hide footbox
 skinparam monochrome true
 'skinparam defaultFontName Source Sans Pro
 'skinparam titleFontSize 15
