@@ -1,22 +1,32 @@
 @startuml
 
-skinparam sequence {
-ArrowColor black
-ActorBorderColor black
-LifeLineBorderColor black
-LifeLineBackgroundColor black
+scale 1.1
+title Reactive Streams
+hide footbox
+skinparam monochrome true
+skinparam defaultFontName Source Sans Pro
+skinparam titleFontSize 15
+skinparam sequenceMessageAlign center
 
-ParticipantBorderColor black
-ParticipantBackgroundColor white
-ParticipantFontColor black
-}
+'skinparam sequence {
+'ArrowColor black
+'ActorBorderColor black
+'LifeLineBorderColor black
+'LifeLineBackgroundColor black
+'
+'ParticipantBorderColor black
+'ParticipantBackgroundColor white
+'ParticipantFontColor black
+'}
 
 Subscriber -> Publisher : subscribe()
 Publisher -> Subscription : new()
 Publisher -> Subscriber : onSubscribe(Subscription)
+
 loop until completed
 Subscriber -> Subscription : request(int)
 Subscription -> Publisher
+
 alt no error
 Publisher -> Subscriber : onNext(T)
 else error
@@ -27,7 +37,9 @@ alt cancel subscription
 Subscriber -> Subscription : cancel()
 Subscription -> Publisher
 end
+
 end
+
 Publisher -> Subscriber : onComplete()
 
 @enduml
