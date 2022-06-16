@@ -8,11 +8,11 @@ skinparam ClassBackgroundColor white
 skinparam ClassBorderColor black
 skinparam CircledCharacterFontStyle normal
 
-interface Publisher {
+interface Publisher<T> {
 + void subscribe(Subscriber<? super T> subscriber)
 }
 
-interface Subscriber {
+interface Subscriber<T> {
 + void onSubscribe(Subscription subscription)
 + void onNext(T item)
 + void onError(Throwable throwable)
@@ -24,7 +24,7 @@ interface Subscription {
 + void cancel()
 }
 
-interface Processor {
+interface Processor<T, R> {
 }
 
 Processor <|.. Publisher
