@@ -28,20 +28,19 @@ Publisher -> Subscription : new Subscription()
 Publisher -> Subscriber : onSubscribe(Subscription)
 
 loop until completed
-Subscriber -> Subscription : request(int)
-Subscription -> Publisher
+    alt continue
+        Subscriber -> Subscription : request(long)
+        Subscription -> Publisher
+    else cancel
+        Subscriber -> Subscription : cancel()
+        Subscription -> Publisher
+    end
 
-alt no error
-Publisher -> Subscriber : onNext(T)
-else error
-Publisher -> Subscriber : onError(Throwable)
-end
-
-alt cancel subscription
-Subscriber -> Subscription : cancel()
-Subscription -> Publisher
-end
-
+    alt success
+        Publisher -> Subscriber : onNext(T)
+    else error
+        Publisher -> Subscriber : onError(Throwable)
+    end
 end
 
 Publisher -> Subscriber : onComplete()
