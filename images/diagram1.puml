@@ -1,23 +1,19 @@
 @startuml
 
-'scale 1.1
-'title Reactive Streams
-hide footbox
-skinparam monochrome true
-'skinparam defaultFontName Source Sans Pro
-'skinparam titleFontSize 15
-skinparam sequenceMessageAlign center
+scale 1.0
 
-'skinparam sequence {
-'ArrowColor black
-'ActorBorderColor black
-'LifeLineBorderColor black
-'LifeLineBackgroundColor black
-'
-'ParticipantBorderColor black
-'ParticipantBackgroundColor white
-'ParticipantFontColor black
-'}
+hide footbox
+
+!pragma teoz true
+
+skinparam monochrome true
+skinparam defaultFontName Source Sans Pro
+'skinparam titleFontSize 15
+'skinparam sequenceMessageAlign left
+skinparam sequenceMessageAlign center
+skinparam participantBackgroundColor #white
+skinparam noteBackgroundColor #white
+skinparam sequenceGroupBackgroundColor #white
 
 participant Publisher
 participant Subscription
