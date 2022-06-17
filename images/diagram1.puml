@@ -23,8 +23,8 @@ participant Publisher
 participant Subscription
 participant Subscriber
 
-Subscriber -> Publisher : subscribe()
-Publisher -> Subscription : new()
+Subscriber -> Publisher : subscribe(Subscriber)
+Publisher -> Subscription : new Subscription()
 Publisher -> Subscriber : onSubscribe(Subscription)
 
 loop until completed
