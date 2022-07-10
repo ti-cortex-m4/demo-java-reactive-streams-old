@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class HttpClientExample {
 
     public static void main(String[] args) throws Exception {
-        httpPostRequest1();
+        httpPostRequest2();
 
 
     }
