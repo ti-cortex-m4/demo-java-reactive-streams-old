@@ -75,8 +75,12 @@ public class HttpClientExample {
             }
 
             @Override
-            public void onNext(List<ByteBuffer> item) {
-                System.out.println("onNext ");
+            public void onNext(List<ByteBuffer> items) {
+                for (ByteBuffer item:items) {
+                    if (item != null) {
+                        System.out.println("onNext " + Charset.defaultCharset().decode(item));
+                    }
+                }
                 subscription.request(1);
             }
 
