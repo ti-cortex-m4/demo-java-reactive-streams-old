@@ -1,5 +1,6 @@
 package part3;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,7 +20,21 @@ import java.util.stream.Collectors;
 public class HttpClientExample {
 
     public static void main(String[] args) throws Exception {
-        httpPostRequest();
+        //httpPostRequest();
+
+        HttpClient client = HttpClient.newBuilder()
+            .version(HttpClient.Version.HTTP_2)
+            .build();
+
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(new URI("https://postman-echo.com/post"))
+            .headers("Content-Type", "text/plain;charset=UTF-8")
+            .POST(HttpRequest.BodyPublishers.ofString("Sample request body"))
+            .build();
+
+        HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+        String responseBody = response.body();
+        System.out.println("httpPostRequest : " + responseBody);
     }
 
     public static void httpPostRequest() throws URISyntaxException, IOException, InterruptedException {
