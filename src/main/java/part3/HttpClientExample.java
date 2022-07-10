@@ -66,9 +66,34 @@ public class HttpClientExample {
             .POST(HttpRequest.BodyPublishers.fromPublisher(publisher))
             .build();
 
-        HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-        String responseBody = response.body();
-        System.out.println("httpPostRequest : " + responseBody);
+        Flow.Subscriber<List<ByteBuffer>> subscriber = new Flow.Subscriber<List<ByteBuffer>>() {
+            Flow.Subscription subscription;
+            @Override
+            public void onSubscribe(Flow.Subscription subscription) {
+                this.subscription = subscription;
+                subscription.request(1);
+            }
+
+            @Override
+            public void onNext(List<ByteBuffer> item) {
+                System.out.println("onNext ");
+                subscription.request(1);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                System.out.println("onError");
+            }
+
+            @Override
+            public void onComplete() {
+                System.out.println("onComplete");
+            }
+        };
+        HttpResponse<Void> response = client.sendAsync(request,
+            BodyHandlers.fromSubscriber(subscriber)).join();
+//        String responseBody = response.body();
+        System.out.println(response.statusCode());
     }
 
 }
