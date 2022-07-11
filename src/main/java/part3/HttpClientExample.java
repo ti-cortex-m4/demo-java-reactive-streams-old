@@ -33,8 +33,22 @@ public class HttpClientExample {
     }
 
     private static Flow.Publisher<ByteBuffer> getPublisher() {
-        Flux<ByteBuffer> flux = Flux.just(ByteBuffer.wrap("hello\n".getBytes(Charset.defaultCharset())));
-        return JdkFlowAdapter.publisherToFlowPublisher(flux);
+        return new Flow.Publisher<ByteBuffer>() {
+            @Override
+            public void subscribe(Flow.Subscriber<? super ByteBuffer> subscriber) {
+                subscriber.onSubscribe(new Flow.Subscription() {
+                    @Override
+                    public void request(long n) {
+                    }
+
+                    @Override
+                    public void cancel() {
+                    }
+                });
+                subscriber.onNext(ByteBuffer.wrap("hello".getBytes(Charset.defaultCharset())));
+                subscriber.onComplete();
+            }
+        };
     }
 
     private static Flow.Subscriber<List<ByteBuffer>> getSubscriber() {
