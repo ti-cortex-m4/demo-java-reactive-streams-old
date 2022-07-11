@@ -32,8 +32,6 @@ public class HttpClientExample {
 
     public static void main(String[] args) throws Exception {
         httpPostRequest2();
-
-
     }
 
     public static void httpPostRequest1() throws URISyntaxException, IOException, InterruptedException {
@@ -66,8 +64,10 @@ public class HttpClientExample {
             .POST(HttpRequest.BodyPublishers.fromPublisher(publisher))
             .build();
 
-        Flow.Subscriber<List<ByteBuffer>> subscriber = new Flow.Subscriber<List<ByteBuffer>>() {
-            Flow.Subscription subscription;
+        Flow.Subscriber<List<ByteBuffer>> subscriber = new Flow.Subscriber<>() {
+
+            private Flow.Subscription subscription;
+
             @Override
             public void onSubscribe(Flow.Subscription subscription) {
                 this.subscription = subscription;
@@ -75,18 +75,16 @@ public class HttpClientExample {
             }
 
             @Override
-            public void onNext(List<ByteBuffer> items) {
-                for (ByteBuffer item:items) {
-                    if (item != null) {
-                        System.out.println("onNext " + Charset.defaultCharset().decode(item));
-                    }
+            public void onNext(List<ByteBuffer> buffers) {
+                for (ByteBuffer buffer : buffers) {
+                    System.out.println("onNext: " + Charset.defaultCharset().decode(buffer));
                 }
                 subscription.request(1);
             }
 
             @Override
             public void onError(Throwable throwable) {
-                System.out.println("onError");
+                System.out.println("onError: " + throwable);
             }
 
             @Override
@@ -94,10 +92,8 @@ public class HttpClientExample {
                 System.out.println("onComplete");
             }
         };
-        HttpResponse<Void> response = client.sendAsync(request,
-            BodyHandlers.fromSubscriber(subscriber)).join();
+        HttpResponse<Void> response = client.sendAsync(request, BodyHandlers.fromSubscriber(subscriber)).join();
 //        String responseBody = response.body();
         System.out.println(response.statusCode());
     }
-
 }
