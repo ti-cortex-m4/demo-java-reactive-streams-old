@@ -42,8 +42,7 @@ public class HttpClientExample {
             .version(HttpClient.Version.HTTP_2)
             .build();
 
-        Flux<ByteBuffer> flux = Flux.just(ByteBuffer.wrap("hello\n".getBytes(Charset.defaultCharset())));
-        Flow.Publisher<ByteBuffer> publisher = JdkFlowAdapter.publisherToFlowPublisher(flux);
+        Flow.Publisher<ByteBuffer> publisher = getPublisher();
 
         HttpRequest request = HttpRequest.newBuilder()
             .uri(new URI("https://postman-echo.com/post"))
@@ -51,6 +50,18 @@ public class HttpClientExample {
             .POST(HttpRequest.BodyPublishers.fromPublisher(publisher))
             .build();
 
+        Flow.Subscriber<List<ByteBuffer>> subscriber = getSubscriber();
+        HttpResponse<Void> response = client.sendAsync(request, BodyHandlers.fromSubscriber(subscriber)).join();
+        System.out.println(response.statusCode());
+    }
+
+    private static Flow.Publisher<ByteBuffer> getPublisher() {
+        Flux<ByteBuffer> flux = Flux.just(ByteBuffer.wrap("hello\n".getBytes(Charset.defaultCharset())));
+        Flow.Publisher<ByteBuffer> publisher = JdkFlowAdapter.publisherToFlowPublisher(flux);
+        return publisher;
+    }
+
+    private static Flow.Subscriber<List<ByteBuffer>> getSubscriber() {
         Flow.Subscriber<List<ByteBuffer>> subscriber = new Flow.Subscriber<>() {
 
             private Flow.Subscription subscription;
@@ -79,7 +90,6 @@ public class HttpClientExample {
                 System.out.println("onComplete");
             }
         };
-        HttpResponse<Void> response = client.sendAsync(request, BodyHandlers.fromSubscriber(subscriber)).join();
-        System.out.println(response.statusCode());
+        return subscriber;
     }
 }
