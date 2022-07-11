@@ -43,7 +43,7 @@ public class ReactiveMongoDbExample {
                 .build();
             MongoClientSettings settings = MongoClientSettings.builder()
                 .applyConnectionString(connString)
-//                .serverApi(serverApi)
+                .serverApi(serverApi)
                 .build();
             MongoClient mongoClient = MongoClients.create(settings);
             MongoDatabase database = mongoClient.getDatabase("test");
@@ -75,6 +75,7 @@ public class ReactiveMongoDbExample {
                 }
             });
 
+            Thread.sleep(1000);
         } finally {
             if (mongodExecutable != null)
                 mongodExecutable.stop();
