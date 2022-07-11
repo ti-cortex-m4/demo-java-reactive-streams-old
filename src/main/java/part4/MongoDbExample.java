@@ -1,11 +1,10 @@
 package part4;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.MongoClient;
-import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.internal.MongoClientImpl;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
@@ -42,7 +41,7 @@ public class MongoDbExample {
             mongodExecutable = starter.prepare(mongodConfig);
             MongodProcess mongod = mongodExecutable.start();
 
-            try (MongoClient mongoClient = new MongoClient("localhost", port)) {
+            try (MongoClient mongoClient = MongoClients.create("mongodb://localhost:"+ port)) {
                 MongoDatabase database = mongoClient.getDatabase("test");
                 Document document = database.runCommand(new Document("buildInfo", 1));
                 System.out.println(document.getString("version"));

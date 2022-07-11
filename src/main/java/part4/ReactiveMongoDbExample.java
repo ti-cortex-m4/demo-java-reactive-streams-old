@@ -1,7 +1,6 @@
 package part4;
 
-import com.mongodb.MongoClient;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.reactivestreams.client.MongoDatabase;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
@@ -16,6 +15,11 @@ import com.mongodb.ServerApiVersion;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import org.bson.Document;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
+
+import java.util.concurrent.Flow;
 
 public class ReactiveMongoDbExample {
 
@@ -33,11 +37,43 @@ public class ReactiveMongoDbExample {
             mongodExecutable = starter.prepare(mongodConfig);
             MongodProcess mongod = mongodExecutable.start();
 
-            try (MongoClient mongoClient = new MongoClient("localhost", port)) {
-                MongoDatabase database = mongoClient.getDatabase("test");
-                Document document = database.runCommand(new Document("buildInfo", 1));
-                System.out.println(document.getString("version"));
-            }
+            ConnectionString connString = new ConnectionString("mongodb://localhost:"+ port);
+            ServerApi serverApi = ServerApi.builder()
+                .version(ServerApiVersion.V1)
+                .build();
+            MongoClientSettings settings = MongoClientSettings.builder()
+                .applyConnectionString(connString)
+//                .serverApi(serverApi)
+                .build();
+            MongoClient mongoClient = MongoClients.create(settings);
+            MongoDatabase database = mongoClient.getDatabase("test");
+            Publisher<Document> document = database.runCommand(new Document("buildInfo", 1));
+            document.subscribe(new Subscriber<Document>() {
+
+                private Subscription subscription;
+
+                @Override
+                public void onSubscribe(Subscription subscription) {
+                    this.subscription = subscription;
+                    subscription.request(1);
+                }
+
+                @Override
+                public void onNext(Document document) {
+                    System.out.println(document.getString("version"));
+                    subscription.request(1);
+                }
+
+                @Override
+                public void onError(Throwable throwable) {
+                    System.out.println("onError: " + throwable);
+                }
+
+                @Override
+                public void onComplete() {
+                    System.out.println("onComplete");
+                }
+            });
 
         } finally {
             if (mongodExecutable != null)
