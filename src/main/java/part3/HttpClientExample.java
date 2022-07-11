@@ -3,9 +3,7 @@ package part3;
 import reactor.adapter.JdkFlowAdapter;
 import reactor.core.publisher.Flux;
 
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -18,32 +16,11 @@ import java.util.concurrent.Flow;
 public class HttpClientExample {
 
     public static void main(String[] args) throws Exception {
-        httpPostRequest2();
-    }
-
-    public static void httpPostRequest1() throws URISyntaxException, IOException, InterruptedException {
-        HttpClient client = HttpClient.newBuilder()
-            .version(HttpClient.Version.HTTP_2)
-            .build();
-
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(new URI("https://postman-echo.com/post"))
-            .headers("Content-Type", "text/plain;charset=UTF-8")
-            .POST(HttpRequest.BodyPublishers.ofString("Sample request body"))
-            .build();
-
-        HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-        String responseBody = response.body();
-        System.out.println("httpPostRequest : " + responseBody);
-    }
-
-    public static void httpPostRequest2() throws URISyntaxException, IOException, InterruptedException {
         HttpClient client = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
             .build();
 
         Flow.Publisher<ByteBuffer> publisher = getPublisher();
-
         HttpRequest request = HttpRequest.newBuilder()
             .uri(new URI("https://postman-echo.com/post"))
             .headers("Content-Type", "text/plain;charset=UTF-8")
@@ -57,12 +34,11 @@ public class HttpClientExample {
 
     private static Flow.Publisher<ByteBuffer> getPublisher() {
         Flux<ByteBuffer> flux = Flux.just(ByteBuffer.wrap("hello\n".getBytes(Charset.defaultCharset())));
-        Flow.Publisher<ByteBuffer> publisher = JdkFlowAdapter.publisherToFlowPublisher(flux);
-        return publisher;
+        return JdkFlowAdapter.publisherToFlowPublisher(flux);
     }
 
     private static Flow.Subscriber<List<ByteBuffer>> getSubscriber() {
-        Flow.Subscriber<List<ByteBuffer>> subscriber = new Flow.Subscriber<>() {
+        return new Flow.Subscriber<>() {
 
             private Flow.Subscription subscription;
 
@@ -90,6 +66,5 @@ public class HttpClientExample {
                 System.out.println("onComplete");
             }
         };
-        return subscriber;
     }
 }
