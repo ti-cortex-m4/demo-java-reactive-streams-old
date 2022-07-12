@@ -10,6 +10,7 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.Flow;
 
@@ -20,7 +21,7 @@ public class HttpClientExample {
             .version(HttpClient.Version.HTTP_2)
             .build();
 
-        Flow.Publisher<ByteBuffer> publisher = getPublisher();
+        Flow.Publisher<ByteBuffer> publisher = reactorPublisher();
         HttpRequest request = HttpRequest.newBuilder()
             .uri(new URI("https://postman-echo.com/post"))
             .headers("Content-Type", "text/plain;charset=UTF-8")
@@ -30,6 +31,12 @@ public class HttpClientExample {
         Flow.Subscriber<List<ByteBuffer>> subscriber = getSubscriber();
         HttpResponse<Void> response = client.sendAsync(request, BodyHandlers.fromSubscriber(subscriber)).join();
         System.out.println(response.statusCode());
+    }
+
+    private static Flow.Publisher<ByteBuffer> reactorPublisher() {
+        ByteBuffer buffer = ByteBuffer.wrap("hello".getBytes(Charset.defaultCharset()));
+        Flux<ByteBuffer> flux = Flux.just(buffer);
+        return JdkFlowAdapter.publisherToFlowPublisher(flux);
     }
 
     private static Flow.Publisher<ByteBuffer> getPublisher() {
