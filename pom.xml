@@ -39,6 +39,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.reactivestreams</groupId>
+            <artifactId>reactive-streams-flow-adapters</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+
+        <dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo</artifactId>
             <version>3.4.6</version>
