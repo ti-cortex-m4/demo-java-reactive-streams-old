@@ -66,7 +66,7 @@ public class HttpClientExample {
             @Override
             public void onSubscribe(Flow.Subscription subscription) {
                 this.subscription = subscription;
-                subscription.request(1);
+                subscription.request(Long.MAX_VALUE);
             }
 
             @Override
@@ -74,7 +74,7 @@ public class HttpClientExample {
                 for (ByteBuffer buffer : buffers) {
                     System.out.println("onNext: " + Charset.defaultCharset().decode(buffer));
                 }
-                subscription.request(1);
+//                subscription.request(1);
             }
 
             @Override
