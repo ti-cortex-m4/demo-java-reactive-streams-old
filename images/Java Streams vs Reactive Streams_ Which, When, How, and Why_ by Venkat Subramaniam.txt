@@ -1,7162 +1,3581 @@
 alright let's get started welcome to the
-
 session on Java streams versus reactive
-
 streams which when how and why my name
-
 is Venkat Subramanyam we're going to
-
 talk about two different things here one
-
 one is of course what we are all used to
-
 in Java which is that Java eight streams
-
 we'll talk about that a little bit first
-
 so here's the list of topics I want to
-
 cover today so we'll talk a bit about
-
 Java eight streams some of the reasons
-
 to use it but also some of the
-
 limitations we're gonna run into when it
-
 comes to using Java streams and then
-
 we'll talk about reactive programming
-
 and reactive systems a little bit I'll
-
 mostly talk about the concepts behind
-
 reactive programming why we are
-
 interested in this where the world is
-
 heading towards a reactive applications
-
 then I'll talk a bit about a reactive
-
 streams API that's been introduced
-
 several years ago and compare and
-
 contrast that quite a bit with Java
-
 streams and I'll try to draw the
-
 parallel between them I'll talk about
-
 what is similar between Java streams
-
 versus reactive screams I'll talk about
-
 what's different between them as well
-
 and then of course we'll look at some
-
 code examples along the way and then
-
 finally we'll talk about you know hey
-
 that's great we have reactive streams
-
 API but Java 9 also has a reactive
-
 streams API how is it different how is
-
 it similar which one should we use how
-
 you know how do we go about moving
-
 forward into Java 9 job at an and and
-
 future of Java how are you gonna really
-
 do that so that's exactly what we're
-
 gonna be focusing on today we we're
-
 gonna spend about an hour and 15 minutes
-
 in the first part and then we'll take
-
 about a 15 minutes break and then we'll
-
 go for the second part right after that
-
 gives an opportunity for you to stretch
-
 a little bit as well in the meantime so
-
 let's get started
-
 well we got to talk about Java streams
-
 first of all and and and I have to say
-
 honestly that Java streams are the ones
-
 that really got me excited about Java in
-
 the first place and and before Java 8 I
-
 was one of those people complaining
-
 constantly that Java sucks and for me to
-
 actually praise Java I think the entire
-
 merit to that goes to Java streams and
-
 and I remember very clear
-
 this was about maybe three years before
-
 Java 8 was released I was sitting at my
-
 desk one morning trying to look at Java
-
 8 telling myself there's nothing
-
 exciting here I've used lambdas in
-
 several other languages before what's
-
 the big deal why should I care about
-
 what Java is doing and I looked at
-
 lambdas and I said to myself okay great
-
 job has lambdas big deal I'm not excited
-
 yet and I remember just you know walking
-
 through either examples in the API and
-
 playing with it and I literally remember
-
 standing up in my you know on my at my
-
 desk and and saying wow this is awesome
-
 and and that really that awesomeness was
-
 in Java 8 streams for me and the reason
-
 I was excited about Java 8 streams us
-
 that Java did not simply say hey we
-
 gonna bring you lambdas and and we're
-
 gonna provide what everybody else is
-
 doing
-
 Java made a really big difference and
-
 implementing streams in a certain way
-
 which is the lazy evaluations and to me
-
 that's what really got me excited about
-
 Java 8 streams in fact you know about
-
 three years before Java 8 was released
-
 if you had take a taken a look at the
-
 Java API you would have found methods
-
 like filter and map on the list directly
-
 and on the set so you could have said a
-
 long time ago you could have written
-
 code like for example list start filter
-
 for example or you could have written
-
 list start map and I remember waking up
-
 one morning and looking at the API and
-
 all of a sudden they were gone and I was
-
 a little agitated it's like where did
-
 all this API go that they've been really
-
 developing for this time and I was
-
 surprised at that point that what they
-
 did was they decided to move all those
-
 methods into the stream and of course
-
 the filter and the map as we know right
-
 now is residing in the stream the list
-
 at that time also had a for each method
-
 and we know that right now the for each
-
 method is on the stream but these two
-
 have gone away and so I got you know got
-
 me thinking why don't those methods
-
 exist on a list why do those methods
-
 really exist on a stream and there is a
-
 really very calculated reason for
-
 and the reason for that is there is not
-
 just a syntactical difference moving
-
 into Java 8 there is a very huge
-
 semantical difference as well which is
-
 the lazy evaluation so the designers of
-
 the Java API for the stream API that is
-
 wanted us to clearly know that when we
-
 are calling a for each method we might
-
 be executing that method pretty
-
 immediately or eagerly if you want to
-
 think about it that way on the other
-
 hand if you're executing filter and map
-
 and other operations those operations
-
 may not execute right now that may
-
 happen at a later time the laze
-
 evaluation and so semantically they want
-
 us to know that if you did list start
-
 stream immediately in your mind you need
-
 to know
-
 aha this is no longer the same old story
-
 this is a very different semantics we
-
 are dealing with it's potentially a lazy
-
 evaluation rather than being an eager
-
 evaluation and that semantical
-
 difference is extremely important this
-
 is one of the things I really care about
-
 a lot is one of the things a lot of
-
 designers really want to do is that they
-
 want to make API is really seamless and
-
 I would actually beg to differ from that
-
 I don't want it to be so seamless that
-
 programmers fall into a trap and don't
-
 realize they're dealing with something
-
 completely different semantically and I
-
 would say Java 8 struck the really right
-
 balance
-
 it's almost seamless but you can still
-
 see the seam just a little bit and to me
-
 that seemed is the call to the stream it
-
 tells you in your mind that hey you no
-
 longer are dealing with eager evaluation
-
 you are switching over to lazy
-
 evaluation and that little seam is
-
 extremely important given all that we
-
 are looking at now having said that what
-
 is it really that excites me about Java
-
 eight stream and let's talk about that a
-
 little bit in here well of course this
-
 was introduced in Java
-
 eight of course and in Java eight of
-
 course before Java eight what we did in
-
 Java was predominantly an imperative
-
 style of programming so what was java in
-
 the past I would say imperative a plus
-
 object-oriented we we actually never
-
 really did full object-oriented
-
 programming in Java we we always did
-
 imperative style programming Allah
-
 with object-oriented style of
-
 programming in Java so what that really
-
 meant was we had to really wade through
-
 all this complexity of imperative style
-
 of programming that we are so used to so
-
 how does it really feel like if you
-
 really want to think about it this way
-
 so let's say for a minute that I want to
-
 take a collection of numbers and want to
-
 work with it and what I want to do is to
-
 find the double let's say of even
-
 numbers and and create a collection of
-
 double of even numbers so what's the
-
 very first thing we're gonna do for that
-
 well the first thing is we're gonna say
-
 a list of integer if you will and we're
-
 gonna call this as doubled if you if you
-
 want to call it as doubled and I'm gonna
-
 say doubled is equal to new array list
-
 and you're going to create an object of
-
 ArrayList and empty array lists to begin
-
 with that's a very first sign of trouble
-
 right we have to really create this
-
 empty collection to work with I'm gonna
-
 prank the double when we are done with
-
 that of course in the very end of this
-
 but between these two of course I want
-
 to loop through and look for the values
-
 so I'm gonna say for int I equal to zero
-
 I less than and of course I'm gonna ask
-
 for number starts II's over here but if
-
 you really think about this this is a
-
 really good example of a very complex
-
 code now of course when people look at
-
 this they would say what do you mean
-
 it's complex code it's a simple for loop
-
 well the word simple is very confusing
-
 we often get confused with this word
-
 simple what we really mean is not a
-
 simple for loop what we mean is a
-
 familiar for loop what a familiar for
-
 loop because we look at it so many times
-
 that it's very familiar to us but it's
-
 really far from being anything really
-
 being simple so what do we then do then
-
 we say if numbers start get of the
-
 element I and then you ask for a mod off
-
 two and you say if this is even of
-
 course then I want to take the double
-
 then I want to add to it the numbers
-
 start get and of course I want to double
-
 the value and store into it now this is
-
 an example of the imperative style of
-
 coding and you can see the result of
-
 four eight twelve sixteen and twenty
-
 being returned to us but if you look at
-
 this code that's a lot of effort to
-
 write this piece of code now this
-
 reminds me of a really wonderful saying
-
 by
-
 Michael feathers and this inspires you
-
 know things like this can be very
-
 inspiring to rethink about what we do
-
 and so Michael feathers are talked about
-
 this and and so what is he saying so he
-
 says I'm paraphrasing the words a little
-
 bit here but but his his statement was
-
 that he said in object-oriented
-
 programming we encapsulate the moving
-
 parts so and then in functional
-
 programming we eliminate the moving
-
 parts so this is a really nice way to
-
 think about it if you think about what
-
 we are really trying to do in an object
-
 under programming we try to encapsulate
-
 the moving parts so one of the things
-
 that cause us a lot of trouble for us in
-
 general in programming is is mutability
-
 and moving parts and the more moving
-
 parts we have in the code the more
-
 difficult it is to really reason with
-
 the code and to implement the code and
-
 maintain it and bugs creep in as well
-
 well in functional programming we try to
-
 eliminate the moving parts well to me
-
 there are two things that really cost
-
 moving parts one moving part is of
-
 course the moving part of mutability but
-
 the other moving part is where we are
-
 constantly sifting through the logic in
-
 the code and and the control flow is
-
 another moving part in in in this case
-
 so if you typically look at an
-
 imperative style of code what is an
-
 imperative style of code look like so
-
 the imperative style simply is equal to
-
 or tell me what and also tell me how so
-
 you have to focus on both aspects when
-
 it comes to imperative style of
-
 programming you have to tell me what and
-
 also you have to tell me how to do it as
-
 well and and that is a lot of burden we
-
 have to carry with us as programmers
-
 that's a lot of effort we have to put in
-
 so in this case if you really think
-
 about it what did we do we first have to
-
 define an empty collection then we have
-
 to loop through every single value we
-
 had to check if the value is even and
-
 then of course then get the value double
-
 it and then go to the collection and add
-
 it and that's mutability again and if of
-
 course in this case in a typical code
-
 you'd have a break and continue and you
-
 have to go back and for
-
 with all this logic in your code that's
-
 a lot of effort for you to write now on
-
 the other hand we can write the code in
-
 a functional style of programming and so
-
 how does it really feel like to do the
-
 same thing in the functional style so
-
 I'm gonna go back here and say that
-
 given the numbers that we start with I'm
-
 gonna get a stream out of it I'm gonna
-
 say filter and give an element I'm gonna
-
 say element mark two is equal to zero
-
 and then I'm gonna perform a map
-
 operation and in this case given an
-
 element element times two and then of
-
 course I can simply say collect and in
-
 this case of course when I collect it
-
 I want to simply put it into the
-
 collection I want to create so in this
-
 case I'll simply say joining and I will
-
 call the joining methods to join the
-
 elements or in this case we can say two
-
 lists because all I want to do is put it
-
 into a list so I'm gonna say a two list
-
 and asking to drop it into the list but
-
 when I run the code this time though
-
 notice the result is exactly the same
-
 but the difference is quite significant
-
 when it comes to the code we are
-
 creating so what did we do in the
-
 functional style well before we talk
-
 about functional style well in Java now
-
 we can do something a little different
-
 we can do imperative plus functional a
-
 plus object-oriented so this really
-
 gives us a better set of tools on our
-
 hand so rather than being forced to do
-
 imperative plus object oriented in Java
-
 today we can do the imperative today
-
 plus imperative plus functional class
-
 object-oriented so this functional
-
 aspect is pretty intriguing but before
-
 we really go into functional we have to
-
 really think about something else that's
-
 pretty significant and that is
-
 declarative so what does declare a derp
-
 well tell me what a wart and of course
-
 not
-
 a have so you were able to focus on
-
 telling what you are doing rather than
-
 trying to tell you know how to really do
-
 it one of the things that excite me a
-
 lot about these technologies is they're
-
 not completely an isolation of each
-
 other they build on each other really
-
 nicely so I'm gonna talk about what it
-
 means to
-
 you know do functional for me in my mind
-
 at least so I'm going to say functional
-
 really is equal and to declare a 2 plus
-
 the use of higher-order functions so
-
 this is really what a functional
-
 programming to me is that it is actually
-
 built on the declaration style so
-
 functional programming is decorated
-
 first and then plus the use of
-
 higher-order functions to build on top
-
 of it so one of the reasons why
-
 functional programming is really
-
 exciting is because it's declarative in
-
 nature so we can focus on what we are
-
 doing rather than being dragged into how
-
 we do things that becomes really
-
 exciting so if you look at this code
-
 right here one of the key things about
-
 declaration style a declarative and
-
 functional of course and that is we can
-
 go home telling the code reads like the
-
 problem statement so this is a very huge
-
 benefit when it comes to the decorative
-
 and functional style of programming I
-
 have a little exercise for you take this
-
 code and and and put it in front of a
-
 programmer and ask him to read the code
-
 and tell what the code is doing but then
-
 sit in front of them and watch their eye
-
 ball movement and it's a lot of fun to
-
 watch this and their eye ball will move
-
 like this it'll start in the for loop
-
 it'll come down and go up and come down
-
 and go up and then it'll do this that's
-
 called the point of confusion they're
-
 not sure what the code is doing but if
-
 you look at the code in the bottom one
-
 of the beautiful things about there's a
-
 single pass through so if you look at
-
 this code you can see their eyeball
-
 movement going from the top to the
-
 bottom in one sequence given a
-
 collection of numbers get me all the
-
 even numbers double them and put them to
-
 a list and notice how it flows through
-
 in a logical order I was visiting a
-
 client and they asked me hey would you
-
 look at our code and critique it and
-
 usually I get nervous when people say it
-
 because you don't want to say nasty
-
 things about a client's code on the
-
 first day at work and and I looked I
-
 said ok I'll try to do it and they show
-
 me the code and they written the code in
-
 Java 8 and I don't know anything about
-
 what they do at that point because it
-
 was the first hour at work
-
 and I was just reading the code you know
-
 mouthing the code and as was reading it
-
 I'm actually able to make sense of what
-
 the code is doing and even I could
-
 understand what the code was doing
-
 having no context about what their code
-
 is doing in the beginning and that is
-
 one of the biggest benefits you get out
-
 of that is it removes that impedance
-
 mismatch it becomes really easy to
-
 understand through a single pass through
-
 through this code that's one of the
-
 biggest benefits well this really brings
-
 us to the internal iterators now
-
 internal iterators really are this if
-
 you look at it this is an external
-
 iterator an external iterator is where
-
 you are managing the entire iteration
-
 all by yourselves so external iteration
-
 of our iteration versus our we're going
-
 to say internal iteration so one of the
-
 biggest benefits of this approach is the
-
 internal iterators so what is an
-
 internal iterator internal iterators
-
 where the iteration is on autopilot you
-
 simply say do this and the iteration is
-
 taken care so you can focus on what to
-
 do per element rather than asking how to
-
 actually perform this particular
-
 operation so this is one of the biggest
-
 benefits is the internal iterator but
-
 the internal iterator comes through the
-
 use of streams forests so when I look at
-
 stream I always think of it as an
-
 internal iterator because that's what it
-
 really does for us but of course the one
-
 of the biggest benefits is reduced
-
 complexity of code I'm going to say that
-
 imperative style is inherently complex
-
 so if you really think about the
-
 imperative style code you have to deal
-
 with a lot more complexity that is baked
-
 into the imperative style of programming
-
 the functional style removes that
-
 complexity quite a bit now having said
-
 this of course you are interested in the
-
 functional style the the streams API but
-
 isn't just that it's a different form of
-
 iteration are we really done with it
-
 then well it turns out there's actually
-
 a lot more about it now if you really
-
 think about it some things are
-
 predictively arash
-
 No and this just surprises me quite a
-
 bit now let's step back for a minute and
-
 think about it what are the lessons we
-
 have learned in the Pinto in the past
-
 several years one thing we know is about
-
 mutability right so what do we know
-
 about mutability well mutability is what
-
 we do quite often in programming in
-
 languages like Java in in other
-
 languages that are imperative style and
-
 object oriented but we know one thing
-
 about immutability though and that is
-
 shared immutability is purely evil right
-
 and and we know this quite a bit because
-
 if you do shared mutability it becomes
-
 unbelievably complex to maintain the
-
 code so mutability may be okay but
-
 shared notability is devil's work and
-
 the minute you bring in shared mobility
-
 it becomes absolutely difficult but but
-
 let's think about this for a minute now
-
 let's go back to the very old api of
-
 java for a minute and we're gonna say
-
 new thread over here now what does this
-
 thread do it creates a thread of
-
 execution and the thread of execution
-
 runs off to do stuff this is like yeah
-
 this is awesome
-
 so I'm gonna say thread is equal to new
-
 thread and I can say thread dot start
-
 over here now of course this calling
-
 thread is going to run to do whatever
-
 it's going to do this other thread of
-
 execution is running over there now how
-
 do we say something has to run in this
-
 other thread of execution now of course
-
 today we live in the world of thread
-
 pools but entering the start for just a
-
 little bit so what are we gonna do here
-
 new runnable okay great runnable now
-
 think about this for a minute
-
 what is the most famous method in Java
-
 the runnable of course has a method
-
 called run now just stare at this method
-
 for a minute for me if you scare with
-
 this method what does this method really
-
 tell us it says I won't take anything
-
 from you and I won't give you anything
-
 how rude if you really think about it
-
 right so this is like some people at
-
 work isn't it you can't talk to them and
-
 they won't talk to you back but somehow
-
 you have to work with them now this code
-
 says I won't take anything from you and
-
 I will not give you anything back
-
 so what is written all over this mute a
-
 well sorry not mutable shared mutable
-
 isn't it because the only way you can do
-
 anything useful with the method that
-
 takes no parameters and returns nothing
-
 is to import shared mutability now think
-
 about this is predictively
-
 in rational isn't it because how could
-
 you possibly work with the threading API
-
 when shared me liberty is dangerous to
-
 work with the method that forces shared
-
 mutability on you so this is dead on
-
 arrival if you really think about it
-
 isn't it so this is written all over and
-
 in fact they could have boldly called
-
 this as disaster right because I would
-
 have been a better name for it because
-
 that's what it is saying bring it on and
-
 will cause trouble for you so the whole
-
 concern here is how do we really
-
 communicate with this now think about
-
 this for a minute you are at work and
-
 you have written a code and you have
-
 taken all the effort to write this code
-
 and everything seems to be working and
-
 on that fateful morning somebody comes
-
 to you and says hey let's go ahead and
-
 take a look at improving the speed
-
 performance of this code and you've been
-
 scratching your head trying to make the
-
 score performant and you're not sure
-
 exactly how to improve performance and
-
 somebody comes to you and says I've got
-
 a great idea
-
 and now you're a bit more worried and
-
 you're like what's your great idea and
-
 they say well we can improve performance
-
 by using multi-threading and when you
-
 hear this what does your mind do it
-
 throws immediately fit isn't it because
-
 it you immediately remember about the
-
 past job you had and how was the job
-
 that job you had the code was all
-
 sequential the code was simple the code
-
 was easy to maintain and everybody went
-
 to lunch together they smiled at each
-
 other and you had a good time at work
-
 and then on that job one day
-
 you decided to use multi-threading and
-
 when you used multi-threading what
-
 happened the code turned into a monster
-
 there was locks and synchronized every
-
 corner you turn and you
-
 would never recognize the code you once
-
 had and you look at this and say I can
-
 see something like this in the past but
-
 all this fluff around it and that's
-
 horrible to maintain us in debt and then
-
 what did you do as you were trying to
-
 really make the score work there were so
-
 many bugs people didn't go to lunch
-
 together anymore they don't smile with
-
 each other and then you worked late in
-
 the night and one night late in the
-
 night 2:00 a.m. as you're still trying
-
 to debug you applied to this other job
-
 that's called concurrency isn't it and
-
 you're like nevermind I don't want to do
-
 this anymore
-
 now this is one of the things that
-
 really you know Clark May attention is
-
 that in the past well the the structure
-
 of sequential code so sequential code
-
 was very different from the structure of
-
 concurrent code so this is one of the
-
 biggest challenges we fought in the past
-
 this is before Java eight the structural
-
 structure of concurrent sequential code
-
 was very different from the structure of
-
 concurrent code on the other hand what
-
 in Java eight streams do now look at
-
 this code in the top if you have written
-
 this code and somebody comes to you and
-
 says make the code run faster the right
-
 response is laughing isn't it because
-
 you thought they were joking because
-
 nobody would survive the journey so
-
 easily so you're not like nevermind I'm
-
 not going to do that but in other on the
-
 other hand if you want to paralyze this
-
 the effort is almost trivial because you
-
 can simply turn this from a stream to a
-
 parallel stream and you can execute that
-
 code in parallel without having to
-
 really do as much work and that is one
-
 of the biggest benefits of this
-
 particular stream API is that it's
-
 really easy to turn that around if you
-
 want to so what did we really gain from
-
 this so I'm gonna say with streams for a
-
 change the structure of if you look at
-
 this code the structure of sequential
-
 code is the same as the as the structure
-
 of concurrent code so this is a
-
 huge benefit so it strains the structure
-
 of sequential code is the same as a
-
 share of concurrent code and as a result
-
 it's easy to reason the code it's easy
-
 to develop the code and if you don't
-
 need the performance yet you can keep
-
 the code sequential when you need the
-
 performance you can convert the code
-
 into something a little bit better or in
-
 in terms of execution without having to
-
 completely rewrite the code so
-
 oftentimes people ask me is stream API
-
 slow and on my answer to that question
-
 is really simple when it comes to slower
-
 speed asking a sequential code
-
 imperative code rather asking an
-
 imperative code to be a made execute a
-
 faster in terms of you know taking the
-
 sequential code and making it faster is
-
 like saying hey I want a faster bicycle
-
 no I don't want a faster bicycle
-
 I want a rocket so the point really is
-
 if really speed matters I don't want to
-
 take imperative code and make it faster
-
 by making it a sequential code and make
-
 it faster by making it imperative I
-
 would rather take a functional code and
-
 make it parallel to get the performance
-
 out of it so the real concern here is
-
 not the speed between these two versions
-
 of the code which one is easier to
-
 really paralyze is the question that I
-
 would really go after so as a result the
-
 streams API is absolutely phenomenal
-
 from the point of view now of course the
-
 code is quite powerful series of
-
 transformations so this is one of the
-
 things to consider here if you look at
-
 this code one of the questions I would
-
 always ask is you know what what is
-
 functional programming and and of course
-
 I gave one definition earlier and I said
-
 functional is equal to declaration plus
-
 higher order functions but I want to go
-
 a little bit deeper here well to me a
-
 lot of times when people talk about
-
 functional style they talk about
-
 immutability and they talk about Impa
-
 higher order functions but I'm not a fan
-
 of these because when I looked at
-
 functional programming I struggled with
-
 this because I said what could it be to
-
 just say it's immutable
-
 especially when that's the hard part of
-
 writing code and and telling developers
-
 that code has to be immutable is like
-
 telling children that they have to eat
-
 vegetables no doubt they don't like
-
 doing it so the question to ask is what
-
 is the benefit of those things I'm gonna
-
 say these are not the end these are just
-
 means to an end so what does the real
-
 means we are looking at so to me
-
 functional programming really contains
-
 two parts the first and foremost to me
-
 is that it engages into a functional
-
 composition and to me this is one of the
-
 biggest benefits of function programming
-
 is the functional composition so if I go
-
 back to this code notice how we have a
-
 nice series of composition of these
-
 functions
-
 it's a pipeline of functions if you
-
 google for this you will find it a
-
 Martin Fowler wrote a beautiful blog
-
 post called he he called it as the
-
 collection pipeline pattern so if you
-
 google for it you'll find it collection
-
 pipeline pipeline pattern so in this
-
 case of course he calls us as a
-
 collection pipeline because if you
-
 really think about it it's a collection
-
 of pipeline of functions that you are
-
 really dealing with and that is one of
-
 the things to really think about about
-
 streams API and and this is something we
-
 need to really carry home stream is not
-
 a data structure right so what does it
-
 then it is an abstraction of functions
-
 that's what it really is it's a stream
-
 of function pipeline not a data pipeline
-
 so if you really think about it think of
-
 the word bucket if you will a bucket is
-
 what you used to maybe hold water or
-
 some liquid a versus a pipeline and a
-
 pipeline you don't store water in a
-
 pipeline you move liquid through a
-
 pipeline so a list and a set is like a
-
 bucket versus a stream is more of a
-
 pipeline it's a collection of functions
-
 that through which you're gonna pass the
-
 data it's not a data structure this is
-
 one of the biggest distinctions to keep
-
 in mind
-
 the function composition aspect of
-
 functional programming is extremely
-
 critical the other aspect that is
-
 absolutely phenomenal here is to really
-
 understand about the laziness or the
-
 lazy evaluation so if you go back to
-
 this code for a second let's go ahead
-
 and say remove this and say check e just
-
 for a minute and I'm going to write this
-
 method check where the check method is
-
 going to tell us whether let's actually
-
 name this as easy even so it's a little
-
 easier to see so let's write this as
-
 easy even what is the east even method
-
 going to do so I'm going to say public
-
 static let's go ahead and say in this
-
 case boolean and I'm gonna say east even
-
 and and this is going to take a number
-
 and simply return a number mod 2 is
-
 equal to 0 but in this case when I go
-
 back and execute this code writing here
-
 you can see that it's still executing
-
 and producing the result but I'm going
-
 to go ahead and say output called 4 and
-
 let's simply put the value and over here
-
 so when it runs as you can see several
-
 calls to call four for each of those
-
 values in the collection but if I were
-
 to stop over here let's go ahead and
-
 remove this for a second and and and
-
 simply put a semicolon here execute the
-
 code you can see that it's still running
-
 all those called
-
 methods but if I were to stop shy off
-
 the terminal method and if I were to
-
 stop right in here and execute the code
-
 you will notice that it actually did not
-
 call any of those methods and that's
-
 because it really says if you're not
-
 going to use the result
-
 why bother wasting the time and effort
-
 running it and that is one of the
-
 biggest benefits is I'm gonna say
-
 functional programming is function
-
 composition players lazy evaluation so
-
 if you don't provide laziness in
-
 evaluation I don't think there is much
-
 point in celebrating functional
-
 programming several languages give you
-
 functional composition a Ruby for
-
 example Python JavaScript a groovy and
-
 you can keep listing several languages
-
 but those languages give you the
-
 functional style but they don't give you
-
 the laziness of the evaluation and and
-
 the laziness really comes from the
-
 implementation
-
 stream and and remove laziness I don't
-
 think we're gonna be in this room today
-
 talking about this because it's not
-
 going to be exciting because performance
-
 would not be really good especially when
-
 you're dealing with large a collection
-
 of data our big data so laziness to me
-
 is absolutely critical those are some of
-
 the reasons to really focus on it well
-
 that's great so far so the key features
-
 are functional pipeline or function
-
 composition and the lazy evaluation but
-
 having said this absolutely I'm thrilled
-
 about Java eight streams but there are
-
 some significant limitations when it
-
 comes to Java eight streams one of the
-
 very first limitations is it's a single
-
 use only so what does that really mean
-
 single use only let's go back to this
-
 code for a second let's go ahead and say
-
 we have a stream we have created right
-
 here and I'm going to go ahead and call
-
 the collect method on the stream and I'm
-
 going to execute this particular stream
-
 of execution but what I'll do here is
-
 I'll say stream off integer and I'll go
-
 ahead and save this as stream is equal
-
 to numbers start stream and I'm gonna
-
 store that into a variable and and once
-
 they store it I'm gonna simply say over
-
 here a stream dart and I'm gonna call
-
 through here and I'm going to simply
-
 output this result of this for now and
-
 of course when we go back and execute
-
 this code right in here we are going to
-
 get the collection of data all of them
-
 of course doubled as we would expect it
-
 to work so executing this code you can
-
 see all that value being displayed I'll
-
 get rid of the message here so we can
-
 see a concise output right now so you
-
 can see that work but on the other hand
-
 though if I'm not careful and if I were
-
 to re execute this on the stream and if
-
 I were to say oh maybe I'm interested in
-
 all the values greater than you know 6
-
 and I'm gonna change the filter maybe
-
 but it's the same stream I want to work
-
 on and and unfortunately that doesn't go
-
 really well so stream has already been
-
 operated upon or closed and we're not
-
 able to do it so I know what I'm gonna
-
 say is a little
-
 so I apologize for it but I like saying
-
 gross things because it makes us
-
 remember this for a long time so I'm
-
 gonna say stream is like q-tips right so
-
 don't use them and reuse them so you use
-
 it once and you throw it away so there's
-
 a nice way to really help programmers
-
 remember you should never use you know
-
 streams streams are like q-tips don't
-
 reuse them
-
 use it once and throw it away never
-
 shared with anybody else of course
-
 that's also important so the point
-
 really is that you can only use it once
-
 it's not something you can reuse it and
-
 that is something you have to keep in
-
 mind that that's a limitation of a
-
 stream you cannot reuse a stream you can
-
 just use it once so it's like q-tips
-
 just use it once right so that's all you
-
 can do you cannot reuse it that's one of
-
 the limitations of streams the next two
-
 limitation unfortunately is that it's a
-
 single pipe line so what I mean by that
-
 is what if I've drawn a pipe line right
-
 in here but right in the middle of the
-
 pipe line
-
 I wanna fork it so I want to take this
-
 pipe line that I have but I want to send
-
 it across two different directions
-
 so yes it's a single pipe line but I
-
 wanted to fork and go this way with the
-
 series of filters and math and this way
-
 with another see this little filtering
-
 map I can't do it so you cannot really a
-
 fork in the middle of stream and say I
-
 want the data flow in two different
-
 directions that's not possible so in
-
 other words you a different way to think
-
 about it is a single well you can say a
-
 single terminal operation right so
-
 that's all you can have a single
-
 terminal operation a single flow through
-
 the pipeline you cannot really fork it
-
 right in the middle now the last thing I
-
 want to ask the question is how do you
-
 deal with exceptions that's a very
-
 important question to ask because we
-
 need to really understand how to deal
-
 with exceptions when it comes to Java
-
 eight streams and I can answer that
-
 question in two English words if you
-
 will and those two English words are
-
 good luck and essentially
-
 is really no good way to handle this in
-
 all honesty any time somebody asked me
-
 how do you deal with the exceptions
-
 my answer is sorry so that's the best
-
 answer I can give and the reason is
-
 there is a reason why we need to really
-
 keep in mind why this is the case and
-
 the reason for that is exceptions are
-
 imperative style ideas so in if you
-
 really think about exception handling so
-
 what does exception handling do in
-
 exception handling you are calling a
-
 function which calls another function
-
 which calls another function you run
-
 into some difficulty right here and what
-
 does it do it blows up your call stack
-
 and you go all the way to the collar or
-
 wherever the try-catch is sitting and
-
 that's where you're gonna go land in the
-
 catch block now think about this for a
-
 minute you're driving on the freeway and
-
 and into the 7th kilometer of your drive
-
 you are you had a flat tire and you call
-
 a friend of yours and say I'm driving on
-
 the freeway I have a flat tire what do I
-
 do and your buddy says oh it's very easy
-
 blow up the freeway and go to where you
-
 came from that is still presented that's
-
 not what you will tell people you would
-
 tell them well you got a blown tire exit
-
 safely and pull over to the shoulder and
-
 get out well in other words you are not
-
 gonna blow up the freeway you're not
-
 going to go back where you came from in
-
 this journey instead you're gonna get
-
 out of the freeway safely and that's
-
 exactly what you want to do
-
 unfortunately Java extreme doesn't have
-
 anything for that if you're looking at
-
 language like Haskell or Scala well they
-
 talk about water called maybe monads and
-
 essentially in the case of Scala they
-
 have an object call either and what does
-
 they either do it's got a left part and
-
 right part the right part contains the
-
 data the left part contains of course
-
 the exception that you have and then you
-
 propagate that down the stream and in
-
 every stage of a pipeline you check if
-
 the if there's a right part or the left
-
 part if there's a right part you do the
-
 transformation if it's a left part you
-
 just pass it through but
-
 that to me is a burden you have to carry
-
 through every single stage and and what
-
 is the the part that bothers me the most
-
 is this approach totally lacks cohesion
-
 and as a result it's not a very elegant
-
 piece of code to write in functional
-
 programming and and so as a result I
-
 think the answer that summarizes this
-
 really well is till the word good luck
-
 because there's really no good way and
-
 part of the reason for that is in the
-
 functional programming we want functions
-
 to be pure functions and pure functions
-
 are doing operations and normally
-
 exceptions come from impurity operations
-
 even though you could argue that you
-
 could have exceptions and pure
-
 operations they are far and few and you
-
 can structure them around this so this
-
 is one of the biggest you know drawbacks
-
 if you will off the stream a stream API
-
 is there is no real elegant way to
-
 really do this so let's leave the start
-
 aside we talked about what's cool about
-
 streams what is really the limitations
-
 of streams and and I love streams or one
-
 other thing streams of course are
-
 limited to one JVM that's where we are
-
 really using streams API in Java 8 so
-
 let's leave those thatr site will come
-
 back in compare and contrast streams
-
 with the reactor screams a little later
-
 on now let's switch gears and talk about
-
 reactive programming so what in the
-
 world is a reactive programming now this
-
 is one of the things that really I
-
 struggled with when I started hearing
-
 the word reactive programming I was very
-
 curious like everybody else is curious
-
 and I really wanted to know what is
-
 really reactive programming and and the
-
 more I've read honestly the more
-
 confused I got and I was really getting
-
 frustrated because I wanted to really
-
 relate it to something that I already
-
 know about and I was struggling really
-
 hard and it took me a while to come up
-
 with the realization of what reactive
-
 programming really is and and that's
-
 what I'm gonna focus on and for the next
-
 several minutes is talk about what I
-
 think reactive programming is at least
-
 in the way that I want to see what it
-
 really means so reactive programming is
-
 an idea that was formulated by Eric
-
 Meyer as he worked in Microsoft Research
-
 so this actually came out of my closet
-
 research but to be fair while that's an
-
 idea out of Microsoft Research the idea
-
 is not entirely new it's actually a nice
-
 beautiful and essential reformulations
-
 of ideas that have been around for a
-
 long time you could argue reactive
-
 programming areas has been around for a
-
 very long time I finally realize that we
-
 work in a field where every 10 years
-
 will give a new name for what we already
-
 do and get really excited about it and
-
 and so this is an idea that's been
-
 around for a while but it sounds a lot
-
 nicer to say reactive programming but
-
 what is really reactive programming
-
 well reactive programming simply says
-
 that the applications we develop the
-
 programs we create must be really
-
 responsive and be able to react to
-
 stimuli in a system now why is that
-
 really critical part of the reason for
-
 that is that applications we are
-
 developing today now think about what
-
 just happened in the past maybe 10 to 15
-
 years depending on where you live and
-
 and and what you are interacting with
-
 out there as some of you may not even
-
 remember this or some of you may not
-
 even know this depending on how old you
-
 are but others may remember the time you
-
 actually used to walk into this building
-
 called the bank and and some of you may
-
 remember this you walk into a bank and
-
 and there was a human called teller and
-
 he would talk to this person and you
-
 will exchange pleasantries who talk
-
 about how the weather is and then you
-
 perform the financial transaction some
-
 of you may remember walking into a
-
 travel agency
-
 to book a ticket to travel and and these
-
 days are gone now what happened in the
-
 past ten years was well in the past
-
 companies made products for their
-
 employees to use and make those
-
 employees available to us the customers
-
 when employees use a product those
-
 employees have a special name
-
 they're called captive users meaning
-
 nobody cares what they think and they
-
 can complain but they had just have to
-
 go back to work and use the silly
-
 product that's being developed
-
 well now companies built
-
 Erick's for real-world user to use it
-
 doesn't matter what the size of your
-
 company is I'm gonna assume you have
-
 more people users than employees so the
-
 magnitude of scale is enormous and we
-
 are living in the age of big data right
-
 now we are talking about wearable
-
 devices IOT I'm not talking about you
-
 know watches I'm talking about earrings
-
 no strings and tongue rings all internet
-
 enabled and constantly transmitting data
-
 we're not far from the days when your
-
 doctor's office may call you and say hey
-
 we're noticing your blood pressure is
-
 increasing you may want to sit down and
-
 and you can say no no I'm fine I'm just
-
 listening to this guy okay called venket
-
 and and the point really is that you can
-
 just sit there and be monitored I don't
-
 know if that's good or bad
-
 but but but that's where we are heading
-
 unfortunately and as a result we are
-
 looking at a large volume of data being
-
 transmitted so as a result we are
-
 looking at applications that are very
-
 different in terms of the behavior than
-
 only 10 years ago or 15 years ago we're
-
 talking about flights today you know I
-
 really don't like the words flight
-
 recorder because a lot of times we hear
-
 the word flight recorder unfortunately
-
 when a when a flight airplane goes down
-
 but today we are talking about systems
-
 that are constantly monitoring flights
-
 and getting data from the flights the
-
 other day somebody was telling me that
-
 every second a flight in motion
-
 transmits 1.5 terabytes of data
-
 can you imagine 1.5 terabytes of data
-
 every second I took a 16-hour flight a
-
 few weeks ago you can imagine every
-
 second for 16 hours or more 1.5
-
 terabytes of data being transmitted the
-
 point I'm getting to is when you're
-
 getting one point five five terabytes of
-
 data every second there is no tomorrow
-
 there is no let me come back and process
-
 this data later on sorry there's no
-
 later on either do it now or you do it
-
 never so we are talking about really
-
 systems where we can talk to data live
-
 and I will tie this back into data
-
 oh just a little bit later so we'll come
-
 back to that so that brings up the
-
 question what does it really mean to
-
 develop these kinds of applications well
-
 this is one of the things that reactive
-
 manifesto talks about is the four
-
 pillars of the reactive programming
-
 model and the reactive programming
-
 directive systems and applications
-
 before I talk about it let's talk about
-
 you know something relate to something
-
 we already know about and that is our
-
 object-oriented programming
-
 well after new programming contains four
-
 pillars of its paradigm isn't it so
-
 what's the first pillar of opie the
-
 first pillar of OB is abstraction now
-
 one of the reasons I mentioned this is
-
 everyone knows abstraction is not new to
-
 object-oriented programming
-
 object under programming has used
-
 abstraction but humans have used
-
 abstraction for centuries before that
-
 you know a Plato has talked about
-
 abstraction and a picture of an apple
-
 different from a real Apple for example
-
 the second thing is encapsulation so
-
 encapsulation again is nothing new to
-
 object-oriented programming because
-
 encapsulation simply is their hiding
-
 we've always encapsulated variables
-
 local variables are encapsulated even
-
 before or P nothing new really
-
 encapsulation is simply one of the most
-
 important features in oo P the next
-
 thing here is inheritance the only
-
 inheritance I can think of is inheriting
-
 pain this is one of the worst features
-
 of Oh P and a lot of people think this
-
 is important but this is the weakest
-
 link in all of that but the most
-
 important feature of after under
-
 programming to me is polymorphism so
-
 what is polymorphism say it says that
-
 you don't worry about the reference you
-
 have at hand go ahead and call the
-
 method and we will call the right method
-
 based on the true type of the object at
-
 runtime not the perceived type of the
-
 object at compile time
-
 so polymorphism gives you extensibility
-
 of code and those are the four pillars
-
 of up to object-oriented programming
-
 similarly reactive programming also has
-
 these four pillars and the very first
-
 thing
-
 it emphasizes is elasticity so it's
-
 elastic now in current terms of you know
-
 you could say it's reactive applications
-
 its reactive systems that we are
-
 building so to me I consider these as
-
 formulation of the programming model
-
 because what good is your concepts if
-
 you cannot program them or build them
-
 well elasticity is extremely important
-
 now we this is one thing I would say we
-
 have done really well in the past about
-
 12 years some of you may remember the
-
 time we first heard about cloud
-
 computing now it's a foregone conclusion
-
 to put things on the cloud now what is
-
 really beneficial about this is things
-
 can be on the cloud and it can scale
-
 really well I was talking to a client of
-
 mine and and they deal with 70 million
-
 users within a short time of 72 hours
-
 every month how do you go from nobody
-
 cares about your systems most of the
-
 time to scaling up to 72 million users
-
 very quickly I work with another big
-
 data project where we have to deal with
-
 literally the last time I checked in in
-
 one particular use case we had five
-
 point three billion computations to
-
 execute how do you scale your system to
-
 running 5.3 billion computations you
-
 won't be able to do that without you
-
 know greater power
-
 so one of the problems really is the the
-
 most the worst question somebody could
-
 ask how many threads can you create this
-
 is a bad question because and and what
-
 is even worse than this question he is
-
 trying to answer that question and and
-
 the reason is this is like asking the
-
 question how much food can you eat that
-
 cannot be healthy after all a good
-
 question to ask well the reason is the
-
 wrong answer to this question is it
-
 depends on the memory no it doesn't
-
 because the problem here is it really is
-
 not the memory constraint I'm working on
-
 a system where I have a client I love
-
 this client and one day I asked the
-
 question how much memory do we have and
-
 and their answer is
-
 why this machine has a 1 terabytes of
-
 main memory but if you need more will
-
 get you bigger machine I love these
-
 people it's like Christmas every day
-
 working for them
-
 and the point really is it doesn't
-
 matter we had 1 terabytes of main memory
-
 we cannot create all the threads we want
-
 if we only have a few cores on the
-
 machine so the question really is how
-
 many threads should I create and the
-
 answer to that is if you are computation
-
 intensive then it is less than or equal
-
 to number of course now if you are on
-
 the other hand so if you are if you are
-
 task of course if your task is
-
 computation intensive so on the other if
-
 your task is IO intensive then the
-
 formula is different so there's a very
-
 grim formula for this and the number of
-
 threads is less than or equal to notice
-
 it's not a ballute or you know around it
-
 has to be less than or equal to and it's
-
 less than or equal to number of cores on
-
 the numerator divided by 1 minus the
-
 blocking factor where the blocking
-
 factor is going to be a value which is
-
 between 0 less than or equal to and then
-
 the blocking factor of less than 1 so in
-
 other words you were number of threads
-
 has a huge limitation now think about it
-
 for a minute if you are on a machine
-
 with a lot of memory but if you have
-
 let's say a 256 cores
-
 on the machine you can create up to 256
-
 threads for execution if you create more
-
 than 256 threads your performance
-
 actually goes down the other day I was
-
 at work and we had a machine with about
-
 a little bit more than a thousand course
-
 on it like I said I worked for a very
-
 rich client and they have a very more
-
 than a thousand course on this machine
-
 and we started running the code
-
 sequentially we want to run it in
-
 parallel so I set the number of threads
-
 to run
-
 you a little bit over a thousand
-
 depending on the number of course we ran
-
 the code the code took about authority
-
 to forty minutes to run sequentially and
-
 we put thousand threads to run on it and
-
 the court finished in about five minutes
-
 and I was celebrating this and saying
-
 look what took about 40 minutes to run
-
 runs in about five minutes isn't this
-
 awesome and and the person who was
-
 programming with pairing which said oh
-
 yeah yeah but before you get so excited
-
 increase the number of threads I said no
-
 no no you don't want to do it and he
-
 said no I do want to do it so I doubled
-
 the number of threads what took forty
-
 minutes to sequential II run what took
-
 five minutes to run parallel now took 90
-
 minutes to execute and the point really
-
 is the more threads you create the more
-
 it's gonna crash and the performance is
-
 going to go down so as a result you are
-
 absolute option here as being elastic
-
 the only way you can scale really used
-
 to go horizontal because you cannot put
-
 more computations into a box into a core
-
 into a processor anymore because number
-
 of course becomes a limitation and you
-
 have to scale horizontally so elasticity
-
 is absolutely critical well the second
-
 thing to think about is again this is
-
 not new but it is message driven now why
-
 is it message driven what is the reason
-
 for message driven now we are living
-
 this in the world of microservices now
-
 when we are talking about micro services
-
 our services in general what how do
-
 these services interact with each other
-
 I was in a meeting the other day when we
-
 were talking about implementing micro
-
 services everybody was happy everything
-
 was going well and when suddenly one of
-
 the developers said how do all these
-
 micro services talk to the central
-
 database the entire room went quiet it's
-
 like somebody died in the room we were
-
 like you know really really upset
-
 hearing this because when multiple micro
-
 services our services talk to a database
-
 you can change that one central database
-
 and it can bring the entire system down
-
 entire infrastructure down well you want
-
 isolation you want autonomy of
-
 services when it comes to these services
-
 so I have a few slogans that I'm going
-
 to really emphasize here and I'm gonna
-
 say the very first thing is this is my
-
 personal preference and I'm sure your
-
 mileage may vary but I hope you you
-
 would agree with this
-
 so in life in life and programming we
-
 should never share two things one is our
-
 toothbrush so this is one thing I would
-
 say and the second thing is databases so
-
 we should never share these two you know
-
 occasionally I might even be willing to
-
 share my toothbrush but never a database
-
 so the point really is we should never
-
 share these two and it becomes
-
 absolutely critical if we do because
-
 this leads to a lot of other problems we
-
 have to deal with so my slogan really
-
 here is do not do not expose your
-
 database instead export your data so so
-
 essentially the idea is don't expose
-
 your database instead export your data
-
 so message driven becomes absolutely
-
 critical
-
 again message driven is nothing new we
-
 have done this for quite a while but
-
 this becomes absolutely critical part to
-
 deal with because we want to constantly
-
 exchange information between these
-
 services and message driven becomes
-
 absolutely critical the third thing that
-
 it emphasizes is that it must be really
-
 responsive so responsiveness is
-
 extremely important why because when
-
 you're dealing with services if a
-
 service is taking longer to respond
-
 you're going to walk away we live in
-
 this world of instant gratification we
-
 want responsiveness right away we're
-
 using mobile devices these days and you
-
 click on it it doesn't respond quickly
-
 you're moved on to checking Twitter
-
 messages and Facebook messages and
-
 you're not really sitting on top of that
-
 particular application anymore so
-
 responsiveness is extremely critical for
-
 us to have and and one of the really
-
 good examples I can think of for
-
 responsiveness is is is an example of if
-
 you think about it responsiveness think
-
 about infinite scrolling so infinite
-
 scrolling
-
 is is probably a really good example of
-
 thinking about responsiveness and and
-
 why is that because remember this
-
 application that was slow and sluggish
-
 but that morning when you went to the
-
 app it was a snap and you're like wow
-
 that's really working nicely and then
-
 you start really scrolling down and
-
 that's when you realize there's no
-
 bottom on this page and before you could
-
 react to it so to say the page filled up
-
 with more data from the server so this
-
 is a nice way to amortize the cost of
-
 fetching the data and if the user
-
 doesn't care about some data why bother
-
 really bringing all the data up friend
-
 so this gives a nice way for you to
-
 postpone this to a later time but what
-
 if we can do that quite a bit moving
-
 forward for a lot of things and the last
-
 part of this is resilience so what is
-
 resilience resilience really is so risk
-
 resilience is really ability for us to
-
 you know be graceful when the failure
-
 were to happen you can never build an
-
 application that doesn't fail failure is
-
 part of what we do but what if we can
-
 handle failure gracefully so in other
-
 words what a failure is offer is a
-
 first-class citizen so what if it is it
-
 is okay to fail what if we will fail
-
 gracefully and what if we will recover
-
 from this failure really well and and
-
 that is one of the key things to build
-
 in is is resilience why is this so
-
 important well we are living in a very
-
 complex world today between you were a
-
 fingertip on your mobile device to a
-
 back-end server God knows which part of
-
 the world that's located in there are
-
 probably thousands of failure points
-
 between that finger that you're going to
-
 click to where the data is located back
-
 in the server and and those thousand
-
 failure points any one of them can fail
-
 constantly and a lot of these failures
-
 could be transient a lot of these
-
 failures could take a long time to
-
 recover so having things like circuit
-
 breakers built into it having the
-
 ability to recover from failure and move
-
 forward providing partial
-
 access to an application when other
-
 parts are broken so many other things
-
 are very critical from the point of view
-
 of scale and reliability and resilience
-
 as well that becomes absolutely critical
-
 so so this becomes very important to
-
 think about and as a result these are
-
 the four pillars of reactive systems and
-
 and of course when you're programming
-
 you want to really focus on those as
-
 well but but like I said this is nothing
-
 new we have seen this a long time I'll
-
 give you two examples of reactive
-
 applications just to relate to why this
-
 kind of behavior is very important and
-
 and and again nothing really new we have
-
 seen this before a one example probably
-
 of a reactive application hands down
-
 would be Microsoft Excel of course
-
 micros Excel is you know has been around
-
 for ages it's nothing new but if you
-
 think about Microsoft Excel one of the
-
 beautiful features of Microsoft Excel is
-
 you modify your cell and before you
-
 could blink your eyes all these cells
-
 that depend on it change right away and
-
 recursively all the cell's depend on
-
 those cells change and this propagates
-
 across multiple sheets on your as
-
 spreadsheets or on your application and
-
 that's an example there's a reason why
-
 people use Microsoft Excel to do very
-
 complex things because it's one of the
-
 most responsive applications you can
-
 think of it is it is baked into it as
-
 responsiveness one of the other examples
-
 I'll mention here is something that I
-
 didn't realize until I thought about it
-
 a little differently I travel constantly
-
 I live a nomadic life I'm in random
-
 parts of the world almost every every
-
 week and and other things that the
-
 question one of the things people often
-
 ask me intrigued as they ask me are you
-
 still married
-
 I'm actually pretty happily married and
-
 and one of the things we do is we are
-
 digital family we communicate through
-
 electronic documents a lot I share
-
 documents with my family my children and
-
 my wife constantly we update these
-
 documents but but I didn't realize it
-
 this way but one morning I was in a
-
 remote part of the world and I got up
-
 early in the morning and I went onto
-
 Google Docs to make some changes that I
-
 wanted to
-
 a communicate with my wife and when I
-
 logged on I noticed that she was using
-
 the document exactly at the same time
-
 and it immediately gave me a thought I
-
 immediately scrolled down the document
-
 and I found the place exact place where
-
 she was editing at that moment and I was
-
 able to put my cursor exactly where her
-
 cursor was and start changing the text
-
 that she was changing with this I found
-
 out you could be thousands of miles away
-
 and still find a way to annoy your
-
 spouse so to me this is one of the
-
 biggest benefits of reactive
-
 applications right and for her to tell
-
 me get out of my document now was
-
 precious and I was a complete believer
-
 in reactive programming right at that
-
 moment and I thought about this and I
-
 said wow this is amazing
-
 at any given time think about Google
-
 Docs literally millions and millions of
-
 people are using Google Docs at any
-
 given time and depending on the
-
 organization depending on the document
-
 potentially a few people - a few
-
 hundreds of people collaborate on these
-
 document and they're able to collaborate
-
 live across the world and to me that is
-
 one of the best examples of a reactive
-
 application there are other applications
-
 of course like for example social
-
 network applications maps that are
-
 updated by social network a lot of those
-
 things are really good examples of
-
 reactive applications as well because
-
 that scaled the magnitude all of them
-
 are absolutely very critical so that
-
 brings up the question what does it
-
 really mean to program reactively so
-
 from that point of view I want to
-
 rethink about what reactive programming
-
 really is and I'm gonna say a few things
-
 that are from my understanding of what
-
 that really means well the very first
-
 thing is if you look back in time what
-
 have you been doing for the past about
-
 Oh 20 years give or take I could
-
 summarize that as developing a crud
-
 applications you create data you read
-
 data you update data on your delete data
-
 now that's basically what we've been
-
 doing for a long time isn't it so what
-
 do we not normally do you have a
-
 database where the data is sitting you
-
 pull the data
-
 the database you send it to a function
-
 and you process it and when you're done
-
 what do you do you put it right back
-
 into the database now think about
-
 telling what you do to somebody who is
-
 not a programmer I take data from a
-
 database and I put it back into it I
-
 mean what fun is that right but that's
-
 what we've been doing for a long time
-
 you take the data and you put it back
-
 into the database and at some point you
-
 wake up and ask the question there's
-
 gotta be more meaning to life than doing
-
 that isn't it so so is it just that we
-
 want to be doing card operations over
-
 and over and I'm gonna say it turns out
-
 that's not really the case anymore at
-
 least for a lot of things we do so for
-
 example we take a data and then we pass
-
 it to a function and what happens when
-
 you pass it to a function that function
-
 produces transforms the data and now we
-
 get another data and then all of a
-
 sudden we can think of this as a data
-
 transformation rather than data mutation
-
 so what does this really mean well we're
-
 looking at a scenario of dataflow
-
 computing now you could not have
-
 survived the 1980s without hearing the
-
 word data flow computing um I remember
-
 being a young programmer back in the 80s
-
 and you if you walk down the mall
-
 constantly your ears will listen to
-
 people chanting dataflow dataflow like
-
 they chant angular and react and
-
 JavaScript today well that's on micro
-
 services of course not to leave that
-
 alone but that's kind of way it was that
-
 people are fascinated dataflow computing
-
 in fact organizations were building
-
 dataflow computers one of the reasons is
-
 what is dataflow well an expression
-
 let's say put a different name for it a
-
 function a can fire well let's put a
-
 different name for it execute and and
-
 what does that mean oh well it can
-
 execute and when can it execute if I
-
 know how to type that execute and when
-
 can it execute a when data it needs is
-
 ready so this is through
-
 a concurrency if you really think about
-
 it because unlike a fun human
-
 architecture you don't sequential II
-
 schedule instructions to run an
-
 instruction is ready to execute whenever
-
 the data it needs is ready for it to
-
 execute so you can have different
-
 instructions or these instructions are
-
 ready to fire because they have the data
-
 available these over here are not ready
-
 yet because they're missing one or more
-
 data they need so this was a big deal
-
 back in time so what if I tell you I've
-
 got a great news for you today you can
-
 do data flow computing now you're
-
 probably gonna look at me and say
-
 grandpa sit down that's not very
-
 exciting but I will tell you those
-
 things in a way you'll be absolutely
-
 excited what if I tell you you can now
-
 do Amazon lambdas and server less
-
 computing you're like oh my gosh this is
-
 the best thing I've heard since sliced
-
 bread what I just told you is you can do
-
 data flow computing right so we just
-
 rebranded the whole thing and so what
-
 does Amazon lambdas what is really
-
 serverless well serverless is nothing
-
 but data flow computing off the APS now
-
 really the reason is I just mentioned a
-
 few minutes ago an expression is ready
-
 to fire when that data is ready for its
-
 execution that's exactly what we are
-
 doing today in serverless programming
-
 isn't it we are saying look here is a
-
 computation a function and the minute
-
 it's ready to run throw it on any random
-
 server that's what is server less right
-
 server less simply means it doesn't have
-
 an affinity of a server to run it can
-
 run on any server so it turns out we're
-
 not dealing with the new technology so
-
 it's kind of foolish to think we're
-
 dealing with the different technology I
-
 think we're dealing with something even
-
 better and what is that well when I was
-
 a kid I can only read about data flow
-
 computing I remember reading books on
-
 data for computing articles on data for
-
 computing and then I would hold these
-
 magazines or books and I look through
-
 the window and say wow wouldn't that be
-
 so cool
-
 to run a program on one of these
-
 machines but no no venket you cannot do
-
 that if you work for a privileged
-
 organization or you're part of a big
-
 university where they built it you can
-
 maybe see it you can maybe run it but
-
 otherwise here's a magazine article for
-
 you to read
-
 well today my children can use these
-
 serverless systems on the cloud for just
-
 a few cents they don't need to belong to
-
 a big artist they don't even belong to
-
 an organization they're in school but
-
 they could use these machines and to me
-
 this is better because what we've seen
-
 in the past about 10 to 15 years is
-
 something even better than the
-
 technology in my opinion that is
-
 democratization of computing and I'm
-
 absolutely blown away by that because
-
 anyone who has the desire to use these
-
 systems can access these systems at a
-
 very affordable cost it's true
-
 democratization of these technology
-
 that's what we are really seeing in
-
 terms of these cloud computing is a
-
 rebirth of dataflow computing in a much
-
 more affordable manner so given that I'm
-
 gonna say reactive programming really is
-
 dataflow computing that's the first
-
 thing I want to say it's really dataflow
-
 computing that's what we are really
-
 dealing with it's a data flow well now
-
 that we talk about data flow what does
-
 it really provide for us so from that
-
 point of view we want to ask the
-
 question you know how does this really
-
 relate to streams versus how does it
-
 relate to computing in general well one
-
 of the very first things to really think
-
 about it is when it comes to these if
-
 you think about reactive programming how
-
 are we going to build the code for that
-
 kind of programming model well it turns
-
 out in reactive programming we are going
-
 to take a producer so we're going to
-
 take a producer and what does a producer
-
 do producer emits data so in a way this
-
 is kind of like a stream isn't it a
-
 producer emits data well then what are
-
 we going to do we gonna subscribe to
-
 this one we're gonna transform it so you
-
 can do a filter operation on it you can
-
 do a map operation on it if you want to
-
 transform the data and then you can do
-
 more
-
 operations and finally you can subscribe
-
 to this data at the very end well given
-
 this I was looking through this and said
-
 well how do we relate to what I already
-
 know and this was a bit of a realization
-
 in in my mind and and my first
-
 realization was reactive programming is
-
 a functional programming plus plus and I
-
 say this is functional programming plus
-
 plus and why do I say it as a plus plus
-
 the reason is for two it builds on a
-
 functional composition and lazy
-
 evaluation that's the very first thing
-
 our end takes the abstraction
-
 abstraction even further so this is one
-
 of the realizations for me is that to
-
 think of what reactive programming is to
-
 me reactive programming ease functional
-
 programming plus plus it is built on the
-
 same foundations of functional
-
 composition and lazy evaluation and then
-
 it takes that abstraction even further
-
 so we can sit on top of this model of
-
 programming and we can transform the
-
 code moving forward let's take a look at
-
 what that means with a really quick
-
 little example just to see how that
-
 actually works we saw a functional
-
 pipeline sitting right in here you saw
-
 this where you did a filter and map and
-
 collect that's just one example let's
-
 just take one little example and play
-
 with it right here I'm gonna say
-
 flowable we'll talk more about what this
-
 means a little bit later so I'm gonna
-
 create an interval right here and I'm
-
 going to say give me a value or every
-
 second so time you deduct seconds so I'm
-
 gonna ask you to give me a value every
-
 second but once it gives me a value
-
 every second I send it through filter
-
 and I'm gonna say given an element is
-
 even element only give me the even
-
 numbers on a map it given an element
-
 element times two and then I subscribe
-
 to it and say system dot out and println
-
 and I'm going to print it out right in
-
 here so we can see the result of this
-
 particular operation so if I go to this
-
 example right here and execute it well
-
 what does this really do well first of
-
 all
-
 let's go ahead and put a little sleep
-
 here just to hold the thread alive so if
-
 you look at this particular example here
-
 you will notice that in this in this
-
 case you have a stream of data coming
-
 through and when I execute this code
-
 it's going to start emitting the data
-
 which are double of even numbers as you
-
 can see in here however if I go back to
-
 this code and if I were to say output
-
 called for and I'm going to say for plus
-
 N and just like the other case execute
-
 the code and you can see in the output
-
 it says call for zero call for one and
-
 so on however if I don't put the
-
 terminal operation right in here just
-
 like the Java eight streams I have the
-
 filter and map on this one but I'm gonna
-
 stop shy of calling the SUBSCRIBE the
-
 for each in the case of Java eight
-
 stream subscribe over here but when I
-
 execute this code you can see there is
-
 no output being produced right there and
-
 the reason for that is this is
-
 absolutely lazy so just like how the
-
 Java eight streams are lazy our reactant
-
 streams are lazy as well so we can see
-
 the functional composition and the
-
 laziness of evaluation at the same time
-
 and that is one of the because marriage
-
 says this is not such a you know a
-
 different concept than we may have
-
 thought about and and once I realized
-
 that reactive programming is functional
-
 programming plus plus it gave me a
-
 really solid ground to stand on and
-
 build on that abstraction it became a
-
 lot more clearer in my mind to use this
-
 particular paradigm of programming so in
-
 that sense you can think of reactive
-
 programming as something like extreme
-
 programming extreme programming did not
-
 have anything new it had 15 suppose that
-
 were already there but brought those
-
 twelve principles together and said we
-
 should do all these twelve things in a
-
 similar way of reactive programming
-
 brains pre-existing ideas together and
-
 says we should really focus on doing
-
 these things because these are good to
-
 build the modern applications so from
-
 that point of view I want to talk about
-
 some similar
-
 at ease and some differences between
-
 Java eight streams and reactive streams
-
 moving forward so let's draw up this one
-
 we'll say Java streams on the left side
-
 and we're going to put reactive streams
-
 on the streams on the right side and we
-
 will write some similarities
-
 unfortunately the similarities are far
-
 few and then once we cover the
-
 similarities we'll talk about the
-
 differences between them and and as we
-
 start talking about the similarities and
-
 differences we'll look at some code
-
 examples and say you know here's how
-
 this is going to relate to this
-
 particular idea so we will talk about
-
 how you know both are really as we saw a
-
 functional pipeline and lazy evaluation
-
 that part we saw already we won't look
-
 at it again but then we will start
-
 looking at moving forward some of the
-
 ways that you would do streams API some
-
 of the ways you would do reactive stream
-
 API we'll talk about how exceptions are
-
 handled between those two as well and
-
 then we will talk a little bit about one
-
 of the key features of reactive streams
-
 which is our handling back pressures
-
 Java 8 streams doesn't deal with back
-
 pressures in that sense so we'll talk
-
 about back pressures and then we will
-
 tie this finally into how Java 9 API
-
 relates to the Java stream API so we are
-
 about the halfway mark
-
 so we'll take about a 15 minutes break
-
 and then we will resume right from there
-
 when we get back thank you alright
-
 welcome back let's talk about the
-
 comparison between streams and reactive
-
 streams so what we going to talk about
-
 is some similarities first of all then
-
 we'll talk about some differences along
-
 the way so let's talk about what's
-
 similar between
-
 Java 8 streams and reactive streams well
-
 the very first thing is the Java 8
-
 streams contain a pipeline we saw this
-
 earlier and it turns out that reactive
-
 streams also use a pipeline that
-
 shouldn't be a surprise this is one of
-
 the reasons why I want to make the claim
-
 that reactive programming is function
-
 programming plus plus because it
-
 appears to be a superset function
-
 programming being the subset and
-
 reactive programming on the top of that
-
 in the case of Java eight stream you
-
 have a push of data and it turns out
-
 reactive streams also are push data so
-
 it's not a pull this is one of the
-
 biggest differences between streams in
-
 general and regular iterators in the
-
 case of a regular iterator we pull the
-
 data on the other hand a streams push
-
 the data towards us this is why a lot of
-
 times you will hear the comparison that
-
 reactive streams are like observable
-
 where you register with an observable
-
 and as an observer and then that sends
-
 you the data when the data is ready for
-
 you
-
 so streams are in a similar way gonna
-
 push the data towards you so so that's
-
 one other similarity between between the
-
 two the third similarity between the two
-
 is that job in streams are lazy in terms
-
 of transmitting data so when they trance
-
 in terms of the computations so when you
-
 create a pipeline the pipeline doesn't
-
 execute it eagerly it waits until our
-
 terminal operation is connected and the
-
 data is then pushed and it executes at
-
 that point so as a result it's pretty
-
 efficient laziness is efficiency by
-
 having evaluations lazily you're not
-
 wasting computations and as a result
-
 when you drop a pipeline it knows not to
-
 really waste its performance running
-
 those pieces of code until that data
-
 becomes absolutely necessary and that's
-
 the only time it actually actually
-
 executes sit well it turns out that
-
 reactive streams are also absolutely
-
 lazy unfortunately though the similarity
-
 ends very quickly and that's basically
-
 the common between those two but there
-
 are immediately you will start seeing a
-
 differences emerge very you know clearly
-
 the next question is how do we deal with
-
 exceptions and the short answer to that
-
 question is like a said good luck you
-
 can't do much about it when it comes to
-
 Java eight streams and also they deal
-
 with data only
-
 putting these two somewhat together
-
 because the answer to these are somewhat
-
 connected so Java 8 streams deal with
-
 data only and when exception happened
-
 it's good luck right so what do we do
-
 about it
-
 well this is exactly where reactor
-
 streams defer very nicely now to
-
 understand what reactor streams do is
-
 reactor streams have water called three
-
 channels so our three channels in that
-
 sense you could argue that let me
-
 actually rewrite it so there are only on
-
 the other hand reactive streams contain
-
 a three channels so what are the three
-
 channels in a reactor stream
-
 well the reactor streams contain a first
-
 channel which is the data channel the
-
 second channel that they contain is the
-
 error Channel and the third channel they
-
 contain is the complete channel now in a
-
 way if you don't mind me doing this I
-
 will be to a little bit and come back as
-
 a slight detour so reactive streams
-
 versus a completable future slash
-
 Promises Promises are part of JavaScript
-
 Java's completable futures really are
-
 promises and I want to be to it a little
-
 bit because I people developers often
-
 ask me this question and I'm sure that's
-
 relevant to us here also so what is that
-
 what are the similarities and
-
 differences between those two and I will
-
 I would spend a little bit of time on
-
 this before we go back to the other
-
 topic and that is the first thing is
-
 1:01 are more data from the in the point
-
 of view of reactive streams on the other
-
 hand if you think about completing
-
 futures are promises you will see that
-
 it's zero are one piece of data this is
-
 one of the biggest differences between
-
 them that reminds me there's one more
-
 similarity between the two and that is
-
 0-1 or
-
 more our data right and that's what
-
 streams do and that's what reactive
-
 streams do as well but that's one of the
-
 differences between completable futures
-
 of promises
-
 and reactive streams reactor streams are
-
 streaming data you could have zero one
-
 more you know two three four a million
-
 piece of data coming through completely
-
 fuses and promises are zero or one you
-
 don't get any data you get an error or
-
 you get our data or you get nothing so
-
 so that's one of the biggest differences
-
 they both draw up on the pipeline the
-
 reason I wanted to say this was promises
-
 and complete completely futures have
-
 those two channels so they they have two
-
 channels of communication so this one is
-
 three channels on the other hand this
-
 one is two channels right so this is one
-
 of the biggest differences between these
-
 two is that completely futures and
-
 promises only have two channels they
-
 don't have the complete channel they
-
 have the data channel on the error
-
 channel but they only have one piece of
-
 data flowing through on the other hand
-
 reactive streams have three channels of
-
 communication that flows through so
-
 anyway I'll move forward with this so I
-
 just wanted to draw that comparison
-
 right there but having said that let's
-
 go back to this one so you have the data
-
 channel you have the error channel and
-
 you have the complete channel so these
-
 are the three channels of communication
-
 and and as a result let's see how this
-
 is going to work over here so as an
-
 example let's go back here and say I'm
-
 using a reactive X flowable I'm using rx
-
 Java here I'll talk a little bit more
-
 about this a little later so in this
-
 case I'm going to generate our data
-
 every second let's go in and say time
-
 units but I'm gonna then take this data
-
 and I'm gonna filter over here give an
-
 element
-
 give me element which is even let's just
-
 do this for a second and then I'm gonna
-
 do a map and say given an element or
-
 transform the element gonna keep it
-
 absolutely silly and simple so we don't
-
 have to really do much math in our head
-
 and then just give it a piece of data I
-
 want to simply output the data that's
-
 all I'm gonna do so so what is the the
-
 transform method do so public let's say
-
 in this case all I'm gonna do is our
-
 transform takes a data and all its gonna
-
 do is simply return that data
-
 nothing really useful right so all it's
-
 going to do is just take the data and
-
 then return the data for us so that's
-
 what our transform is going to
-
 I do for us so given this of course this
-
 is going to just emit even numbers over
-
 time so let's go ahead and sleep for
-
 about 10 seconds so then we can just
-
 fire this up sleep function and fired
-
 this up so every second it's going to
-
 emit data so this is the data channel
-
 that I was talking about so if I take a
-
 look at this one here you can see the
-
 data flowing through every second only
-
 the even numbers are flowing through
-
 great now that's our data channel
-
 obviously as we know we can use method
-
 reference instead of using a lambda so
-
 that should just work fine great so
-
 that's our data channel but what about
-
 headers what's gonna happen if something
-
 goes wrong or to understand this I will
-
 share with you a real-life experience I
-
 usually give in my talks and classes I
-
 give example from real life into my
-
 classes this is like nature in Reverse
-
 I actually used an example from the
-
 class in real life which was kind of
-
 nerve-wracking so when I talk about
-
 reactive streams I always say how do you
-
 deal with errors and to answer that
-
 question you know exceptions and I'm
-
 gonna say a good luck over here that's
-
 what we saw this one is deal with it
-
 downstream so to understand this let me
-
 give you a scenario of what actually
-
 happened I ate out last year with with
-
 the mission to speak in 50 user groups
-
 around the world within one year of my
-
 50th birthday I wish they told me don't
-
 do this when I started it was a pretty
-
 tiring experience but a very wonderful
-
 experience I get to meet so many of the
-
 friends around the world
-
 but once that stop was in Boston and I
-
 had gone to Boston to speak at the user
-
 group and I spoke at the user group late
-
 in the night it was exciting so I stayed
-
 behind you know was talking to the
-
 developers and by the time I got back to
-
 my hotel room it was well past you know
-
 11:30 in the night but I had a early
-
 morning flight it was supposed to be an
-
 international flight but I was going
-
 from Boston to Montreal and I said to
-
 myself Montreal is Canada which is
-
 neighboring country I'm a world traveler
-
 I don't need to go early to the airport
-
 when
-
 when you know things are going to go
-
 wrong so I said the flight is at 6:30
-
 the morning I'll leave at 4 o clock
-
 that's plenty of time so at 4 in the
-
 morning I got into my car and I
-
 accidental car I started driving to the
-
 airport
-
 I had snowed that day so that night and
-
 so the entire road was filled with snow
-
 and as it was driving I was alone
-
 thankfully on the road and I hear heard
-
 a loud noise and the next thing you know
-
 my car is barely moving so I parked my
-
 car got out of the car looked at my
-
 front wheel the front right wheel
-
 completely busted and I was like oh oh
-
 what do i do looked at the watch it was
-
 4:15 in the morning and my flight was
-
 taking off at 6:30 and I have a talk to
-
 give in the morning when I land there I
-
 have no intention on missing the flight
-
 so I called the towing service and the
-
 towing service was very wonderful very
-
 helpful it said venket you are a very
-
 valued customer we'll be with you
-
 shortly our estimated time is two and a
-
 half hours I'm like okay that's not
-
 going to help I was sitting in the car
-
 alone thinking what I should do and
-
 suddenly this came to my mind about I'm
-
 not kidding reactive streams and I said
-
 to myself deal with that downstream and
-
 I took a deep breath turned on the
-
 ignition and put my foot on the gas
-
 pedal and I drove all the way to the
-
 airport and you should have been there
-
 when I pulled into the airport because
-
 this is you know like you know close to
-
 5:00 in the morning it is quiet and
-
 there's this huge noise rolling into the
-
 parking lot and everybody working there
-
 only a few of them stopped and most of
-
 them came out to see what's going on and
-
 one person came to me and said what
-
 happened to you I said oh just a flat
-
 tire that's all here's the key by the
-
 way and I quietly walked over to the
-
 terminal didn't say a word and about
-
 three weeks later I was here in Europe
-
 my wife called and said hey remember you
-
 told me that you you know went all the
-
 way to them you know this is one of the
-
 times you are so happy to rental car so
-
 I returned the car and she say remember
-
 you told me about the story said yes and
-
 she said well they sent you a bill and I
-
 said oh my goodness let me sit down
-
 before you say it
-
 and
-
 said well they charge you $85 I'm like I
-
 can handle that so so now I'm this is my
-
 advice to everybody don't worry about
-
 flat tires
-
 so absolutely drove it all the way down
-
 I don't know exactly how the car looked
-
 after that but I didn't have the courage
-
 to look at it but deal with the
-
 downstream this is exactly the point
-
 about reactive streams so reactive
-
 streams are built on the idea of circuit
-
 breakers so what does that really mean
-
 so a circuit breakers is essentially a
-
 idea behind this is if you make a
-
 function call and your service says I am
-
 not working properly and gives you an
-
 error what is the right thing to do well
-
 the right thing to do is to say look the
-
 service is broken let's give it some
-
 time to heal but lot of things what do
-
 we do
-
 we take this and send the error response
-
 when the next request comes in in good
-
 faith we go back and ping the service
-
 that's called hope isn't it but there is
-
 no reason to do that right so this says
-
 if something went wrong we're not gonna
-
 keep transmitting data to you we're
-
 gonna give an opportunity for you to
-
 heal it's based on the concept of
-
 circuit breakers so let's take a look at
-
 how this is going to work in this
-
 example I know there's a trivial example
-
 but nevertheless can illustrate the
-
 point to us so notice that I'm gonna run
-
 this code one more time for us and when
-
 I run this code you can see it transmits
-
 even numbers every every second it's
-
 generating a number every two seconds we
-
 get an even number as an output great
-
 now let's go over here to the transform
-
 method and here we'll say if data is
-
 equal to oh let's say a value of five
-
 then what am I going to do throw new a
-
 runtime exception
-
 let's throw an exception like we get at
-
 production code often something went
-
 wrong right so so that's going to tell
-
 us that something went wrong over there
-
 now notice what we are doing here we are
-
 blowing up but we all can agree that
-
 throwing something at other people is
-
 not a civil thing to do I mean how would
-
 you feel if it start throwing this
-
 bottle at you right now
-
 you're gonna say what what what's wrong
-
 with you banquette right but on the
-
 other hand if something is wrong as a
-
 civilized person I should give you an
-
 error and you receive it and deal with
-
 it that's such a polite way nice
-
 civilized society that's
-
 exactly what it is it's gonna grab this
-
 exception and it's gonna hand it over to
-
 you in a very polite way so right here
-
 in this example this is your data
-
 channel the second one here is your
-
 error channel so you can say error arrow
-
 output I'm gonna put error all in
-
 uppercase and then + error so this is
-
 going to be the error channel so when I
-
 go back and execute this code as you can
-
 see it start transmitting 0 & 2 but at
-
 that same time when it hits a value of 5
-
 it is going to blow up oh it should have
-
 blown up so 5 times 2 is 10 well okay
-
 let probably didn't wait until that
-
 point so let's go ahead and just give it
-
 a little bit more time here so let's see
-
 if I did this right data is equal to 5
-
 I'm gonna blow up at that particular
-
 point right so let's actually remove the
-
 filter here just for a minute and then
-
 fire it up so when the value is you know
-
 that value it should blow up so
-
 essentially at this point when it hits
-
 the value of 5 it should tell us at or
-
 there you go
-
 so you can see something went wrong and
-
 and it gave us an error but the value 6
-
 or 7 or later did not show up and the
-
 reason for that is that exception is
-
 captured as a data so this is one of the
-
 things to keep in mind is error is just
-
 another form of data so we are going to
-
 treat error as a first class citizen so
-
 what if error is just another form of
-
 data and we're going to transmit it down
-
 the stream and that is exactly what we
-
 are doing here is error is a you know
-
 like data right so error is like data
-
 and you're just transmitting the data to
-
 deal with it and and of course it's
-
 built on the concept of circuit breaker
-
 so it doesn't transmit any more data
-
 when the error happened on the same
-
 token though what if there's not going
-
 to be any more data coming through how
-
 do we deal with it oh just for the sake
-
 of that let's go and say take and I'm
-
 gonna ask it to give me only three
-
 pieces of data and then I'm going to go
-
 ahead and say comma and I'll go ahead
-
 and say output over here done to say I'm
-
 done I'm not going to get any more data
-
 so when I fire this up this time you can
-
 see that got 3p
-
 of data and it got a done signal because
-
 we said over here that take only three
-
 values well once you finish taking three
-
 values it since you are complete signal
-
 to say hey I'm done I'm not going to get
-
 any more data to you so you can clean up
-
 and do whatever cleanup operations you
-
 want to perform so that gives you a nice
-
 little signal so those are the three
-
 channels I talked about the data channel
-
 the error channel and then of course the
-
 complete channel are the three channels
-
 that are going to get the data for you
-
 the error and a complete signal over to
-
 you so that is one difference between
-
 these two as you can see while the
-
 reactive streams only push data the well
-
 the Java eight streams only push data
-
 reactive streams may push data error or
-
 complete one other thing is when error
-
 is generated the data channel closes up
-
 there will be no more data coming
-
 through similarly when the complete
-
 signal is sent that data channel closes
-
 up there'll be no more data coming
-
 through so this will terminate the
-
 minute you have either a error or you
-
 have a complete signal there will be no
-
 more data coming through between those
-
 through those channels so that is one of
-
 the biggest differences a morning a
-
 little forward now we are looking at
-
 some interfere differences at this point
-
 let's look at a few other differences in
-
 the case of Java eight stream it is
-
 sequential versus parallel so you're
-
 talking about sequential and and
-
 parallel execution now you know earlier
-
 I drew a comparison between promises and
-
 completable futures and reactive streams
-
 this is incidentally one similarity
-
 between reactive streams and promises
-
 and complete futures completely futures
-
 are asynchronous streams are sequential
-
 and parallel so in the same way reactive
-
 streams are synchronous versus
-
 asynchronous so async so er you're
-
 looking at synchronous versus
-
 asynchronous rather than a sequential
-
 versus parallel computing so you can set
-
 this off the run asynchronously rather
-
 than being tied up to parallelism at
-
 this point this is a very important
-
 distinction to keep in mind because
-
 honestly I'm getting really excited
-
 about asynchronous programming moving
-
 forward in Java we have been
-
 predominantly focusing on sequential
-
 versus parallel up to this point I'm
-
 gonna make a bet today and in the next
-
 five to ten years we are gonna be doing
-
 something very different in Java
-
 compared to what we do today we are
-
 going to move away from parallelism in
-
 my opinion and we're going to be
-
 branching a lot into asynchronous
-
 programming and it's call it an
-
 influence of JavaScript but it's really
-
 not it's an influence of the world we
-
 live in with all the things like
-
 micro-services it makes a lot more sense
-
 to do asynchronous programming than
-
 parallelism and I think we are moving in
-
 this direction and and honestly I'm very
-
 excited for where we are heading in the
-
 Java world in terms of asynchronous
-
 programming they've been laying the
-
 foundation for these things over the
-
 past few years and into the moving
-
 forward you'll hear about a few exciting
-
 features coming in Java as well that
-
 will you know move us towards this
-
 direction but but you can do asynchrony
-
 here quite nicely in the case of the
-
 streams here so what does that really
-
 mean in this context so to understand
-
 this let's take a slightly different
-
 example and play with it so we can
-
 appreciate this a little bit better so
-
 let's go ahead and create a little
-
 example here so let's go ahead and say a
-
 flow will dart create but I'm going to
-
 go ahead and use a create method I'm
-
 gonna hand pass a little flowable so I'm
-
 gonna say emitter and I'm going to call
-
 an emit method and pass the emitter to
-
 it and and ignore this part for a minute
-
 we'll come back and talk about this a
-
 little bit later so don't worry about it
-
 at the moment so what is the emit method
-
 do the emmett method says I'm gonna take
-
 an emitter and I'm gonna create a little
-
 count is equal to zero and while count
-
 is less than 10
-
 I will increment the count real quick
-
 and then I'll say emitter dot are next
-
 and pass the count but before I do this
-
 I will go ahead and output right here
-
 let's say emitting and then I will
-
 simply display the count before I go
-
 forward let me quickly give a context
-
 I know this is a really silly example
-
 I'm creating I like to create silly
-
 examples so we can focus on the concept
-
 but it doesn't have to be a silly count
-
 which is incrementing this could be a
-
 data coming from a device this could be
-
 a patient record right a patient could
-
 be monitored this could be a particular
-
 vitals of a patient this could be a door
-
 that you're monitoring if somebody left
-
 the door open you want to get a signal
-
 this could be a flight from which you're
-
 getting data this could be a data from a
-
 database where you have millions of
-
 Records to transmit it could be any data
-
 that you're really getting all you want
-
 is a is an emitter that's going to emit
-
 the data and all next is the mouth of
-
 the data stream so that is the origin
-
 from where it's going to start so this
-
 is emitting data every second and then
-
 when you are done with it I'm gonna say
-
 emitter dot aren't complete this is
-
 where you're sending a complete signal
-
 to say I'm done I don't have any more
-
 data for you what if something were to
-
 go wrong how do you convey an error I'll
-
 just quickly show here so if count is
-
 equal to five I could simply say emitter
-
 on error and you can send a throwable
-
 right here right so you can send a
-
 throwable a right here as a parameter so
-
 that way you can even transmit an
-
 exception through this particular error
-
 channel but we'll just keep up to this
-
 for a minute
-
 so what am I going to do here I'm gonna
-
 go back here and tie to this and say a
-
 map give it a piece of data all I'm
-
 gonna do is simply show illustrate data
-
 times two times one so this is a no good
-
 transformation just to illustrate the
-
 point that you are transmitting and
-
 transfer emitting the data okay that's
-
 good so far what am I going to do next
-
 after this well the next step here is to
-
 subscribe to this and system dot out
-
 print line and then of course I'm gonna
-
 put I to this error channel so error and
-
 I'm going to output the output error and
-
 then of course display the error itself
-
 so we'll go ahead and say plus error and
-
 then finally we'll go ahead and say here
-
 is the output will simply say done so
-
 this shows us how we can tie these three
-
 things together if I fire this up this
-
 time you can see that it's emitting the
-
 data
-
 and it's printing the data that's pretty
-
 darn sequential well why is it
-
 sequential and Emmett receive and emit
-
 and receive and Emmett I receive that's
-
 kind of obvious what just went on here
-
 so that's a sequential transmission of
-
 data but it doesn't have to be
-
 sequential it doesn't have to be
-
 synchronous it could be asynchronous as
-
 well like how so notice what I'll do
-
 here I'll go up to this particular
-
 transmission and I'm gonna say over here
-
 sleep for about 500 milliseconds so I'm
-
 gonna take a nap for about half a second
-
 so when I run this code notice that
-
 transmission rate is about half a second
-
 now right so half a second delay because
-
 your transmission is half a second delay
-
 however unfortunately what's gonna
-
 happen now is I go here and rather than
-
 printing it I will simply say sample a
-
 process so what in the world is process
-
 so public static void and this is
-
 process takes a integer value and it
-
 outputs the value so when I run this
-
 code it is going to be half a second
-
 interval but I'm gonna output the value
-
 and sleeve for about a second imagine
-
 this is a simulating a delay I'm really
-
 you know trying to figure out the
-
 meaning of life when I get this value so
-
 it takes a little bit of computation
-
 some algorithm to be executing but when
-
 I run this code sadly even though I'm
-
 transmitting data at a half a second
-
 interval notice I'm blocking that right
-
 because I'm sequential because I'm
-
 synchronous rather because I'm
-
 synchronous the slowest one is going to
-
 dictate the speed at which we are
-
 running because my processing is slow
-
 the transmission is slowed down this
-
 brings us to a very important rule we
-
 have to keep in mind and the rule is
-
 that we want to be non blocking so what
-
 is the rule really the one important
-
 rule about this is as a publisher you
-
 should not force me the subscriber to
-
 run any faster you cannot come to me and
-
 say come on run faster venket no I'm
-
 gonna be as slow as I wanna be
-
 you don't want to force me to go faster
-
 similarly as a subscriber
-
 I shouldn't come to you the publisher
-
 and say slow down a little bit for me
-
 because I can't process the rate at
-
 which you're sending it so we should be
-
 able to be transmitting and processing
-
 at our own pace without having to affect
-
 each other so what are we gonna do for
-
 that what I'm gonna do here is go to
-
 this code and say observe on a scheduler
-
 dot a scheduler start before we I won't
-
 go too deep into it but quickly mention
-
 one thing remember earlier I said
-
 there's a formula on how many threads
-
 you should really create if you are a
-
 computation intensive the number of
-
 threads should be no more than number of
-
 course if you are an i/o intensive you
-
 can create more threads because the
-
 formula said number of course divided by
-
 one - blocking factor the bigger the
-
 blocking factor the more threads you
-
 could potentially have well you could
-
 spend your life doing this computation
-
 or you can simply say you know what I'm
-
 a computation task just fire away and
-
 create as many threads as a number of
-
 course and they will do that for you or
-
 you can say I'm an i/o intensive task so
-
 if my threads are busy fire up a new
-
 thread for me or you can say I want to
-
 give you my own pool I want to manage
-
 all of this because I like to fail a lot
-
 better than you know using your services
-
 you provide right this is when you can
-
 increase the cost of doing other stuff
-
 I'll create a new thread every time blah
-
 blah blah so you can create any of these
-
 I want to just use the computation for
-
 now and and so what we did here you
-
 simply ask it to fire a way a little
-
 asynchronous computation for us and and
-
 to be able to use it that what we are
-
 saying in this particular case so so
-
 given this what does that really do for
-
 us well the beauty of this approach is
-
 when I fire this up this time though
-
 notice my emitting is still at half a
-
 second interval my processing is slow at
-
 one second interval and you can see the
-
 buffering that worked right there as
-
 well so the transmission was over but I
-
 am still processing the data and
-
 that's why the Emmet was over here but I
-
 still process six and then seven all the
-
 way up to ten and I got the signal for
-
 complete after that so that is
-
 asynchronous computation rather than
-
 synchronous if you will so that is one
-
 big difference you can have synchronous
-
 versus asynchronous computations while
-
 we are at it we will talk a little bit
-
 more about how this actually works so
-
 this is where the backpressure strategy
-
 comes in there's no 1:1 few that fits
-
 all so let's take a couple of different
-
 scenarios for a minute imagine I am
-
 developing a reactive solution for a
-
 tollbooth
-
 so in my toll booth there's a camera and
-
 that is monitoring all the cars that are
-
 zipping by the Tollbooth and as a cars
-
 this by my camera captures the license
-
 information transmitted to my server my
-
 server looks up who the passenger car is
-
 registered to and sends them a bill for
-
 the Tollbooth now everything is going
-
 fine my transmission is happening at the
-
 rate at which cars are zipping through
-
 on this very fast lane and my servers
-
 are processing but suddenly there's one
-
 request that comes in and my server just
-
 choked up there was a little network
-
 delay or some kind of a failure so what
-
 should I do
-
 I know what you are thinking as a driver
-
 you're thinking don't worry about the
-
 other cars right well but as a revenue
-
 from the point of view of the company
-
 that's you know using the service they
-
 would want to make sure they bill
-
 everybody so as a result they chose the
-
 buffer strategy so if their processor is
-
 a little slow now do you will buffer up
-
 the other car information when they are
-
 bouncing back to the full processing
-
 ability they can process and clear out
-
 the buffer now one thing to emphasize
-
 buffering makes sense only when you were
-
 processing speeders almost you know in
-
 part with the transmission speed there
-
 are times when you're a little slow but
-
 then you will come back up to the
-
 surface if you're going to be slow all
-
 the time then it doesn't really make any
-
 sense
-
 right because
-
 you're never gonna keep able to catch up
-
 your Buffalo afro it makes no sense so
-
 what do you do if you are always slow
-
 well you got to scale horizontally by
-
 putting more processors so buffering
-
 wouldn't make any sense in that regard
-
 what I'm getting to is you can use
-
 buffering alone or you can use buffering
-
 with elasticity as well and you have to
-
 make that's an architectural design
-
 decision you have to make on your
-
 product on the other hand imagine you
-
 are providing a service that is tracking
-
 where somebody is so maybe you are
-
 interested in you know having a social
-
 network and you are you know here at a
-
 conference or you are at another event
-
 and you want to know where your buddies
-
 are so you go to this app and it shows
-
 where everyone is well that's great
-
 you're just looking at all this dots
-
 moving around so you know where to meet
-
 and etc but there's a little glitch and
-
 now of course your processor is a little
-
 slow and then it's ready to process the
-
 question is what do you want to see well
-
 do you want to see every location they
-
 have been through or do you want to know
-
 where they are right now and practically
-
 speaking you don't care about where they
-
 have been you care about where they are
-
 now because if they have walked away
-
 you would rather immediately tell them
-
 to walk towards you rather than saying
-
 let me see where you are being Oh
-
 donít you've gone away from me so the
-
 point really is in that regard what you
-
 want to do is a drop strategy so drop
-
 simply means if I am busy
-
 don't bother keeping around the data
-
 because I don't care about it so if I'm
-
 not busy I will handle the data if I'm
-
 busy just throw it away
-
 because that is not important to me
-
 because the latest information you have
-
 right now I will receive and process it
-
 but if I'm busy just give it to me when
-
 I'm not busy so if I run this code this
-
 time though notice that the output you
-
 can see it is skipping a few values so
-
 it transferred three and four but notice
-
 I did not process three at all both
-
 three and four were discarded
-
 because three and four were generated
-
 when I was busy
-
 and then once they process five I
-
 process six seven and eight were skipped
-
 entirely but I process nine so you can
-
 see that there are a few well whose
-
 being discarded along the way and then
-
 of course it's done so that is basically
-
 the drop strategy a third one here is
-
 called the latest now the latest is just
-
 a little variation of a drop so let's
-
 understand what that means so if your
-
 strategy is drop our data comes up I
-
 send it to you oh you're busy so when
-
 the data comes up I keep throwing it
-
 away and then you are like hey I'm ready
-
 oh good I'm glad you're ready I'll give
-
 you the data when I have another one so
-
 there's a period when you may not
-
 potentially have anything to do because
-
 I don't have a data to give you on the
-
 other hand later simply says hey here's
-
 the data for you oh you're busy a new
-
 data arrives I keep it then another data
-
 arrives I throw this away and I keep it
-
 and other data arrives so I keep the
-
 latest one with me and the minute you
-
 are ready I'm gonna give it to you so
-
 the latest is just a variation of the
-
 drop I'm gonna keep dropping everything
-
 except the latest and then when you're
-
 ready I'm gonna give you the latest I
-
 can't run this code to show you any
-
 meaningful difference because the
-
 difference is so subtle and and so they
-
 wouldn't be meaningful to you know
-
 discuss about the behavior in this
-
 particular example but you get the point
-
 so those are some of the variations of
-
 this you can choose depending on what
-
 you're trying to do um so let's keep it
-
 a buffer for a minute
-
 similarly there are a number of other
-
 varieties of things you can do as well
-
 like for example debounce
-
 so this reactive idea is so prominent
-
 that you are seeing this in so many
-
 different areas one of the things that
-
 I'm fascinated about is a language
-
 called Elma elm is a language of the
-
 reason I was fascinated Elm was Elm
-
 syntax is 99% Haskell syntax with one
-
 person f-sharp syntax but it compiles
-
 down like everything else today wants to
-
 into JavaScript and I was intrigued by
-
 it
-
 Escalus peor and javascript is anything
-
 but and you are able to take this
-
 something that's written such purity and
-
 run it in this Bazaar right and and I
-
 was like wow this is intriguing because
-
 I cannot mutate anything I can develop
-
 in a UI with no mutability and I like
-
 exploring languages like this because I
-
 want to be proven wrong and and and
-
 several times over and and this is one
-
 of the fun parts is to rethink your
-
 ideas and you know how everybody says oh
-
 you eye is always mutable and elm is
-
 like not really and you are like wow I'm
-
 able to use immutability to program the
-
 UI how cool it is and elmas touted as a
-
 reactive programming language for UI and
-
 it changes the way i change the way i
-
 think about it well in an elm your
-
 keyboard inputs are reactive streams
-
 your mouths moving is a reactive stream
-
 but imagine for a minute you are I'm
-
 entering data on the keyboard and he
-
 won't start processing as I am entering
-
 it my wife always reminds me I'm really
-
 good at typing the back spaces meaning I
-
 don't know how to type and and so if
-
 you're going to take my input and
-
 process it that's a lot of wasted
-
 resource because I type you process and
-
 I hit the backspace and you're like
-
 don't on it remove that that's the
-
 wasted computation so you may want to
-
 really say okay when can is typing
-
 meaning is making a mistake let's wait
-
 until YZ passes okay now take the input
-
 and and run it this is where these kinds
-
 of api's are very powerful you can do
-
 the bouncing on it you can also do a few
-
 other ways that you can ask it to you
-
 know take the input but wait for a
-
 frequency of time when there's nothing
-
 changing then start processing it and
-
 you can do quite a number of things
-
 those things are big din here as you can
-
 see a very powerful set of operations
-
 you can a can depend on so with all this
-
 said you can vary the back pressure and
-
 processing rate to a very comfortable
-
 level as you can see in here
-
 well that's great the next difference
-
 here is notice what I said earlier a
-
 single pipeline right so you can only
-
 have a single pipeline when it comes to
-
 a reactive Java 8 stream so you cannot
-
 do the forking you cannot say I want to
-
 go up and I want to go down and process
-
 two branches you can have two terminal
-
 operations in a Java eight streams on
-
 the other hand in a reactor stream you
-
 can have multiple subscribers so you
-
 canyou can do this pretty effectively so
-
 multiple subscribers how do you deal
-
 with multiple subscribers well when you
-
 deal with multiple subscribers you have
-
 to ask what do they see right what do
-
 the subscribers see and and and that
-
 answer depends on your problem at hand
-
 what you're trying to do with it
-
 so to understand this let's take a
-
 slightly different example and play with
-
 it just to give a glimpse of how this
-
 actually works so to understand this
-
 let's take a little example here so what
-
 I want to do here is I want to start
-
 with a flowable if you will so let's go
-
 ahead and say a flowable dot let's say
-
 integer well actually let's just do the
-
 interval let's start emitting data every
-
 second so I'm gonna save this away into
-
 a feed so now that it's in a feed what
-
 is my next step my next step is I'm
-
 gonna just give a little sleep here for
-
 about 10 seconds to just keep the thread
-
 alive here so then let's go ahead and
-
 say that I want to go ahead and do one
-
 processing so feed dart subscribe and
-
 I'm gonna take the data and I'm going to
-
 send it to process and in this case I'll
-
 say s1 : plus data so let's start with
-
 this little example and see how this is
-
 going to run so what does the process do
-
 it takes a message and all it does is it
-
 simply prints the message nothing really
-
 exciting so if I run this code every
-
 second you can see it's got one
-
 subscriber that is printing the data
-
 great but what I want to do though is I
-
 want to wait for about five seconds so I
-
 wait for about five seconds then I say
-
 dart subscribe data and then what am I
-
 gonna do here process s2 : and then I'm
-
 gonna bring in the data so now notice
-
 it's the same exact emitter same exact
-
 publisher but to that publisher I
-
 connected one subscriber but I also
-
 connected yet another subscriber so this
-
 subscriber came at time 0 this
-
 subscriber came at time 5 seconds what
-
 are they going to see there's no right
-
 answer it depends on what you want how
-
 do you want to design it so in other
-
 words imagine for a minute that you are
-
 sitting at home and you're watching a
-
 video on YouTube and this is very
-
 interesting video and you are into the
-
 15 minute of the video and your friend
-
 calls you and says hey what are you
-
 doing and you'll tell her who I'm
-
 watching this video on YouTube and you
-
 say what the title of the particular
-
 video is and your friend immediately
-
 goes to youtube types that title and say
-
 say that looks interesting and starts
-
 watching you are into the 15 minute of
-
 the video your friend is in the first
-
 minute of the video you both are
-
 watching the same source so to say but
-
 you're in a time-lapse you are ahead by
-
 15 minutes compared to your friend who
-
 came in 15 minutes later well that's
-
 exactly what's going to happen in this
-
 example when I fired this up you can see
-
 that s1 came in at time 0 but s2 came 5
-
 seconds later but it's got its own view
-
 at that point so you can see where s1 is
-
 at 5 s2 is at 0 so these are one source
-
 but two subscribers here's a way to
-
 think about it
-
 imagine I'm on iMessage and five seconds
-
 later I am connected with two different
-
 people maybe I'm talking to my wife on
-
 iMessage but I'm also talking to my
-
 friends caught on iMessage and that's
-
 perfectly fine isn't it what I'm talking
-
 to my
-
 he's an enough Scott's business what I'm
-
 talking to Scott is none of my wife's
-
 business so I'm having completely two
-
 separate conversations even though I'm
-
 the same person and this works fine with
-
 no problem most of the time occasionally
-
 I would type I love you and there'll be
-
 a very long delay and Scott says what
-
 the heck I love you too and I'm like oh
-
 yeah I love you man but then it's like I
-
 know you're talking to wife on the other
-
 side but the point really is that these
-
 are absolutely separate conversation no
-
 real conflict between them no confusion
-
 between them a complete separate
-
 subscription and that's exactly how it
-
 works on the other hand it is quite
-
 possible maybe you're watching the TV
-
 rather than watching something on
-
 YouTube maybe this is the wonderful
-
 football match you are absolutely drawn
-
 into the soccer match and you're
-
 watching this and buddy of your calls
-
 and says what are you doing and you tell
-
 her oh I'm watching you know Channel
-
 seven and your friend turns on the
-
 channel and now what does your friend
-
 see exactly the game at the moment
-
 because it's a live transmission so how
-
 do we do that well that's very easy to
-
 do you can go here and say share and and
-
 now all of a sudden that it's a shared
-
 subscription so you can see how the four
-
 King works in this case
-
 but you get to decide if these two are
-
 two separate subscriptions or if the
-
 subscriptions are the same for the two
-
 subscribers so here's a way to think
-
 about it it took me a while to realize
-
 this but you know sometimes it takes a
-
 while to learn certain patterns in life
-
 but I came to know this a little while
-
 after listening to my wife when she
-
 calls me on one of my trips I begin to
-
 realize this when she starts a sentence
-
 saying do you know what our son did
-
 today versus sometimes she'll call and
-
 say do you know what your son did today
-
 I kind of figured out eventually the our
-
 sons sentence starts with a praise your
-
 son's sentence usually starts with
-
 something is in trouble for
-
 there's a connotation there right the
-
 good parts are because of the joint
-
 effort here the bad parts are my bad
-
 influence
-
 the child but but I'm okay with that so
-
 the point really here is that if you
-
 want to scold a child you'd rather have
-
 a joint session to school the child
-
 isn't it so this is where the shared
-
 comes in so when I execute this this
-
 time around notice that your s1 is at
-
 zero seconds but five seconds into where
-
 you have s to join and at this point you
-
 can see both s1 and s2 are seeing
-
 exactly the same scenario so that's a
-
 joint subscription for multiple
-
 subscribers but here comes the really
-
 amazing part about it is that you can
-
 not only have multiple subscribers
-
 multiple three of subscribers so how is
-
 that because you can not only create
-
 here but this could have been something
-
 like a dart filter if you will so a dart
-
 filter and this could be some filtering
-
 operation what have you and then you
-
 could have stored that into a variable
-
 and you could connect to subscribers
-
 let's call it as f1 equal to and you
-
 could connect to subscribers to f1 at
-
 this point and so as a result you can
-
 pretty much you know go across different
-
 channels and a different trees and you
-
 can have share at one point non-shared
-
 and point permutation and combination of
-
 things you can go through that pretty
-
 nicely so that gives you a really nice
-
 flexibility if you will about how you
-
 can have r3 of subscribers to connect to
-
 this a very powerful you know a concept
-
 if you will that that you can benefit
-
 from so that's basically some of the key
-
 differences between those two is that
-
 there's a de channel only exception
-
 handled very definitely through the
-
 three channels your sequential versus
-
 payroll versus synchronous versus
-
 asynchronous and a single pipeline
-
 versus a multiple tree of subscribers
-
 that gives you a lot of power to deal
-
 with on your hand so that becomes a very
-
 easy to work with so so having said that
-
 a word what are the key of players here
-
 well so this brings up a very you know
-
 interesting question
-
 if these things are powerful how do we
-
 talk to these things so this is where
-
 the reactor streams API comes about so
-
 let's get rid of this let's talk about
-
 reactive streams API so reactive streams
-
 API this is an initiative that started a
-
 few years ago and as the reactive ApS
-
 became more and more popular there was a
-
 concern and the concern was you know how
-
 are we going to deal with this as
-
 programmers especially if the ApS are
-
 diverging that we're gonna suffer
-
 because of that
-
 so a good number of organizations got
-
 together and they said let's do a
-
 service let's put our heads together
-
 let's agree on a common interface and we
-
 will follow that so that's where the
-
 reactor stream API came about who are
-
 these companies well some of the teams
-
 involved in them Justin I'm not included
-
 going to be complete in this list my
-
 memory is not that good but just to
-
 mention a few of them the Eclipse
-
 Foundation
-
 apparently Netflix has some streaming
-
 problems to deal with so they were very
-
 interested in this idea so Eclipse
-
 Netflix light band the creators of Scala
-
 and the wonderful akka library were part
-
 of this initiated as well a pivotal
-
 reactor and products like that of course
-
 so there's a lot of these organizations
-
 got together a Twitter for example and
-
 they said let's work on this together to
-
 create a define a common API so as part
-
 of this initiated what did they do they
-
 created four interfaces the first
-
 interface is a publisher so what is a
-
 publisher a publisher is an emitter and
-
 the job of a publisher is to emit the
-
 data remember this is an interface right
-
 so a publisher interfaces job is to emit
-
 data now you're thinking wait you said
-
 there's a publisher well if that is the
-
 case why don't we see one well we did we
-
 just been seeing this quite a bit and
-
 here is your publisher right there
-
 sitting in front of you is your
-
 publisher if you doubt it just click on
-
 that one and take a look at it and
-
 notice it's a publisher right so a
-
 flowable is nothing but a publisher so
-
 publisher is job is to emit data and
-
 that's what we've been using so long
-
 here is the publisher that we are being
-
 using so what is the job of a publisher
-
 a jump uh blaa sure is to publish data
-
 is to emit data so that's a very first
-
 interface then there's a second
-
 interface and the second interface in
-
 this is what's called a subscriber so
-
 the job of a subscriber is to receive
-
 the data and so this is the tail end of
-
 it so your publisher is emitting data on
-
 one side your subscriber is getting
-
 their data on the other side and it's
-
 able to process that but in between
-
 these two you have what is called
-
 subscription so what is a subscription
-
 well imagine you have a boy and a girl
-
 at home and you subscribe to the science
-
 magazine the day it arrives is called
-
 the day of war because both the boy and
-
 the girl want to read it so what do you
-
 do as a parent who wants to say that
-
 stay sane you get two subscriptions to
-
 the same magazine so the girl can be
-
 reading one while the boy can read the
-
 other one and they're not going to fight
-
 with each other well there are other
-
 things to fight about about of course
-
 so the point really is that you want to
-
 get multiple subscriptions to the same
-
 subscriber so that's what a subscription
-
 is I like to see the word subscription
-
 as a session so this is a session
-
 between the emitter and the session
-
 between the subscriber so you can have a
-
 context information passed through the
-
 subscription and that's what basically a
-
 subscription has now that's all good so
-
 far but let's get back to this example
-
 for a minute let's remove this and and
-
 let's just change this a little bit to
-
 understand this idea so I'm gonna go
-
 ahead and say over here a dot let's
-
 remove this part also let's say a dart
-
 over here and a filter and give an
-
 element let's say element Mart to is
-
 equal to zero and then I'll say dart map
-
 and a given element right here we will
-
 say go ahead and take the value and
-
 double the value and I'll say subscribe
-
 a system dart out and we'll just say
-
 print illan so if you notice the
-
 it's gonna emit a even number and I'm
-
 gonna double it and I'm gonna print it
-
 you know as it comes through great
-
 however I want you to look at this guy
-
 right here for a second we know exactly
-
 what we are dealing with at the moment
-
 to the left of this is a publisher
-
 there's no doubt about it right because
-
 a publisher is going to be the one
-
 omitting the data so we're I'm
-
 highlighting the left of it is a
-
 publisher okay what's on the right side
-
 oh that's easy
-
 what's on the right side is a subscriber
-
 so let's this publisher right is
-
 subscriber not a problem but now notice
-
 I have a filter and map right in between
-
 now if you put your mouse here what is
-
 on the left of this oh that's very easy
-
 what was in the past
-
 that's a publisher no no surprise but
-
 what's on the right side of this now oh
-
 if that's left is a publisher the right
-
 has to be a subscriber okay well what's
-
 on the left over here well clearly
-
 what's on the left is still a publisher
-
 what's on the right is a subscriber what
-
 that tells us is these how are special
-
 because they are wearing two hats the
-
 one hat they wear is a publisher hat the
-
 other who had had they wear is a
-
 subscriber hat so they are both they are
-
 the intermediaries and they're sitting
-
 right in the middle and they are
-
 subscribed to data from upstream but
-
 they are a mirror of the data downstream
-
 and so they gotta have some special name
-
 isn't it so they are called as
-
 processors so what is this processor a
-
 processor is really wearing two hats a
-
 publisher plus a subscriber that's what
-
 they are so a processor is a combination
-
 of the two together and their job is to
-
 act as both a publisher and as a
-
 subscriber and so those are the four
-
 interfaces of the reactive stream API so
-
 those are the four things you get out of
-
 the reactor stream API you have the
-
 publisher you have the subscriber you
-
 have the subscription and finally you
-
 have the processor and and those are the
-
 four things so typically if you're going
-
 to be doing
-
 to programming those are the four things
-
 you need to work with with one thing to
-
 keep in mind these are interfaces so if
-
 you ask me how does a publisher publish
-
 its data
-
 the answer is have no clue right because
-
 that's not part of the interface because
-
 your Dan source could be so widely
-
 different you're if you go to MongoDB
-
 for example MongoDB has a client
-
 version that can start transmitting data
-
 now as an emitter and internally
-
 will start emitting data and all you get
-
 is a publisher to connect you oh how
-
 does it publish it's called none of your
-
 business right so we don't care about it
-
 that's their work and they can change it
-
 later on because they are the emitters
-
 so the specification doesn't say how to
-
 emit the specification says that you can
-
 connect to an emitter and you can start
-
 receiving that data so that is basically
-
 the reactive stream API and you have
-
 these four libraries provided to us and
-
 we can work off of these four things so
-
 this has been around for a few years I
-
 don't remember
-
 maybe five six seven years now and it's
-
 been around for that long and that's
-
 been fairly widely adopted and used by a
-
 number of different organizations but
-
 having said that now that we have this
-
 reactive stream API and we can use all
-
 of this programmers often ask the
-
 question hey this is great this is all
-
 nice and then they end up with the
-
 question but what about Java well yeah
-
 yeah you can do this in Java you see
-
 that's exactly what we did you can do
-
 this in Java right and and then they say
-
 yeah yeah that's great but what about
-
 Java so what they mean when they say
-
 what about Java is not if you can do
-
 this using Java obviously you can there
-
 are several products that can be used
-
 for doing this in Java rx Java from
-
 Netflix right so that's an open source
-
 library rx Java is very popular a lot of
-
 people use rx Java you can use acha acha
-
 is a library from light band akka is a
-
 very powerful reactive stream library it
-
 provides a lot of capabilities around
-
 this I
-
 for a greater amount of resilience and
-
 scale definitely take a look at it a
-
 reactor you know spring five is heavily
-
 you know focusing on this as well in
-
 spring five you have two things one is
-
 called slow and the other is called mono
-
 flow and mono if you click on those
-
 libraries and look at a definition of
-
 flow and mono both flow and mono both
-
 implement or extend from publisher right
-
 so they are providing this interface as
-
 well so there's reactor vertex is a very
-
 interesting tool vertex is a is a
-
 reactive library but it's a toolkit it's
-
 a lot more than just being reactive also
-
 but if you are going to do reactiveness
-
 across the wire you can do that as well
-
 and then of course you also have things
-
 like you know our socket that's being
-
 developed so many advances in this area
-
 as we move forward but then programmers
-
 say that's all wonderful great but what
-
 about Java
-
 well the question there really is you
-
 know hey is this something provided
-
 under the leadership of the JDK is this
-
 something available in the JDK
-
 why are we so keen on that well the
-
 reason we are so keen on that is that
-
 means there is stability that means
-
 there is guarantee that we are going to
-
 have something widely available it gives
-
 us a comfortable feeling that it's going
-
 to be around for a while right it's not
-
 something that's going to disappear so
-
 quickly
-
 so essentially what they wanted was a
-
 Java API for this and as a result now we
-
 have a Java 9 reactive stream API now
-
 there is one problem though imagine this
-
 for a minute imagine you are working
-
 with these teams and they have come up
-
 with this particular API and they have
-
 done this what five six seven eight
-
 years earlier and you come to the party
-
 pretty late if you come to the party
-
 till 8:00 and if you tell everybody the
-
 party that they are wrong and they got
-
 to do things differently that's a way to
-
 get uninvited isn't it so how do you do
-
 this right how do you get in go to a
-
 party late and still you know be part of
-
 the party
-
 well Java 9 decided to introduce an API
-
 and they introduced an API and said this
-
 is going to be the API moving forward
-
 and every one of the other organizations
-
 who worked on this looked at this and
-
 said we love it and they immediately
-
 adopted it now how could you possibly do
-
 that well these guys are extremely smart
-
 so they created a Java 9 reactive like
-
 API reactive stream API so what did they
-
 do they decided to introduce four
-
 interfaces the first interface they
-
 introduced was called publisher then
-
 they introduced a second interface
-
 called subscriber then they introduced a
-
 third interface called subscription I'm
-
 wondering if you can imagine what the
-
 fourth interface name was they called it
-
 processor and they said any questions
-
 and they all said we love it so this is
-
 how that Java 9 API came about the only
-
 difference is if you recollect when I
-
 wrote this over here this was part of
-
 the i/o dart reactive X so that is where
-
 the package was isn't it but moving
-
 forward starting Java 9 this is gonna be
-
 Java dot util dart concurrent dot flow
-
 dot so this is where these are gonna sit
-
 now obviously the F is uppercase F that
-
 tells you it's a class so these four
-
 interfaces are inner classes of the flow
-
 class which is part of the Java dot util
-
 dot
-
 so that's where that's sitting let's
-
 quickly take a look at an example of
-
 this so what about Java 9 so Java 9 is
-
 is really a blessing interface right so
-
 they said we agree with all these
-
 interfaces moving forward we'll use Java
-
 9 API but essentially excuse me those
-
 interfaces are pretty compatible so how
-
 would we use this Java dot util dot
-
 concurrent dot and I'm going to ask for
-
 a submission publisher this is one
-
 sample implementation in Java 9 now you
-
 wonder what this class really is so if
-
 you take a look at this class it is flow
-
 dot publisher as you can see so the
-
 floater publisher where in the world is
-
 flow if you take a look at flow you
-
 notice that flow is a final class with a
-
 private constructor and and all it
-
 contains is the interface called
-
 publisher an interface called subscriber
-
 an interface called well subscription
-
 and eventually a processor which extends
-
 both a subscriber and a publisher right
-
 so that's the one that wears the two
-
 hats and so those are the four things
-
 that are part of this particular class
-
 and those are for nested interfaces
-
 Wealth's nested static interfaces within
-
 the flow class that's where the
-
 namespaces so they're sitting nicely
-
 within the flow and they're part of the
-
 Java dot util dot concurrent library and
-
 and so if you want to look at what Java
-
 9 provides that's pretty consistent with
-
 what the reactive stream API gives you
-
 except for the different name of the
-
 package and the class that it actually
-
 contains it like I said this is more of
-
 a reference implementation a little boy
-
 so you could you could try this you
-
 could say subscription publisher integer
-
 and I can say over here let's go ahead
-
 and provide a reference to it will say
-
 publisher is equal we call it feed is
-
 equal to new subscription public
-
 so I created a subscription publisher
-
 right here now after creating this what
-
 am I going to do I'm gonna say feed dot
-
 subscribe and I'm gonna say new
-
 subscriber when I create a new
-
 subscriber you can see that this
-
 contains unsubscribe method this takes a
-
 subscription so when you register as a
-
 subscriber you get this little token
-
 which is the subscription and you can
-
 take this context of subscription and
-
 you can you can work with it so all I'm
-
 gonna do is to take the subscription and
-
 I'm gonna store it away into this field
-
 called subscription on next item all I'm
-
 gonna do is simply output the item given
-
 to me on error this is the error channel
-
 I'm gonna output error : and I'm going
-
 to simply output the throwable given to
-
 me and then finally on complete I'm
-
 gonna simply output right here we'll say
-
 done so this gives you an idea about how
-
 you're able to receive this on the side
-
 of the subscription these are the three
-
 methods I wrote for each one of those
-
 then what am I gonna do now that I've
-
 subscribed to it
-
 I remember the publisher doesn't have an
-
 API to emit data but on the other hand
-
 you were API submission publisher has a
-
 method to push the data to words so I'm
-
 gonna eat a rate over ten times and what
-
 am I gonna do here I'm gonna simply say
-
 at this point a feed dart and I'm gonna
-
 say submit and I'm gonna submit the
-
 value I through this particular
-
 submission and I'm going to simply put a
-
 little 10-second delay here and let's
-
 get started with this well if I run this
-
 code this time around you will notice
-
 that in this case I'm gonna put output
-
 let's go ahead and say put a few dashes
-
 here to see that it's over and when I
-
 run this you've seen nothing absolutely
-
 and at the very end of the ten seconds
-
 you're gonna see those three dashes so
-
 what-what just went wrong what happened
-
 here well this is where this library is
-
 doing things a little different
-
 it wants to subscribe but it wants to
-
 also deal with back pressure so as a
-
 result this says hey I am the publisher
-
 here I'm gonna start emitting data and
-
 you are the subscriber and you can
-
 receive the data and you can display it
-
 but the publisher assumes the worst that
-
 is that the capacity of the subscriber
-
 is zero the subscriber says I can handle
-
 any of your transmission so as a result
-
 the publisher doesn't transmit anything
-
 so what do we want to do I go here to
-
 the unsubscribe and I say subscription
-
 dot request one just give me one piece
-
 of data that's my capacity right so if I
-
 run the code this time you get that zero
-
 right there I'm gonna say give me two
-
 well when I run this you can see it
-
 gives me two pieces of data well give me
-
 five so it gives me five pieces of data
-
 so in other words you can set your
-
 capacity how much you can handle and
-
 based on the capacity you said it
-
 transmitted that many so think about it
-
 this way I said my capacity is five you
-
 transmit one my capacity is for you
-
 transmit one more my capacity is three
-
 you send me three more my capacity is
-
 zero sorry you can't send me any more
-
 that's why it doesn't send any more than
-
 five on the other hand if I go back here
-
 and say you know what I processed one so
-
 I request you to send me one more now
-
 when I execute this code you can see
-
 that it is able to get all the data
-
 because I'm my capacity is five you sent
-
 me one and the minute I finished
-
 processing it I increase my capacity
-
 right so as long as I can increase my
-
 capacity you can keep sending it to me
-
 this is another way to deal with back
-
 pressure and in this case you are saying
-
 I am NOT going to involve the buffering
-
 in between Bart I'm gonna tell you how
-
 many you can send me and I will take
-
 care of buffering them on my said if I
-
 need to and then when I am ready for
-
 more
-
 I'll wreck us for more and you can
-
 transmit more at that point so you can
-
 start managing
-
 these things based on how you're going
-
 to send and receive this data and that
-
 can give you a capability to set this up
-
 so this is part of the Java 9 API or
-
 having search on this if you ask the
-
 question you know how do I really use
-
 this in Java 9 and the short answer is
-
 Java 9 gives you a specification but for
-
 all real practical purposes you really
-
 want to use another library whether you
-
 gonna use akka whether you gonna use
-
 rxjava whether you're going to use a
-
 reactor whether you're gonna use pick
-
 your version that you are interested in
-
 depending on what capabilities you want
-
 so you wouldn't really build a
-
 production code with the facility given
-
 in Java 9 that that's not the real
-
 purpose the the purpose of Java 9 was to
-
 bring conformance of an API think about
-
 it like JDBC in a sense right you have
-
 different vendors providing you data
-
 base connectors they all conform to the
-
 JDBC API and that gives you the
-
 stability of the API that's kind of the
-
 intention here used to get the stability
-
 of the reactor stream API where there's
-
 four things and and anybody who's
-
 implementing things on the Java platform
-
 can conform to those four interfaces and
-
 that gives you the guarantee that your
-
 API is going to be stable for you to use
-
 with the generation being very specific
-
 to the data source but you can pretty
-
 much relate to it similarly you can go
-
 across the wire as well if you really
-
 are interested you could use tools like
-
 vertex for example and you can start
-
 transmitting data on one you know
-
 service and then you can receive it in
-
 another service and you can process it
-
 across the wire and on on both endpoints
-
 one of the things vertex just as it
-
 gives you wrappers around rx Java so
-
 your code is rx Java on both of your
-
 ends but vertex can take care of
-
 sterilizing it and sending it across so
-
 that can be really powerful way to
-
 transmit across the wire as well so
-
 there are different technologies you
-
 could use potentially depending on what
-
 you're trying to do so to summarize what
-
 we talked about we talked about how the
-
 reactive streams are different from the
-
 Java
-
 screams to summarize a few things about
-
 it
-
 Java eight streams are really dataflow
-
 that's what they really are
-
 and similarly react to streams are
-
 dataflow as well
-
 they both are built on the concept of
-
 functional pipeline and lazy evaluation
-
 and and and that is a really powerful
-
 thing because when you are connecting a
-
 pipeline if your subscriber is not
-
 connected you don't want to waste your
-
 resources performing computations whose
-
 results are not really valuable so this
-
 waits until a subscriber connects on the
-
 reactor stream just like a terminal
-
 operation connects on the Java eight
-
 streams so they both are built on
-
 laziness laziness leads to efficiency in
-
 code that's one of the good point parts
-
 about it secondly they are both pushing
-
 data the Java eight stream pushes data
-
 the reactor stream pushes data as well
-
 so they both are pushed technologies in
-
 that regard
-
 having said that the differences are
-
 wide like we talked about streams
-
 fundamentally are really a single
-
 pipeline of functions reactive streams
-
 are also pipeline of functions but they
-
 can be you know forked so you can branch
-
 off and you can build a tree structure
-
 to transmit one is a sequential versus
-
 parallel execution the other is
-
 synchronous versus asynchronous
-
 execution and you can go a forward Java
-
 eight streams predominantly are a single
-
 JVM solution reactor streams also are
-
 single JVM but they can branch off using
-
 other tools across the areum's as well
-
 if you ask me you know people often say
-
 is functional programming going to be a
-
 big deal in the future I my answer is
-
 very different these days my answer is
-
 functional programming is not going to
-
 be a big deal in the future it is going
-
 to be reactive programming that's going
-
 to be a big deal in the future and the
-
 reason I say that is I see reactive
-
 programming as a really nice application
-
 of the functional programming concepts
-
 to even realize that reactive
-
 programming is really an extension of
-
 function programming at least in the
-
 programming model was something that
-
 took me effort to you know really
-
 realize that hey there's actually
-
 you know pipeline I'm building on top of
-
 so that's a very logical way to look at
-
 a system as a series of these workflow
-
 and as your data flow you take the data
-
 from one process it and pass it to the
-
 next one and process it and this could
-
 be any series of pipeline and and in
-
 that regard from the conceptual point of
-
 view this is a very broad because it
-
 doesn't have to be the functional
-
 pipeline we see this could be processes
-
 that come to life on a system do some
-
 processing of data push the data to a to
-
 a topic on the message queue and die
-
 away so as a result this could be
-
 spanning across multiple machines across
-
 the network and as a result you can
-
 build a variety of these processing
-
 chains depending on what your
-
 application is for example you could be
-
 seeing a workflow of their data
-
 processing emerging at one point
-
 processing through multiple systems and
-
 then eventually arriving at a particular
-
 destination for a final processing and
-
 that could happen as well so it's a very
-
 vibrant idea APM's are moving towards
-
 this direction as well a lot of data
-
 bases are beginning to turn around to
-
 prevail produce reactive streams there
-
 are a lot of libraries that are turning
-
 around to provide reactive api's maybe
-
 you know rather than the request and
-
 response protocol where their streaming
-
 is needed you make a connection but you
-
 have data flowing through for you know
-
 whatever time you want to receive the
-
 data in what we saw here one of the
-
 things you can also do here is as an
-
 example like when I transmit this for
-
 example notice you're getting all the
-
 way data through nine but I can go back
-
 to this example and say for example on
-
 here I could say if item is equal to
-
 five I could say subscription d'art
-
 cancel and say buy I don't want any more
-
 data from you so this gives you a
-
 two-way protocol much like how the
-
 publisher can send a complete signal the
-
 subscriber can also send a signal to say
-
 that's enough don't send me any more
-
 data I am no longer interested in so you
-
 can see that at the end of five it no
-
 longer is sending the data because you
-
 as
-
 a subscriber can tell that I don't want
-
 any more data from you so this gives a
-
 nice way for you to go across and and
-
 the beauty is all this abstraction is
-
 built for us so we don't have to waste
-
 our time and effort building it the less
-
 code we write the less we have to
-
 maintain and we can build on this
-
 abstraction so so to summarize that
-
 point I want to kind of reiterate what I
-
 started out with so a stream is an
-
 internal iterator you know and of course
-
 represents functional programming right
-
 so functional composition and well of
-
 course and lazy evaluation so that's
-
 basically really really nice built up on
-
 the other hand I see reactive stream are
-
 a stream reactive stream is a really
-
 functional
-
 you know programming plus plus and
-
 that's the reason I say that it's a
-
 function programming plus plus is
-
 because functional composition plus lazy
-
 evaluation plus you know abstraction on
-
 top of that right
-
 so this is going to be of that and so
-
 this gives you a greater power on your
-
 hand and and once we are really
-
 comfortable with these ideas one of the
-
 reasons why these ideas are very
-
 powerful today is I think you know the
-
 world in general has become a lot more
-
 comfortable with this idea only four or
-
 five years ago this was an alien concept
-
 for us in Java community at least but
-
 almost every single language that's
-
 worth its salt provides this way of
-
 programming now and as we are embracing
-
 this more and more I think it's a really
-
 nice right time for us to increase the
-
 level of abstraction and I think we are
-
 really getting there and that's why I
-
 think reactive stream not reaction
-
 streams so reactive streams is going to
-
 be I think the future I'm already seeing
-
 this with all the libraries and things
-
 evolving maybe in the next five years
-
 the APS are going to look a lot
-
 different than the api's that we have
-
 seen in the past 10-15 years definitely
-
 I think it's exciting times fun times to
-
 be programming I think that's all I have
-
 hope that was useful then
-
 you
-
 [Applause]
-
