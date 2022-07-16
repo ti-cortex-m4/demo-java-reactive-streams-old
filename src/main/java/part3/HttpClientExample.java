@@ -1,5 +1,8 @@
 package part3;
 
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import org.reactivestreams.FlowAdapters;
 import reactor.adapter.JdkFlowAdapter;
 import reactor.core.publisher.Flux;
 
@@ -21,7 +24,7 @@ public class HttpClientExample {
             .version(HttpClient.Version.HTTP_2)
             .build();
 
-        Flow.Publisher<ByteBuffer> publisher = reactorPublisher();
+        Flow.Publisher<ByteBuffer> publisher = rxJavaPublisher(); //reactorPublisher();
         HttpRequest request = HttpRequest.newBuilder()
             .uri(new URI("https://postman-echo.com/post"))
             .headers("Content-Type", "text/plain;charset=UTF-8")
@@ -37,6 +40,16 @@ public class HttpClientExample {
         ByteBuffer buffer = ByteBuffer.wrap("hello".getBytes(Charset.defaultCharset()));
         Flux<ByteBuffer> flux = Flux.just(buffer);
         return JdkFlowAdapter.publisherToFlowPublisher(flux);
+    }
+
+    private static Flow.Publisher<ByteBuffer> rxJavaPublisher() {
+        Flowable<ByteBuffer> stringFlowable = Flowable.just(1, 2, 3)
+            .map(String::valueOf)
+            .map(x -> ByteBuffer.wrap(x.getBytes(Charset.defaultCharset())))
+            .toObservable()
+            .toFlowable(BackpressureStrategy.ERROR);
+
+        return FlowAdapters.toFlowPublisher(stringFlowable);
     }
 
     private static Flow.Publisher<ByteBuffer> getPublisher() {
