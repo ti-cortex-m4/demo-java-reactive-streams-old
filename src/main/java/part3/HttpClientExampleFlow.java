@@ -1,18 +1,11 @@
 package part3;
 
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.Flowable;
-import org.reactivestreams.FlowAdapters;
-import reactor.adapter.JdkFlowAdapter;
-import reactor.core.publisher.Flux;
-
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.Flow;
@@ -37,7 +30,7 @@ public class HttpClientExampleFlow {
     }
 
     private static Flow.Publisher<ByteBuffer> getFlowPublisher() {
-        return new Flow.Publisher<ByteBuffer>() {
+        return new Flow.Publisher<>() {
             @Override
             public void subscribe(Flow.Subscriber<? super ByteBuffer> subscriber) {
                 subscriber.onSubscribe(new Flow.Subscription() {

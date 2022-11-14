@@ -52,7 +52,7 @@ public class HttpClientExampleReactor {
     }
 
     private static Flow.Publisher<ByteBuffer> getPublisher() {
-        return new Flow.Publisher<ByteBuffer>() {
+        return new Flow.Publisher<>() {
             @Override
             public void subscribe(Flow.Subscriber<? super ByteBuffer> subscriber) {
                 subscriber.onSubscribe(new Flow.Subscription() {
