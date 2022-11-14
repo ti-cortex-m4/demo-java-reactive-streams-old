@@ -69,7 +69,7 @@ public class HttpClientExampleFlow {
             @Override
             public void onNext(List<ByteBuffer> buffers) {
                 for (ByteBuffer buffer : buffers) {
-                    System.out.println("onNext: " + Charset.defaultCharset().decode(buffer));
+                    System.out.println("onNext: " + StandardCharsets.UTF_8.decode(buffer));
                 }
 //                subscription.request(1);
             }

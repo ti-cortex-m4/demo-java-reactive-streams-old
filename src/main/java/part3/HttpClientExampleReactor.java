@@ -16,7 +16,7 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.Flow;
 
-public class HttpClientExample3 {
+public class HttpClientExampleReactor {
 
     public static void main(String[] args) throws Exception {
         HttpClient client = HttpClient.newBuilder()
