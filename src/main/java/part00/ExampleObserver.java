@@ -6,18 +6,21 @@ import java.util.Optional;
 
 public class ExampleObserver {
 
-    private final Observable observable = new Observable();
 
-    public void example() {
+    public static void main(String[] args) {
+        Observable observable = new Observable();
+
         Observer observer = new Observer() {
             @Override
             public void update(Observable o, Object arg) {
-                Value value = (Value) arg;
+                System.out.println("received: " + arg);
             }
         };
         observable.addObserver(observer);
-        Value value = new Value();
-        observable.notifyObservers(value);
+
+        observable.notifyObservers("a");
+        observable.notifyObservers("b");
+        observable.notifyObservers("c");
         //
         observable.deleteObserver(observer);
     }
