@@ -1,4 +1,4 @@
-package part4;
+package _mongodb;
 
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.InsertManyResult;
@@ -8,10 +8,10 @@ import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
-import reactivestreams.helpers.SubscriberHelpers.ObservableSubscriber;
-import reactivestreams.helpers.SubscriberHelpers.OperationSubscriber;
-import reactivestreams.helpers.SubscriberHelpers.PrintDocumentSubscriber;
-import reactivestreams.helpers.SubscriberHelpers.PrintSubscriber;
+import _mongodb.SubscriberHelpers.ObservableSubscriber;
+import _mongodb.SubscriberHelpers.OperationSubscriber;
+import _mongodb.SubscriberHelpers.PrintDocumentSubscriber;
+import _mongodb.SubscriberHelpers.PrintSubscriber;
 import org.bson.Document;
 
 import java.util.ArrayList;
