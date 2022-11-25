@@ -1,4 +1,4 @@
-package part3;
+package _httpclient;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;

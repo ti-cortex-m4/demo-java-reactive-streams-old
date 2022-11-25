@@ -1,4 +1,4 @@
-package part3;
+package _httpclient;
 
 import java.net.URI;
 import java.net.http.HttpClient;

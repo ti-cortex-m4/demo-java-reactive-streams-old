@@ -1,8 +1,7 @@
-package part3;
+package _httpclient;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
-import io.reactivex.subscribers.DisposableSubscriber;
 import org.reactivestreams.FlowAdapters;
 
 import java.net.URI;
