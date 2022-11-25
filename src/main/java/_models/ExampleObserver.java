@@ -1,8 +1,7 @@
-package part00;
+package _models;
 
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Optional;
 
 public class ExampleObserver {
 
