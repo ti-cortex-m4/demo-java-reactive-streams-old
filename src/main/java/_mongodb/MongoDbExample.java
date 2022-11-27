@@ -1,5 +1,5 @@
 package _mongodb;
-
+/*
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
@@ -11,9 +11,9 @@ import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.process.runtime.Network;
 import org.bson.Document;
-
+*/
 public class MongoDbExample {
-
+/*
     public static void main(String[] args) throws Exception {
         MongodStarter starter = MongodStarter.getDefaultInstance();
 
@@ -39,4 +39,6 @@ public class MongoDbExample {
                 mongodExecutable.stop();
         }
     }
+
+ */
 }

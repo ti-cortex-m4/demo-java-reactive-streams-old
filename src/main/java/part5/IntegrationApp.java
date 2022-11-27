@@ -1,5 +1,5 @@
 package part5;
-
+/*
 import akka.NotUsed;
 import akka.actor.ActorSystem;
 import akka.stream.ActorMaterializer;
@@ -13,10 +13,11 @@ import reactor.core.publisher.Flux;
 import java.time.Duration;
 import java.util.concurrent.Flow.Processor;
 import java.util.concurrent.Flow.Publisher;
-
+*/
 public class IntegrationApp {
-
+/*
     public static void main(String[] args) {
+
         Publisher<Long> reactorPublisher = reactorPublisher();
 
         Processor<Long, Long> akkaStreamsProcessor = akkaStreamsProcessor();
@@ -39,5 +40,5 @@ public class IntegrationApp {
 
     private static ActorSystem actorSystem = ActorSystem.create();
     private static ActorMaterializer materializer = ActorMaterializer.create(actorSystem);
-
+*/
 }

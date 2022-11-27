@@ -1,11 +1,11 @@
 package _models;
-
+/*
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
-
+*/
 public class ExampleReactiveExtensions {
-
+/*
     public static void main(String[] args) {
         Observer<String> observer = new Observer<>() {
             @Override
@@ -31,4 +31,6 @@ public class ExampleReactiveExtensions {
 
         subscription.unsubscribe();
     }
+
+ */
 }

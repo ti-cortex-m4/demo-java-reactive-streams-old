@@ -1,5 +1,5 @@
 package _httpclient;
-
+/*
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import org.reactivestreams.FlowAdapters;
@@ -13,9 +13,9 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.Flow;
-
+*/
 public class HttpClientExampleRxJava {
-
+/*
     public static void main(String[] args) throws Exception {
         HttpClient client = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
@@ -92,4 +92,5 @@ public class HttpClientExampleRxJava {
             }
         };
     }
+ */
 }
