@@ -1,11 +1,11 @@
 @startuml
 
 scale 1.2
-
 hide footbox
 
 !pragma teoz true
 
+skinparam participantPadding 10
 skinparam monochrome true
 skinparam defaultFontName Source Sans Pro
 skinparam sequenceMessageAlign center
@@ -30,7 +30,7 @@ loop until completed
         Subscription -> Publisher
     end
 
-    alt success
+    alt data
         Publisher -> Subscriber : onNext(T)
     else error
         Publisher -> Subscriber : onError(Throwable)
