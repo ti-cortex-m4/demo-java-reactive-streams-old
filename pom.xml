@@ -3,11 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>demo</groupId>
-    <artifactId>reactive-streams-java9</artifactId>
+    <artifactId>demo-java-reactve-streams</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-
-    <name>demo-java-flow</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
