@@ -1,6 +1,6 @@
 @startuml
 
-scale 1.0
+scale 1.2
 set namespaceSeparator none
 
 skinparam monochrome true
@@ -9,13 +9,13 @@ skinparam ClassBorderColor black
 skinparam CircledCharacterFontStyle normal
 
 interface Publisher<T> {
-+ void subscribe(Subscriber<? super T> subscriber)
++ void subscribe(Subscriber<? super T> s)
 }
 
 interface Subscriber<T> {
-+ void onSubscribe(Subscription subscription)
++ void onSubscribe(Subscription s)
 + void onNext(T item)
-+ void onError(Throwable throwable)
++ void onError(Throwable t)
 + void onComplete()
 }
 
