@@ -1,6 +1,6 @@
 @startuml
 
-scale 1.0
+scale 1.2
 
 hide footbox
 
@@ -8,8 +8,6 @@ hide footbox
 
 skinparam monochrome true
 skinparam defaultFontName Source Sans Pro
-'skinparam titleFontSize 15
-'skinparam sequenceMessageAlign left
 skinparam sequenceMessageAlign center
 skinparam participantBackgroundColor #white
 skinparam noteBackgroundColor #white
