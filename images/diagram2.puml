@@ -27,7 +27,7 @@ interface Subscription {
 interface Processor<T, R> {
 }
 
-Processor <|.. Publisher
-Processor <|.. Subscriber
+Publisher <|-- Processor
+Subscriber <|-- Processor
 
 @enduml
