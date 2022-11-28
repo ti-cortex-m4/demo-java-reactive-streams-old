@@ -1,3 +1,43 @@
+## The Reactive Streams specification
+
+[Reactive Streams](https://www.reactive-streams.org/) is a specification to provide a standard for asynchronous stream processing with non-blocking back pressure for various runtime environments (JVM, .NET and JavaScript) as well as network protocols. The Reactive Streams specification for the JVM (the latest version 1.0.4 was released at May 26th, 2022) consists of the following parts:
+
+
+
+* textual [specification](https://github.com/reactive-streams/reactive-streams-jvm/blob/v1.0.4/README.md#specification)
+* the Java [API](https://www.reactive-streams.org/reactive-streams-1.0.4-javadoc) that contains four interfaces that should be implemented according to this specification
+* the Technology Compatibility Kit ([TCK](https://www.reactive-streams.org/reactive-streams-tck-1.0.4-javadoc)), a standard test suite for conformance testing of implementations
+* [implementation examples](https://www.reactive-streams.org/reactive-streams-examples-1.0.4-javadoc)
+
+Reactive Streams is not a trivial specification. This happened because the specification was created after there were several mature implementations of reactive streams.
+
+Firstly, there is not enough to implement interfaces to make a reactive stream. To work correctly in an asynchronous environment, components of reactive streams must obey its contract. These contracts are summarized as textual specifications and verified in the Technology Compatibility Kit ([TCK](https://www.reactive-streams.org/reactive-streams-tck-1.0.4-javadoc)).
+
+Secondly, the specification doesn’t contain any implementations. It was created to provide a minimal standard that should provide interoperability across already existing implementations of reactive streams. An application developer should rarely implement this specification on their own, but instead use components from existing implementations:
+
+
+
+* general-purpose frameworks (Netflix RxJava, Lightbend Akka Streams, Pivotal Reactor, Eclipse Vert.x)
+* web frameworks (RatPack)
+* different back-end applications (Reactive Mongo, Reactive Rabbit)
+
+Thirdly, this specification is limited. It covers only mediating the stream of data between components (producers, consumers, processing stages). Other routine stream operations (filter, map, reducing, splitting, merging, etc.) are not covered by this specification. An application developer should use this specification to select components from the existing implementations and then use their native APIs.
+
+
+## The Reactive Streams API
+
+The Reactive Streams API consists of the following interfaces that contains in package _org.reactivestreams_:
+
+
+
+* Publisher&lt;T>: A producer of data and control events received by Subscribers
+* Subscriber&lt;T>: A consumer of events
+* Subscription: A connection linking a Publisher and Subscriber
+* Processor&lt;T,R>: A component that acts as both a Subscriber and Publisher
+
+![Reactive Streams API](/images/Reactive_Streams_API.png)
+
+
 #### Publisher
 
 The [Publisher](https://github.com/reactive-streams/reactive-streams-jvm#1-publisher-code) interface represents a producer of a potentially unbounded number of data and control events. A Publisher sends items according to the demand received from one or many Subscribers. Subscribers can subscribe and unsubscribe dynamically at various points in time. Each active Subscriber receives the same events in the same order, unless drops or errors are encountered.
@@ -16,7 +56,7 @@ This interface has the following method:
 
 * The method _Publisher#subscribe(Subscriber)_ requests a Publisher to start sending data to a Subscriber
 
-Publishers may vary about whether Subscribers receive items that were produced before they subscribed. Those producers who can be repeated and do not start until subscribed to, are _cold_ producers (examples: in-memory ierators, file readings, database queries). Those producers who cannot be repeated and start immediately regardless of whether it has subscribers, are _hot_ producers (examples: keyboard and mouse events, sensor events, network requests, time).
+Publishers may vary about whether Subscribers receive items that were produced before they subscribed. Those producers who can be repeated and do not start until subscribed to, are _cold_ producers (examples: in-memory iterators, file readings, database queries). Those producers who cannot be repeated and start immediately regardless of whether it has subscribers, are _hot_ producers (examples: keyboard and mouse events, sensor events, network requests, time).
 
 
 #### Subscriber
@@ -65,6 +105,8 @@ This interface has the following methods:
 
 * The _request(long)_ method adds the given number of items to the unfulfilled demand for this Subscription
 * The _cancel()_ method requests the Publisher to stop sending items and clean up resources
+
+A canceled Subscription does not receive _Subscriber#onComplete() _or _Subscriber#onError(Throwable) _events.
 
 
 #### Processor
