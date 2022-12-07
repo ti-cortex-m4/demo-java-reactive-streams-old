@@ -7,10 +7,10 @@ import rx.Subscription;
 public class ExampleReactiveExtensions {
 /*
     public static void main(String[] args) {
-        Observer<String> observer = new Observer<>() {
+        Observer<String> consumer = new Observer<>() {
             @Override
-            public void onCompleted() {
-                System.out.println("completed");
+            public void onNext(String message) {
+                System.out.println("data: " + message);
             }
 
             @Override
@@ -19,15 +19,15 @@ public class ExampleReactiveExtensions {
             }
 
             @Override
-            public void onNext(String message) {
-                System.out.println("received: " + message);
+            public void onCompleted() {
+                System.out.println("completed");
             }
         };
-        Observable<String> observable = Observable.just("a", "b", "c");
-        Subscription subscription = observable
+        Observable<String> producer = Observable.just("a", "b", "c");
+        Subscription subscription = producer
             .filter(s -> !s.isEmpty())
             .map(s -> s.toUpperCase())
-            .subscribe(observer);
+            .subscribe(consumer);
 
         subscription.unsubscribe();
     }

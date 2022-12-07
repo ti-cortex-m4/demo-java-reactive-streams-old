@@ -7,21 +7,21 @@ public class ExampleObserver {
 
 
     public static void main(String[] args) {
-        Observable observable = new Observable();
+        Observable producer = new Observable();
 
-        Observer observer = new Observer() {
+        Observer consumer = new Observer() {
             @Override
             public void update(Observable o, Object arg) {
                 System.out.println("received: " + arg);
             }
         };
-        observable.addObserver(observer);
+        producer.addObserver(consumer);
 
-        observable.notifyObservers("a");
-        observable.notifyObservers("b");
-        observable.notifyObservers("c");
+        producer.notifyObservers("a");
+        producer.notifyObservers("b");
+        producer.notifyObservers("c");
         //
-        observable.deleteObserver(observer);
+        producer.deleteObserver(consumer);
     }
 
     private static class Value {
