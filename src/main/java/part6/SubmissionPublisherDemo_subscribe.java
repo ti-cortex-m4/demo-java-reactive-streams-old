@@ -51,8 +51,8 @@ public class SubmissionPublisherDemo_subscribe {
 
             LongStream.range(0, 10).forEach(publisher::submit);
 
-            ExecutorService executor = (ExecutorService)publisher.getExecutor();
-            executor.awaitTermination(1, TimeUnit.SECONDS);
+            ExecutorService executorService = (ExecutorService)publisher.getExecutor();
+            executorService.awaitTermination(1, TimeUnit.SECONDS);
         }
     }
 }
