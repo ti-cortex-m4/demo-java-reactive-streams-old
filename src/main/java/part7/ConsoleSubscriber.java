@@ -5,13 +5,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.Flow;
 
-class EchoSubscriber implements Flow.Subscriber<List<ByteBuffer>> {
-
-    private Flow.Subscription subscription;
+class ConsoleSubscriber implements Flow.Subscriber<List<ByteBuffer>> {
 
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
-        this.subscription = subscription;
         subscription.request(Long.MAX_VALUE);
     }
 
@@ -20,7 +17,6 @@ class EchoSubscriber implements Flow.Subscriber<List<ByteBuffer>> {
         for (ByteBuffer buffer : buffers) {
             System.out.println("onNext: " + StandardCharsets.UTF_8.decode(buffer));
         }
-//                subscription.request(1);
     }
 
     @Override

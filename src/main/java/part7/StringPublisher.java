@@ -4,7 +4,13 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Flow;
 
-public class EchoPublisher implements Flow.Publisher<ByteBuffer>{
+public class StringPublisher implements Flow.Publisher<ByteBuffer>{
+
+    private final String string;
+
+    public StringPublisher(String string) {
+        this.string = string;
+    }
 
     @Override
     public void subscribe(Flow.Subscriber<? super ByteBuffer> subscriber) {
@@ -17,7 +23,7 @@ public class EchoPublisher implements Flow.Publisher<ByteBuffer>{
             public void cancel() {
             }
         });
-        subscriber.onNext(ByteBuffer.wrap("hello".getBytes(StandardCharsets.UTF_8)));
+        subscriber.onNext(ByteBuffer.wrap(string.getBytes(StandardCharsets.UTF_8)));
         subscriber.onComplete();
     }
 }
