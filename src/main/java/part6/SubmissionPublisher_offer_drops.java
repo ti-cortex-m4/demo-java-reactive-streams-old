@@ -32,6 +32,7 @@ public class SubmissionPublisher_offer_drops {
                         @Override
                         public boolean test(Flow.Subscriber<? super Long> subscriber, Long aLong) {
                             logger.info("dropped: " + aLong);
+                            delay();
                             return false;
                         }
                     });
