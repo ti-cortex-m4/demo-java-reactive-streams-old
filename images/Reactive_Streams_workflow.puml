@@ -22,11 +22,11 @@ Publisher -> Subscription : new Subscription()
 Publisher -> Subscriber : onSubscribe(Subscription)
 
 loop until completed
-    alt continue
+    alt continuation
         Subscriber -> Subscription : request(long)
         Subscription -> Publisher
         Publisher -> Subscriber : onNext(T)
-    else cancel
+    else cancellation
         Subscriber -> Subscription : cancel()
         Subscription -> Publisher
     end
