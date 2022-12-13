@@ -1,5 +1,8 @@
 package part6;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
@@ -9,20 +12,38 @@ import java.util.stream.LongStream;
 
 public class Chaining {
 
+    private static final Logger logger = LoggerFactory.getLogger(SubmissionPublisher_offer_drops.class);
+
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         try (SubmissionPublisher<Integer> publisher1 = new SubmissionPublisher<>();
              SubmissionPublisher<Integer> publisher2 = new SubmissionPublisher<>();
              SubmissionPublisher<Integer> publisher3 = new SubmissionPublisher<>()) {
 
-            publisher1.consume(x -> publisher2.submit(x * x));
-            publisher2.consume(x -> publisher3.submit(x * x));
-            publisher3.consume(x -> System.out.println(x));
+            publisher1.consume(x -> {
+                logger.info("step 1: {}", x);
+                delay();
+                publisher2.submit(x * x);
+            });
+            publisher2.consume(x -> {
+                logger.info("step 2: {}", x);
+                delay();
+                publisher3.submit(x * x);
+            });
+            publisher3.consume(x -> logger.info("step 3: {}", x));
 
-            publisher1.submit(1);
             publisher1.submit(2);
             publisher1.submit(3);
+            publisher1.submit(5);
 
-            ForkJoinPool.commonPool().awaitTermination(1, TimeUnit.SECONDS);
+            ForkJoinPool.commonPool().awaitTermination(10, TimeUnit.SECONDS);
+        }
+    }
+
+    private static void delay() {
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 }
