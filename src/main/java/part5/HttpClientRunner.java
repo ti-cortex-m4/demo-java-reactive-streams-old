@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.Flow;
 
-public class HttpClientExample {
+public class HttpClientRunner {
 
     public static void main(String[] args) throws Exception {
         HttpClient client = HttpClient.newBuilder()
@@ -23,7 +23,8 @@ public class HttpClientExample {
             .POST(HttpRequest.BodyPublishers.fromPublisher(publisher))
             .build();
 
-        Flow.Subscriber<List<ByteBuffer>> subscriber = new ConsoleSubscriber();
+        Flow.Subscriber<List<ByteBuffer>> subscriber = new StringSubscriber();
+
         HttpResponse<Void> response = client.sendAsync(request, BodyHandlers.fromSubscriber(subscriber)).join();
         System.out.println(response.statusCode());
     }

@@ -11,7 +11,7 @@ public class NumbersPublisher extends SubmissionPublisher<Integer> {
 
     private final int count;
 
-    NumbersPublisher(int count) {
+    public NumbersPublisher(int count) {
         this.count = count;
     }
 

@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.Flow;
 
-class ConsoleSubscriber implements Flow.Subscriber<List<ByteBuffer>> {
+class StringSubscriber implements Flow.Subscriber<List<ByteBuffer>> {
 
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
