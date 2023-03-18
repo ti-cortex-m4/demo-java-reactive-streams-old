@@ -1,6 +1,7 @@
 package part5;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -11,12 +12,13 @@ import java.util.concurrent.Flow;
 
 public class HttpClientRunner {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws URISyntaxException {
         HttpClient client = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
             .build();
 
         Flow.Publisher<ByteBuffer> publisher = new StringPublisher("hello");
+
         HttpRequest request = HttpRequest.newBuilder()
             .uri(new URI("https://postman-echo.com/post"))
             .headers("Content-Type", "text/plain;charset=UTF-8")
