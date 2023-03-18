@@ -2,33 +2,35 @@
  * Licensed under MIT No Attribution (SPDX: MIT-0) *
  ***************************************************/
 
-package org.reactivestreams.example.unicast.publisher;
+package _org.reactivestreams.example.unicast.publisher;
 
+import java.lang.Override;
+import java.util.Iterator;
 import org.reactivestreams.Publisher;
-import org.reactivestreams.example.unicast.publisher.AsyncIterablePublisher;
-import org.reactivestreams.example.unicast.publisher.InfiniteIncrementNumberPublisher;
 import org.reactivestreams.tck.PublisherVerification;
 import org.reactivestreams.tck.TestEnvironment;
 import org.testng.annotations.Test;
+
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.AfterClass;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
-import java.util.Iterator;
 
 @Test // Must be here for TestNG to find and run this, do not remove
-public class UnboundedIntegerIncrementPublisherTest extends PublisherVerification<Integer> {
+public class IterablePublisherTest extends PublisherVerification<Integer> {
 
   private ExecutorService e;
   @BeforeClass void before() { e = Executors.newFixedThreadPool(4); }
   @AfterClass void after() { if (e != null) e.shutdown(); }
 
-  public UnboundedIntegerIncrementPublisherTest() {
+  public IterablePublisherTest() {
     super(new TestEnvironment());
   }
 
-  @Override public Publisher<Integer> createPublisher(long elements) {
-    return new InfiniteIncrementNumberPublisher(e);
+  @SuppressWarnings("unchecked")
+  @Override public Publisher<Integer> createPublisher(final long elements) {
+    assert(elements <= maxElementsFromPublisher());
+    return new NumberIterablePublisher(0, (int)elements, e);
   }
 
   @Override public Publisher<Integer> createFailedPublisher() {
@@ -40,6 +42,6 @@ public class UnboundedIntegerIncrementPublisherTest extends PublisherVerificatio
   }
 
   @Override public long maxElementsFromPublisher() {
-    return super.publisherUnableToSignalOnComplete();
+    return Integer.MAX_VALUE;
   }
 }

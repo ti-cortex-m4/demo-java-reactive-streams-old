@@ -2,7 +2,7 @@
  * Licensed under MIT No Attribution (SPDX: MIT-0) *
  ***************************************************/
 
-package org.reactivestreams.example.unicast.publisher;
+package _org.reactivestreams.example.unicast.publisher;
 
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;

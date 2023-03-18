@@ -2,11 +2,10 @@
  * Licensed under MIT No Attribution (SPDX: MIT-0) *
  ***************************************************/
 
-package org.reactivestreams.example.unicast.subscriber;
+package _org.reactivestreams.example.unicast.subscriber;
 
 import org.reactivestreams.Subscriber;
-import org.reactivestreams.example.unicast.publisher.NumberIterablePublisher;
-import org.reactivestreams.example.unicast.subscriber.AsyncSubscriber;
+import _org.reactivestreams.example.unicast.publisher.NumberIterablePublisher;
 import org.reactivestreams.tck.SubscriberBlackboxVerification;
 import org.reactivestreams.tck.TestEnvironment;
 import org.testng.annotations.Test;
@@ -32,7 +31,7 @@ public class AsyncSubscriberTest extends SubscriberBlackboxVerification<Integer>
   }
 
   @Override public Subscriber<Integer> createSubscriber() {
-    return new org.reactivestreams.example.unicast.subscriber.AsyncSubscriber<Integer>(e) {
+    return new AsyncSubscriber<Integer>(e) {
       @Override protected boolean whenNext(final Integer element) {
         return true;
       }

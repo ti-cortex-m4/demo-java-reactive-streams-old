@@ -20,10 +20,6 @@ public class SimplePublisher implements Flow.Publisher<Integer> {
         subscriber.onComplete();
     }
 
-    public static void main(String[] args) {
-        new SimplePublisher(10).subscribe(new SimpleSubscriber());
-    }
-
     private class SimpleSubscription implements Flow.Subscription {
 
         private final Flow.Subscriber<? super Integer> subscriber;
