@@ -1,19 +1,19 @@
-package part0;
+package part2;
 
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowPublisherVerification;
 
 import java.util.concurrent.Flow;
 
-public class SimplePublisherTest extends FlowPublisherVerification<Integer> {
+public class NumbersPublisherTest extends FlowPublisherVerification<Integer> {
 
-    public SimplePublisherTest() {
+    public NumbersPublisherTest() {
         super(new TestEnvironment());
     }
 
     @Override
     public Flow.Publisher<Integer> createFlowPublisher(long elements) {
-        return new SimplePublisher((int) elements);
+        return new NumbersPublisher1((int) elements);
     }
 
     @Override

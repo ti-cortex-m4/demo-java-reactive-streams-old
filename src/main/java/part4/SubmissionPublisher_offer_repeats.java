@@ -1,4 +1,4 @@
-package part6;
+package part4;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +12,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiPredicate;
 import java.util.stream.LongStream;
 
-public class SubmissionPublisher_offer_drops {
+public class SubmissionPublisher_offer_repeats {
 
-    private static final Logger logger = LoggerFactory.getLogger(SubmissionPublisher_offer_drops.class);
+    private static final Logger logger = LoggerFactory.getLogger(SubmissionPublisher_offer_repeats.class);
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(ForkJoinPool.commonPool(), 2)) {
@@ -31,9 +31,9 @@ public class SubmissionPublisher_offer_drops {
                     publisher.offer(item, new BiPredicate<Flow.Subscriber<? super Long>, Long>() {
                         @Override
                         public boolean test(Flow.Subscriber<? super Long> subscriber, Long aLong) {
-                            logger.info("dropped: " + aLong);
+                            logger.info("repeated: " + aLong);
                             delay();
-                            return false;
+                            return true;
                         }
                     });
                     logger.info("after offer:  " + item);

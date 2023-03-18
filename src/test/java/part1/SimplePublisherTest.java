@@ -5,15 +5,15 @@ import org.reactivestreams.tck.flow.FlowPublisherVerification;
 
 import java.util.concurrent.Flow;
 
-public class NumbersPublisherTest extends FlowPublisherVerification<Integer> {
+public class SimplePublisherTest extends FlowPublisherVerification<Integer> {
 
-    public NumbersPublisherTest() {
+    public SimplePublisherTest() {
         super(new TestEnvironment());
     }
 
     @Override
     public Flow.Publisher<Integer> createFlowPublisher(long elements) {
-        return new NumbersPublisher1((int) elements);
+        return new SimplePublisher((int) elements);
     }
 
     @Override

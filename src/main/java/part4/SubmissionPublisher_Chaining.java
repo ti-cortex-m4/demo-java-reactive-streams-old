@@ -1,16 +1,14 @@
-package part6;
+package part4;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.LongStream;
 
-public class Chaining {
+public class SubmissionPublisher_Chaining {
 
     private static final Logger logger = LoggerFactory.getLogger(SubmissionPublisher_offer_drops.class);
 
