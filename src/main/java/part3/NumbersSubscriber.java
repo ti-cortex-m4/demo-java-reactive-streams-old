@@ -5,9 +5,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Flow;
 
-public class NumbersSubscriber2 implements Flow.Subscriber<Integer> {
+public class NumbersSubscriber implements Flow.Subscriber<Integer> {
 
-    private static final Logger logger = LoggerFactory.getLogger(NumbersSubscriber2.class);
+    private static final Logger logger = LoggerFactory.getLogger(NumbersSubscriber.class);
 
     private Flow.Subscription subscription;
 

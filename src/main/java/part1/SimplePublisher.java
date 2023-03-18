@@ -9,7 +9,7 @@ public class SimplePublisher implements Flow.Publisher<Integer> {
 
     private final Iterator<Integer> iterator;
 
-    SimplePublisher(int count) {
+    public SimplePublisher(int count) {
         this.iterator = IntStream.rangeClosed(1, count).iterator();
     }
 
@@ -35,7 +35,7 @@ public class SimplePublisher implements Flow.Publisher<Integer> {
                 subscriber.onError(new IllegalArgumentException());
             }
 
-            for (long demand = n; demand > 0 && iterator.hasNext() && !terminated.get(); demand--) {
+            for (long i = n; i > 0 && iterator.hasNext() && !terminated.get(); i--) {
                 subscriber.onNext(iterator.next());
             }
 

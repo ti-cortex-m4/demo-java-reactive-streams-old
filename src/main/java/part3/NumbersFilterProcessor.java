@@ -7,9 +7,9 @@ import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.function.Predicate;
 
-public class NumbersProcessor2 extends SubmissionPublisher<Integer> implements Flow.Processor<Integer, Integer> {
+public class NumbersFilterProcessor extends SubmissionPublisher<Integer> implements Flow.Processor<Integer, Integer> {
 
-    private static final Logger logger = LoggerFactory.getLogger(NumbersProcessor2.class);
+    private static final Logger logger = LoggerFactory.getLogger(NumbersFilterProcessor.class);
 
     private Flow.Subscription subscription;
 
