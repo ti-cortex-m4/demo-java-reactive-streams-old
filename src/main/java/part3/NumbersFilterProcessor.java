@@ -22,7 +22,7 @@ public class NumbersFilterProcessor extends SubmissionPublisher<Integer> impleme
 
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
-        logger.info("Processor.onSubscribe: {}", subscription);
+        logger.info("Filter.onSubscribe: {}", subscription);
         this.subscription = subscription;
         this.subscription.request(1);
 
@@ -30,8 +30,8 @@ public class NumbersFilterProcessor extends SubmissionPublisher<Integer> impleme
 
     @Override
     public void onNext(Integer item) {
-        logger.info("Processor.onNext: {}", item);
         if (predicate.test(item)) {
+            logger.info("Filter.onNext: {}", item);
             submit(item);
         }
         this.subscription.request(1);
@@ -39,13 +39,13 @@ public class NumbersFilterProcessor extends SubmissionPublisher<Integer> impleme
 
     @Override
     public void onError(Throwable throwable) {
-        logger.info("Processor.onError: {}", throwable.getMessage());
+        logger.info("Filter.onError: {}", throwable.getMessage());
         closeExceptionally(throwable);
     }
 
     @Override
     public void onComplete() {
-        logger.info("Processor.onComplete");
+        logger.info("Filter.onComplete");
         close();
     }
 }

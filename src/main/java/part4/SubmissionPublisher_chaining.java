@@ -8,7 +8,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
 
-public class SubmissionPublisher_Chaining {
+public class SubmissionPublisher_chaining {
 
     private static final Logger logger = LoggerFactory.getLogger(SubmissionPublisher_offer_drops.class);
 
