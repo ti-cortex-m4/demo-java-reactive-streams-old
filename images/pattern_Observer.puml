@@ -1,6 +1,6 @@
 @startuml
 
-scale 1.2
+scale 1.0
 hide footbox
 
 !pragma teoz true
@@ -11,7 +11,7 @@ skinparam sequenceMessageAlign center
 skinparam participantBackgroundColor #white
 skinparam noteBackgroundColor #white
 skinparam sequenceGroupBackgroundColor #white
-skinparam participantPadding 10
+skinparam participantPadding 20
 
 participant Observable
 participant Observer

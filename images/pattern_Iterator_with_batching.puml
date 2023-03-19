@@ -1,6 +1,6 @@
 @startuml
 
-scale 1.2
+scale 1.0
 hide footbox
 
 !pragma teoz true
@@ -30,7 +30,7 @@ Producer ->(10) Consumer : value
 else
 Producer -->(10) Consumer : error
 else
-Producer -->(10) Consumer : empty
+Producer -->(10) Consumer : no value
 end
 
 @enduml
