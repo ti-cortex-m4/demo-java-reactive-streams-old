@@ -13,22 +13,22 @@ skinparam noteBackgroundColor #white
 skinparam sequenceGroupBackgroundColor #white
 skinparam participantPadding 20
 
-participant Producer
-participant Consumer
+participant Target
+participant Caller
 
-Consumer ->(10) Producer : next()
-Producer ->(10) Consumer : value
+Caller ->(10) Target : next()
+Target ->(10) Caller : value
 
-Consumer ->(10) Producer : next()
-Producer ->(10) Consumer : value
+Caller ->(10) Target : next()
+Target ->(10) Caller : value
 
-Consumer ->(10) Producer : next()
+Caller ->(10) Target : next()
 alt
-Producer ->(10) Consumer : value
+Target ->(10) Caller : value
 else
-Producer -->(10) Consumer : error
+Target -->(10) Caller : error
 else
-Producer -->(10) Consumer : no value
+Target -->(10) Caller : no value
 end
 
 @enduml
