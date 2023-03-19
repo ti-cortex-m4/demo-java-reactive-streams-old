@@ -13,8 +13,8 @@ skinparam noteBackgroundColor #white
 skinparam sequenceGroupBackgroundColor #white
 skinparam participantPadding 20
 
-participant Target
 participant Caller
+participant Target
 
 Caller ->(10) Target : next(long)
 Target ->(10) Caller : value

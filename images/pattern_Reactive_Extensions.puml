@@ -13,9 +13,9 @@ skinparam noteBackgroundColor #white
 skinparam sequenceGroupBackgroundColor #white
 skinparam participantPadding 10
 
-participant Publisher
-participant Subscription
 participant Subscriber
+participant Subscription
+participant Publisher
 
 Subscriber ->(10) Publisher : subscribe(Subscriber)
 Publisher ->(10) Subscription : new Subscription()

@@ -13,8 +13,8 @@ skinparam noteBackgroundColor #white
 skinparam sequenceGroupBackgroundColor #white
 skinparam participantPadding 20
 
-participant Observable
 participant Observer
+participant Observable
 
 Observer ->(10) Observable : addObserver()
 
