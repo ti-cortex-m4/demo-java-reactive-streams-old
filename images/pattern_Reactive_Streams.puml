@@ -17,25 +17,20 @@ participant Publisher
 participant Subscription
 participant Subscriber
 
-Subscriber -> Publisher : subscribe(Subscriber)
-Publisher -> Subscription : new Subscription()
-Publisher -> Subscriber : onSubscribe(Subscription)
+Subscriber ->(10) Publisher : subscribe(Subscriber)
+Publisher ->(10) Subscription : new Subscription()
+Publisher ->(10) Subscriber : onSubscribe(Subscription)
 
-loop until completed
-    alt continuation
-        Subscriber -> Subscription : request(long)
-        Subscription -> Publisher
-        Publisher -> Subscriber : onNext(T)
-    else cancellation
-        Subscriber -> Subscription : cancel()
-        Subscription -> Publisher
-    end
-end
+Publisher ->(10) Subscriber : onNext(T)
+Publisher ->(10) Subscriber : onNext(T)
+Publisher ->(10) Subscriber : onNext(T)
 
-alt successful completion
-    Publisher -> Subscriber : onComplete()
-else erroneous completion
-    Publisher -> Subscriber : onError(Throwable)
+alt
+    Publisher ->(10) Subscriber : onError(Throwable)
+else
+    Publisher ->(10) Subscriber : onComplete()
+else
+    Subscriber ->(10) Subscription : cancel
 end
 
 @enduml
