@@ -30,7 +30,7 @@ alt
 else
     Publisher ->(10) Subscriber : onComplete()
 else
-    Subscriber ->(10) Subscription : cancel
+    Subscriber ->(10) Subscription : unsubscribe()
 end
 
 @enduml
