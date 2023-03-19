@@ -1,0 +1,31 @@
+@startuml
+
+scale 1.2
+hide footbox
+
+!pragma teoz true
+
+skinparam monochrome true
+skinparam defaultFontName Source Sans Pro
+skinparam sequenceMessageAlign center
+skinparam participantBackgroundColor #white
+skinparam noteBackgroundColor #white
+skinparam sequenceGroupBackgroundColor #white
+skinparam participantPadding 10
+
+participant Observable
+participant Observer
+
+Observer ->(10) Observable : addObserver
+
+Observable ->(10) Observer : update(T)
+Observable ->(10) Observer : update(T)
+Observable ->(10) Observer : update(T)
+
+alt
+    Observable -->(10) Observer : error
+else
+    Observer ->(10) Observable : deleteObserver
+end
+
+@enduml
