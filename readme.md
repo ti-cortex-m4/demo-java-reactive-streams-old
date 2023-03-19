@@ -1,8 +1,37 @@
 ## Architecture
 
+<!-- Output copied to clipboard! -->
+
+<!-----
+
+Yay, no errors, warnings, or alerts!
+
+Conversion time: 0.706 seconds.
+
+
+Using this Markdown file:
+
+1. Paste this output into your source file.
+2. See the notes and action items below regarding this conversion run.
+3. Check the rendered output (headings, lists, code blocks, tables) for proper
+   formatting and use a linkchecker before you publish this page.
+
+Conversion notes:
+
+* Docs to Markdown version 1.0β34
+* Sun Mar 19 2023 12:06:16 GMT-0700 (PDT)
+* Source doc: #2
+* This is a partial selection. Check to make sure intra-doc links work.
+* Tables are currently converted to HTML tables.
+----->
+
+
+
 ### Iterator
 
 In the Iterator pattern, the consumer synchronously _pulls_ data events from the producer one-by-one. The consumer determines when to start an exchange, when to request the next data event, and when to stop the exchange. The producer sends events only when the consumer requests it. If the producer has no event when it is requested, it sends an empty response.
+
+![pattern Iterator](/images/pattern_Iterator.png)
 
 Pros
 
@@ -17,29 +46,18 @@ Cons
 
 
 * The latency may be non-optimal because of an incorrectly chosen pulling period (too long pulling period results in high latency, too short pulling period results in wasted CPU and I/O resources)
-* The throughput is non-optimal because it takes one request-response to send each data event
+* The throutput is non-optimal because it takes one request-response to send each data event
 * A consumer can not determine if the producer has finished the evens generation
 
-Iterator
+When using the Iterator pattern that transfers data events one by one, the latency and throutput are often unsatisfactory. To improve these parameters with minor architecture changes, the same Iterator pattern is often used, which transfers data events not one by one, but in batches of fixed or variable size.
 
-
-
-* hasNext
-* next
-
-
-### Iterator with batching
-
-In the Iterator with batching pattern, the consumer synchronously _pulls_ data events from the producer not one-by-one but in batches of fixed or variable size.
+![pattern Iterator with batching](/images/pattern_Iterator_with_batching.png)
 
 Pros:
 
 
 
-* The consumer can start exchange at any time
-* The consumer can request the next data events when it processed the previous ones
-* The consumer can stop exchange at any time
-* The throughput is increased because number of request-responses is reduced from _one_ per data event to one for _all_ data events in a batch
+* The throutput is increased because number of request-responses is reduced from _one_ per data event to one for _all_ data events in a batch
 
 Cons
 
@@ -54,34 +72,22 @@ Cons
 
 In the Observer pattern, one or many consumers subscribe to a producer's data events. The producer asynchronously _pushes_ data events to all subscribed consumers as soon as they become available. A consumer can unsubscribe from the producer at any time if it does not need further events.
 
+![pattern Observer](/images/pattern_Observer.png)
+
 Pros
 
 
 
 * The consumer can start exchange at any time
 * The consumer can stop exchange at any time
-* The latency is low because producer sends events to the consumers as soon thew become available
+* The latency is lower because producer sends events to the consumers as soon thew become available
 
 Const
 
 
 
-* A slow consumer (that did not process the previous events) than can overwhelmed with next data events from the faster producer
-* A consumer can not determine if the producer has finished the data evens generation
-
-Observable
-
-
-
-* addObserver
-* deleteObserver
-* notifyObservers
-
-Observer
-
-
-
-* update
+* A slower consumer can be overwhelmed by a stream of events from a faster producer
+* The consumer can not determine if the producer has finished the data evens generation
 
 
 ### Reactive Extensions
@@ -90,7 +96,7 @@ Reactive Extensions (ReactiveX) is a family of multi-platform frameworks to proc
 
 In a simplistic way, Reactive Extensions can be thought of as a combination of the Observer and Iterator patterns and functional programming. From the Observer pattern they took the ability of a consumer to subscribe to events of a producer. From the Iterator pattern they took the ability to process streams of events of three types (data, error, completion). From the functional programming they took the ability to process streams of events with chained methods in imperative style (filter, map, reduce, split, merge, etc.).
 
-As the Iterator pattern has synchronous pull methods to handle data, error, and completion. Reactive Extensions has methods to do similar asynchronous push operations.
+As the Iterator pattern has synchronous _pull_ operations to handle data, error, and completion, Reactive Extensions has methods to do similar asynchronous _push_ operations.
 
 
 <table>
@@ -129,6 +135,8 @@ As the Iterator pattern has synchronous pull methods to handle data, error, and 
 </table>
 
 
+![pattern Reactive Extensions](/images/pattern_Reactive_Extensions.png)
+
 Pros
 
 
@@ -136,42 +144,26 @@ Pros
 * The consumer can start exchange at any time
 * The consumer can stop exchange at any time
 * A consumer can determine when the producer has finished the evens generation
-* The latency is low because producer sends events to the consumers as soon thew become available
+* The latency is lower because producer sends events to the consumers as soon thew become available
 * A consumer can process of events of three types (data, error, completion) uniformly
-* Processing streams of events with chained methods in imperative style can be simpler than processing nested event handlers
+* Processing event streams with chained methods can be simpler than processing them with nested event handlers
 
 Const
 
 
 
-* A slow consumer (that did not process the previous events) than can overwhelmed with next events from the faster producer
-
-Observable
-
-
-
-* subscribe
-
-Observer
-
-
-
-* onNext
-* onError
-* onComplete
-
-Subscription
-
-
-
-* unsubscribe
+* A slower consumer can be overwhelmed by a stream of events from a faster producer
 
 
 ### Reactive Streams
 
 Reactive Streams is an initiative to provide a standard for asynchronous stream processing with non-blocking backpressure.
 
-Reactive Streams is the further development of Reactive Extensions that was designed to solve among others the problem of a slower consumer being overflown by events from a faster producer. In a simplistic way, Reactive Streams can be thought of as a combination of the Reactive Extensions and batching. Producer additionally got a method to set the number of events it wants to receive from the producer. This algorithm allows us to build systems that work equally efficiently regardless of whether the producer is faster or slower than the consumer, or even when the performance of the producer or consumer changes during the time.
+Reactive Streams is a further development of Reactive Extensions that was developed to solve, among other things, the problem of overflowing a slower consumer with a stream of events from a faster producer. In a simplistic way, Reactive Streams can be thought of as a combination of the Reactive Extensions and batching.
+
+The consumer additionally received a method for setting the number of events it wants to receive from the producer. This algorithm allows you to build systems that work equally efficiently regardless of whether the producer is faster or slower than the consumer, or even when the performance of the producer or consumer changes over time.
+
+![pattern Reactive Streams](/images/pattern_Reactive_Streams.png)
 
 Pros
 
@@ -179,40 +171,18 @@ Pros
 
 * The consumer can start exchange at any time
 * The consumer can stop exchange at any time
-* A consumer can determine when the producer has finished the evens generation
+* The  consumer can determine when the producer has finished the evens generation
 * The latency is low because producer sends events to the consumers as soon thew become available
-* A consumer can process of events of three types (data, error, completion) uniformly
-* Processing streams of events with chained methods in imperative style can be simpler than processing nested event handlers
+* The consumer can process of events of three types (data, error, completion) uniformly
+* Processing event streams with chained methods can be simpler than processing them with nested event handlers
 * The consumer can request events from the producer depending on its demand
 
 Cons
 
 
 
-* Implementation of concurrent producer can be not trivial
-
-Publisher
-
-
-
-* subscribe
-
-Subscriber
-
-
-
-* onSubscribe
-* onNext
-* onError
-* onComplete
-
-Subscription
-
-
-
-* cancel
-* request
-
+* Implementing a concurrent producer can be non-trivial
+* 
 ## The Reactive Streams specification
 
 ## The Reactive Streams API
