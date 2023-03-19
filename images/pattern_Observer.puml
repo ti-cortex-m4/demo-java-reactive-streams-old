@@ -11,7 +11,7 @@ skinparam sequenceMessageAlign center
 skinparam participantBackgroundColor #white
 skinparam noteBackgroundColor #white
 skinparam sequenceGroupBackgroundColor #white
-skinparam participantPadding 60
+skinparam participantPadding 10
 
 participant Observable
 participant Observer
