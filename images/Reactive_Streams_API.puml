@@ -1,6 +1,6 @@
 @startuml
 
-scale 1.2
+scale 1.0
 set namespaceSeparator none
 
 skinparam monochrome true
@@ -29,5 +29,8 @@ interface Processor<T, R> {
 
 Publisher <|-- Processor
 Subscriber <|-- Processor
+
+Publisher -[#white] Subscriber
+Subscriber .> Subscription
 
 @enduml
