@@ -13,19 +13,22 @@ skinparam noteBackgroundColor #white
 skinparam sequenceGroupBackgroundColor #white
 skinparam participantPadding 10
 
-participant Observable
-participant Observer
+participant Producer
+participant Consumer
 
-Observer ->(10) Observable : addObserver
+Consumer ->(10) Producer : next()
+Producer ->(10) Consumer : value
 
-Observable ->(10) Observer : update(T)
-Observable ->(10) Observer : update(T)
-Observable ->(10) Observer : update(T)
+Consumer ->(10) Producer : next()
+Producer ->(10) Consumer : value
 
+Consumer ->(10) Producer : next()
 alt
-    Observable -->(10) Observer : error
+Producer ->(10) Consumer : value
 else
-    Observer ->(10) Observable : deleteObserver
+Producer -->(10) Consumer : error
+else
+Producer -->(10) Consumer : empty
 end
 
 @enduml
