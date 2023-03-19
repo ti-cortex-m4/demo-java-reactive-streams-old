@@ -13,24 +13,24 @@ skinparam noteBackgroundColor #white
 skinparam sequenceGroupBackgroundColor #white
 skinparam participantPadding 10
 
-participant Publisher
+participant Observable
 participant Subscription
-participant Subscriber
+participant Observer
 
-Subscriber ->(10) Publisher : subscribe(Subscriber)
-Publisher ->(10) Subscription : new Subscription()
-Publisher ->(10) Subscriber : onSubscribe(Subscription)
+Observer ->(10) Observable : subscribe(Observer)
+Observable ->(10) Subscription : new Subscription()
+Observable ->(10) Observer : onSubscribe(Subscription)
 
-Publisher ->(10) Subscriber : onNext(T)
-Publisher ->(10) Subscriber : onNext(T)
-Publisher ->(10) Subscriber : onNext(T)
+Observable ->(10) Observer : onNext(T)
+Observable ->(10) Observer : onNext(T)
+Observable ->(10) Observer : onNext(T)
 
 alt
-    Publisher ->(10) Subscriber : onError(Throwable)
+    Observable ->(10) Observer : onError(Throwable)
 else
-    Publisher ->(10) Subscriber : onComplete()
+    Observable ->(10) Observer : onComplete()
 else
-    Subscriber ->(10) Subscription : cancel
+    Observer ->(10) Subscription : cancel
 end
 
 @enduml
