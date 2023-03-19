@@ -1,11 +1,11 @@
 @startuml
 
-scale 1.0
+scale 1.2
 hide footbox
 
 !pragma teoz true
 
-skinparam monochrome true
+'skinparam monochrome true
 skinparam defaultFontName Source Sans Pro
 skinparam sequenceMessageAlign center
 skinparam participantBackgroundColor #white
@@ -21,7 +21,7 @@ Subscriber ->(10) Publisher : subscribe(Subscriber)
 Publisher ->(10) Subscription : new Subscription()
 Publisher ->(10) Subscriber : onSubscribe(Subscription)
 
-Subscriber ->(10) Subscription : request(long)
+Subscriber -[#blue]>(10) Subscription : request(long)
 
 Publisher ->(10) Subscriber : onNext(T)
 Publisher ->(10) Subscriber : onNext(T)
