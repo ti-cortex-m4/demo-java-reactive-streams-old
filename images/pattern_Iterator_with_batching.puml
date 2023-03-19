@@ -1,0 +1,36 @@
+@startuml
+
+scale 1.2
+hide footbox
+
+!pragma teoz true
+
+skinparam monochrome true
+skinparam defaultFontName Source Sans Pro
+skinparam sequenceMessageAlign center
+skinparam participantBackgroundColor #white
+skinparam noteBackgroundColor #white
+skinparam sequenceGroupBackgroundColor #white
+skinparam participantPadding 20
+
+participant Producer
+participant Consumer
+
+Consumer ->(10) Producer : next(long)
+Producer ->(10) Consumer : value
+Producer ->(10) Consumer : value
+Producer ->(10) Consumer : value
+
+Consumer ->(10) Producer : next(long)
+Producer ->(10) Consumer : value
+Producer ->(10) Consumer : value
+
+alt
+Producer ->(10) Consumer : value
+else
+Producer -->(10) Consumer : error
+else
+Producer -->(10) Consumer : empty
+end
+
+@enduml
