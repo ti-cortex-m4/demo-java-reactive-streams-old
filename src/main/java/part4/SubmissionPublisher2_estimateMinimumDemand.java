@@ -19,17 +19,17 @@ public class SubmissionPublisher2_estimateMinimumDemand extends SomeTest {
                 @Override
                 public void onSubscribe(Flow.Subscription subscription) {
                     this.subscription = subscription;
-                    this.subscription.request(1);
+                    this.subscription.request(10);
                     System.out.println("subscribed: " + subscription);
                 }
 
                 @Override
                 public void onNext(Long item) {
-                    delay(item.intValue());
-                    this.subscription.request(1);
+                    //delay(item.intValue());
+                    //this.subscription.request(1);
 
                     System.out.println("next: " + item);
-                    System.out.println("estimateMaximumLag: " + publisher.estimateMaximumLag());
+                    System.out.println("estimateMinimumDemand: " + publisher.estimateMinimumDemand());
                 }
 
                 @Override
@@ -43,7 +43,11 @@ public class SubmissionPublisher2_estimateMinimumDemand extends SomeTest {
                 }
             });
 
-            LongStream.range(0, 10).forEach(publisher::submit);
+            LongStream.range(0, 10).forEach(item -> {
+                delay();
+                publisher.submit(item);
+              }
+            );
 
             ( (ExecutorService)publisher.getExecutor()).awaitTermination(10, TimeUnit.SECONDS);
 //            publisher.close();
