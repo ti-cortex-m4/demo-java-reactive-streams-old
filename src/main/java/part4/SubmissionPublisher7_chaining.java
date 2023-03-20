@@ -8,9 +8,9 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
 
-public class SubmissionPublisher_chaining {
+public class SubmissionPublisher7_chaining {
 
-    private static final Logger logger = LoggerFactory.getLogger(SubmissionPublisher_offer_drops.class);
+    private static final Logger logger = LoggerFactory.getLogger(SubmissionPublisher7_chaining.class);
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         try (SubmissionPublisher<Integer> publisher1 = new SubmissionPublisher<>();

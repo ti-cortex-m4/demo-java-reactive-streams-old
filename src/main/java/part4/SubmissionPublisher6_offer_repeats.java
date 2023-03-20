@@ -12,9 +12,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiPredicate;
 import java.util.stream.LongStream;
 
-public class SubmissionPublisher_offer_repeats {
+public class SubmissionPublisher6_offer_repeats {
 
-    private static final Logger logger = LoggerFactory.getLogger(SubmissionPublisher_offer_repeats.class);
+    private static final Logger logger = LoggerFactory.getLogger(SubmissionPublisher6_offer_repeats.class);
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(ForkJoinPool.commonPool(), 2)) {
