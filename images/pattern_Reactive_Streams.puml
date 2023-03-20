@@ -5,6 +5,20 @@ hide footbox
 
 !pragma teoz true
 
+skinparam sequence {
+ArrowColor navy
+ActorBorderColor navy
+LifeLineBorderColor blue
+LifeLineBackgroundColor navy
+
+ParticipantBorderColor navy
+ParticipantBackgroundColor navy
+ParticipantFontColor navy
+
+ActorBackgroundColor navy
+ActorFontColor navy
+}
+
 'skinparam monochrome true
 skinparam defaultFontName Source Sans Pro
 skinparam sequenceMessageAlign center
@@ -21,7 +35,7 @@ Subscriber ->(10) Publisher : subscribe(Subscriber)
 Publisher ->(10) Subscription : new Subscription()
 Publisher ->(10) Subscriber : onSubscribe(Subscription)
 
-Subscriber -[#blue]>(10) Subscription : request(long)
+Subscriber ->(10) Subscription : request(long)
 
 Publisher ->(10) Subscriber : onNext(T)
 Publisher ->(10) Subscriber : onNext(T)
