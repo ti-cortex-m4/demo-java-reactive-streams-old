@@ -27,8 +27,8 @@ public class SubmissionPublisher6_offer_repeats extends SomeTest {
 
             LongStream.range(0, 10).forEach(item -> {
                     publisher.offer(item, (subscriber, value) -> {
-                        logger.info("repeated: " + value);
                         delay();
+                        logger.info("repeated: " + value);
                         return true;
                     });
                 }

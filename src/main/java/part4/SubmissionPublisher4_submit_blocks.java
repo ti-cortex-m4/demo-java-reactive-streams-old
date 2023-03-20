@@ -19,13 +19,11 @@ public class SubmissionPublisher4_submit_blocks extends SomeTest {
             System.out.println("getMaxBufferCapacity: " + publisher.getMaxBufferCapacity());
 
             CompletableFuture<Void> consumerFuture = publisher.consume(item -> {
-//                logger.info("before consume: " + item);
                 delay();
                 logger.info("consumed:  " + item);
             });
 
             LongStream.range(0, 10).forEach(item -> {
-//                    logger.info("before submit: " + item);
                     publisher.submit(item);
                     logger.info("submitted: " + item);
                 }

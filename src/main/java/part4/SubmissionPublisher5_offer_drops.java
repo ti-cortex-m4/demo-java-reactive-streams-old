@@ -27,8 +27,8 @@ public class SubmissionPublisher5_offer_drops extends SomeTest {
 
             LongStream.range(0, 10).forEach(item -> {
                     publisher.offer(item, (subscriber, value) -> {
-                        logger.info("dropped: " + value);
                         delay();
+                        logger.info("dropped: " + value);
                         return false;
                     });
                 }
