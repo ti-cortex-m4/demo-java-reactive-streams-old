@@ -8,7 +8,7 @@ hide footbox
 skinparam sequence {
 ArrowColor navy
 ActorBorderColor navy
-LifeLineBorderColor blue
+LifeLineBorderColor navy
 LifeLineBackgroundColor navy
 
 ParticipantBorderColor navy
