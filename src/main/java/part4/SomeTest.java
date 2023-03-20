@@ -1,8 +1,13 @@
 package part4;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.TimeUnit;
 
 public class SomeTest {
+
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     protected static void delay() {
         try {
