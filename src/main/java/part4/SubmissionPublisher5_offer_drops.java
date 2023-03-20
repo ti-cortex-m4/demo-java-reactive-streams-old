@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiPredicate;
 import java.util.stream.LongStream;
 
-public class SubmissionPublisher5_offer_drops {
+public class SubmissionPublisher5_offer_drops extends SomeTest {
 
     private static final Logger logger = LoggerFactory.getLogger(SubmissionPublisher5_offer_drops.class);
 
@@ -20,34 +20,24 @@ public class SubmissionPublisher5_offer_drops {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(ForkJoinPool.commonPool(), 2)) {
             System.out.println("getMaxBufferCapacity: " + publisher.getMaxBufferCapacity());
 
-            CompletableFuture<Void> future = publisher.consume(item -> {
-//                logger.info("before consume: " + item);
+            CompletableFuture<Void> consumerFuture = publisher.consume(item -> {
                 delay();
                 logger.info("consumed: " + item);
             });
 
             LongStream.range(0, 10).forEach(item -> {
-//                    logger.info("before offer: " + item);
-                    publisher.offer(item, new BiPredicate<Flow.Subscriber<? super Long>, Long>() {
-                        @Override
-                        public boolean test(Flow.Subscriber<? super Long> subscriber, Long aLong) {
-                            logger.info("dropped: " + aLong);
-                            delay();
-                            return false;
-                        }
+                    publisher.offer(item, (subscriber, value) -> {
+                        logger.info("dropped: " + value);
+                        delay();
+                        return false;
                     });
-//                    logger.info("after offer:  " + item);
                 }
             );
-            future.get();
-        }
-    }
 
-    private static void delay() {
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            ForkJoinPool.commonPool().awaitTermination(10, TimeUnit.SECONDS);
+            publisher.close();
+
+            consumerFuture.get();
         }
     }
 }

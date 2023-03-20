@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiPredicate;
 import java.util.stream.LongStream;
 
-public class SubmissionPublisher6_offer_repeats {
+public class SubmissionPublisher6_offer_repeats extends SomeTest {
 
     private static final Logger logger = LoggerFactory.getLogger(SubmissionPublisher6_offer_repeats.class);
 
@@ -20,34 +20,24 @@ public class SubmissionPublisher6_offer_repeats {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(ForkJoinPool.commonPool(), 2)) {
             System.out.println("getMaxBufferCapacity: " + publisher.getMaxBufferCapacity());
 
-            CompletableFuture<Void> future = publisher.consume(item -> {
-//                logger.info("before consume: " + item);
+            CompletableFuture<Void> consumerFuture = publisher.consume(item -> {
                 delay();
                 logger.info("consumed: " + item);
             });
 
             LongStream.range(0, 10).forEach(item -> {
-//                    logger.info("before offer: " + item);
                     publisher.offer(item, (subscriber, value) -> {
                         logger.info("repeated: " + value);
                         delay();
                         return true;
                     });
-//                    logger.info("after offer:  " + item);
                 }
             );
+
             ForkJoinPool.commonPool().awaitTermination(10, TimeUnit.SECONDS);
             publisher.close();
-            future.get();
 
-        }
-    }
-
-    private static void delay() {
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            consumerFuture.get();
         }
     }
 }

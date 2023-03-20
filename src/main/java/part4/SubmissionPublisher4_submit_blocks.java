@@ -10,7 +10,7 @@ import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
 
-public class SubmissionPublisher4_submit_blocks {
+public class SubmissionPublisher4_submit_blocks extends SomeTest {
 
     private static final Logger logger = LoggerFactory.getLogger(SubmissionPublisher4_submit_blocks.class);
 
@@ -18,27 +18,23 @@ public class SubmissionPublisher4_submit_blocks {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(ForkJoinPool.commonPool(), 2)) {
             System.out.println("getMaxBufferCapacity: " + publisher.getMaxBufferCapacity());
 
-            CompletableFuture<Void> future = publisher.consume(item -> {
-                logger.info("before consume: " + item);
+            CompletableFuture<Void> consumerFuture = publisher.consume(item -> {
+//                logger.info("before consume: " + item);
                 delay();
-                logger.info("after consume:  " + item);
+                logger.info("consumed:  " + item);
             });
 
             LongStream.range(0, 10).forEach(item -> {
-                    logger.info("before submit: " + item);
+//                    logger.info("before submit: " + item);
                     publisher.submit(item);
-                    logger.info("after submit:  " + item);
+                    logger.info("submitted: " + item);
                 }
             );
-            future.get();
-        }
-    }
 
-    private static void delay() {
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            ForkJoinPool.commonPool().awaitTermination(10, TimeUnit.SECONDS);
+            publisher.close();
+
+            consumerFuture.get();
         }
     }
 }
