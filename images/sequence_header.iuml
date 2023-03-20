@@ -24,5 +24,3 @@ skinparam noteBackgroundColor #white
 skinparam sequenceGroupBackgroundColor #white
 skinparam participantPadding 10
 
-'@startuml
-'!include header.iuml

@@ -1,16 +1,6 @@
 @startuml
+!include sequence_header.iuml
 
-scale 1.2
-hide footbox
-
-!pragma teoz true
-
-skinparam monochrome true
-skinparam defaultFontName Source Sans Pro
-skinparam sequenceMessageAlign center
-skinparam participantBackgroundColor #white
-skinparam noteBackgroundColor #white
-skinparam sequenceGroupBackgroundColor #white
 skinparam participantPadding 50
 
 participant Caller

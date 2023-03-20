@@ -1,41 +1,31 @@
 @startuml
+!include sequence_header.iuml
 
-scale 1.2
-hide footbox
-
-!pragma teoz true
-
-'skinparam monochrome true
-skinparam defaultFontName Source Sans Pro
-skinparam sequenceMessageAlign center
-skinparam participantBackgroundColor #white
-skinparam noteBackgroundColor #white
-skinparam sequenceGroupBackgroundColor #white
 skinparam participantPadding 10
 
 participant Subscriber
 participant Subscription
 participant Publisher
 
-Subscriber ->(5) Publisher : subscribe(Subscriber)
-Publisher ->(5) Subscription : new Subscription()
-Publisher ->(5) Subscriber : onSubscribe(Subscription)
+Subscriber ->(10) Publisher : subscribe(Subscriber)
+Publisher ->(10) Subscription : new Subscription()
+Publisher ->(10) Subscriber : onSubscribe(Subscription)
 
 loop until completed
-    Subscriber ->(5) Subscription : request(long)
-    Subscription ->(5) Publisher
-    Publisher ->(5) Subscriber : onNext(T)
-    Publisher ->(5) Subscriber : onNext(T)
-    Publisher ->(5) Subscriber : onNext(T)
+    Subscriber ->(10) Subscription : request(long)
+    Subscription ->(10) Publisher
+    Publisher ->(10) Subscriber : onNext(T)
+    Publisher ->(10) Subscriber : onNext(T)
+    Publisher ->(10) Subscriber : onNext(T)
 end
 
 alt successful completion
-    Publisher ->(5) Subscriber : onComplete()
+    Publisher ->(10) Subscriber : onComplete()
 else erroneous completion
-    Publisher ->(5) Subscriber : onError(Throwable)
+    Publisher ->(10) Subscriber : onError(Throwable)
 else cancellation
-    Subscriber ->(5) Subscription : cancel()
-    Subscription ->(5) Publisher
+    Subscriber ->(10) Subscription : cancel()
+    Subscription ->(10) Publisher
 end
 
 @enduml
