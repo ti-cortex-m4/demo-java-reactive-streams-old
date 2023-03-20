@@ -1,30 +1,62 @@
+# Reactive Streams in Java
+
+## Introduction
+
+_Reactive Streams_ is a cross-platform specification for processing a possibly unbounded sequence of events across asynchronous boundaries (threads, processes or network-connected computers) with non-blocking backpressure. _Backpressure_ is an application-level flow control from the consumer to the producer in order to scale the production of data events in the producer in accordance with their current demand from the consumer.  Reactive Streams are designed to achieve high throughput and low latency when passing events between asynchronous processing stages takes a noticeable time.
+
+The Reactive Streams specification is already implemented in the different programming platforms (.NET, JVM, JavaScript) and network protocols (RSocket). In the Java ecosystems Reactive Streams are supported among others in:
+
+
+
+* general-purpose frameworks (Lightbend Akka Streams, Pivotal Project Reactor, Netflix RxJava, Parallel Universe Quasar, SmallRye Mutiny)
+* web frameworks (Eclipse Vert.x, Lightbend Play Framework, Oracle Helidon, Pivotal WebFlux, Ratpack)
+* relational and non-relational databases (Apache Cassandra, Elasticsearch, MongoDB, PostgreSQL)
+* message brokers (Apache Kafka, Pivotal RabbitMQ/AMQP)
+* cloud providers (AWS SDK for Java 2.0)
+
+_Reactive streams_ is a concurrency framework that was added in JDK 9. It consists of four nested interfaces in the _java.util.concurrent.Flow_ class (Publisher, Subscriber, Subscription, Processor) and the single implementation _java.util.concurrent.SubmissionPublisher_ class.
+
+
 ## Architecture
 
-<!-- Output copied to clipboard! -->
+When transferring data events from a producer to a consumer, we strive to transmit all messages with minimum latency and maximum throughput.
 
-<!-----
+>Latency is the time between event generation on the producer and its arriving to the consumer.
 
-Yay, no errors, warnings, or alerts!
+>Throughput is the amount of events transferred from producer to consumer per unit of time.
 
-Conversion time: 0.706 seconds.
+Hoewer a producer and a consumer can be limitations that may prevent you from achieving the best performance:
 
 
-Using this Markdown file:
 
-1. Paste this output into your source file.
-2. See the notes and action items below regarding this conversion run.
-3. Check the rendered output (headings, lists, code blocks, tables) for proper
-   formatting and use a linkchecker before you publish this page.
+* A consumer may be slower than a producer
+* A producer may not stop generating events that consumer cannot process or reduce the rate of their generations
+* A consumer must not skip events that it cannot process
+* Both a producer and a consumer may have a limited amount of memory to buffer events and CPU cores to handle events processing asynchronously
+* A channel between the producer and the consumer may have a limited bandwidth
 
-Conversion notes:
+Also a communication channel between producer and consumer can have its own limitations. Transmission of an event of even minimum lengthacross asynchronous boundaries (threads, processes or network-connected computers) requires a noteworthy amount of time.
 
-* Docs to Markdown version 1.0β34
-* Sun Mar 19 2023 12:06:16 GMT-0700 (PDT)
-* Source doc: #2
-* This is a partial selection. Check to make sure intra-doc links work.
-* Tables are currently converted to HTML tables.
------>
+Here are the minimum delays for typical hardware at the beginning of the 2020s:
 
+
+
+* the context switching between threads: few microseconds
+* the context switching between processes: few milliseconds
+* the network round-trip inside a cloud zone: few hundred microseconds
+* the network round-trip inside a cloud region: few milliseconds
+* the network round-trip between the US East and West coast or the US East coast and Europe: a hundred milliseconds
+
+Although in most cases you can ignore thread and process switching delays, network delays should always be taken into account.
+
+There are several patterns that are used to create systems that send data events across asynchronous boundaries witch all such limitations:
+
+
+
+* Iterator
+* Observer
+* Reactive Extensions (ReactiveX)
+* Reactive Streams
 
 
 ### Iterator
@@ -182,7 +214,7 @@ Cons
 
 
 * Implementing a concurrent producer can be non-trivial
-* 
+
 ## The Reactive Streams specification
 
 ## The Reactive Streams API
