@@ -21,13 +21,13 @@ public class SubmissionPublisher5_offer_drops {
             System.out.println("getMaxBufferCapacity: " + publisher.getMaxBufferCapacity());
 
             CompletableFuture<Void> future = publisher.consume(item -> {
-                logger.info("before consume: " + item);
+//                logger.info("before consume: " + item);
                 delay();
-                logger.info("after consume:  " + item);
+                logger.info("consumed: " + item);
             });
 
             LongStream.range(0, 10).forEach(item -> {
-                    logger.info("before offer: " + item);
+//                    logger.info("before offer: " + item);
                     publisher.offer(item, new BiPredicate<Flow.Subscriber<? super Long>, Long>() {
                         @Override
                         public boolean test(Flow.Subscriber<? super Long> subscriber, Long aLong) {
@@ -36,7 +36,7 @@ public class SubmissionPublisher5_offer_drops {
                             return false;
                         }
                     });
-                    logger.info("after offer:  " + item);
+//                    logger.info("after offer:  " + item);
                 }
             );
             future.get();

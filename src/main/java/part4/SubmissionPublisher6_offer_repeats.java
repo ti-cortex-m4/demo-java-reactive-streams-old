@@ -21,25 +21,25 @@ public class SubmissionPublisher6_offer_repeats {
             System.out.println("getMaxBufferCapacity: " + publisher.getMaxBufferCapacity());
 
             CompletableFuture<Void> future = publisher.consume(item -> {
-                logger.info("before consume: " + item);
+//                logger.info("before consume: " + item);
                 delay();
-                logger.info("after consume:  " + item);
+                logger.info("consumed: " + item);
             });
 
             LongStream.range(0, 10).forEach(item -> {
-                    logger.info("before offer: " + item);
-                    publisher.offer(item, new BiPredicate<Flow.Subscriber<? super Long>, Long>() {
-                        @Override
-                        public boolean test(Flow.Subscriber<? super Long> subscriber, Long aLong) {
-                            logger.info("repeated: " + aLong);
-                            delay();
-                            return true;
-                        }
+//                    logger.info("before offer: " + item);
+                    publisher.offer(item, (subscriber, value) -> {
+                        logger.info("repeated: " + value);
+                        delay();
+                        return true;
                     });
-                    logger.info("after offer:  " + item);
+//                    logger.info("after offer:  " + item);
                 }
             );
+            ForkJoinPool.commonPool().awaitTermination(10, TimeUnit.SECONDS);
+            publisher.close();
             future.get();
+
         }
     }
 

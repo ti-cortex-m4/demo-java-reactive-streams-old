@@ -13,7 +13,7 @@ Publisher ->(10) Subscriber : onSubscribe(Subscription)
 
 loop until completed
     Subscriber ->(10) Subscription : request(long)
-    Subscription ->(10) Publisher
+    Subscription -->(10) Publisher
     Publisher ->(10) Subscriber : onNext(T)
     Publisher ->(10) Subscriber : onNext(T)
     Publisher ->(10) Subscriber : onNext(T)
@@ -25,7 +25,7 @@ else erroneous completion
     Publisher ->(10) Subscriber : onError(Throwable)
 else cancellation
     Subscriber ->(10) Subscription : cancel()
-    Subscription ->(10) Publisher
+    Subscription -->(10) Publisher
 end
 
 @enduml
