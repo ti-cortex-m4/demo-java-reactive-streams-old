@@ -11,4 +11,12 @@ public class SomeTest {
             throw new RuntimeException(e);
         }
     }
+
+    protected static void delay(int seconds) {
+        try {
+            TimeUnit.SECONDS.sleep(seconds);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
