@@ -3,7 +3,7 @@
 scale 1.0
 set namespaceSeparator none
 
-skinparam monochrome true
+'skinparam monochrome true
 skinparam ClassBackgroundColor white
 skinparam ClassBorderColor black
 skinparam CircledCharacterFontStyle normal

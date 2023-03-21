@@ -45,6 +45,7 @@ public class SubmissionPublisher2_subscribe extends SomeTest {
                 logger.info("produced: " + item);
                 publisher.submit(item);
             });
+
             publisher.close();
 
             ExecutorService executorService = (ExecutorService) publisher.getExecutor();
