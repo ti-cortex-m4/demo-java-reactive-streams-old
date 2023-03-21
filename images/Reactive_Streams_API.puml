@@ -30,7 +30,7 @@ interface Processor<T, R> {
 Publisher <|-- Processor
 Subscriber <|-- Processor
 
-Publisher -[#white] Subscriber
+Publisher .> Subscriber
 Subscriber .> Subscription
 
 @enduml
