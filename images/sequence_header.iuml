@@ -3,24 +3,9 @@ hide footbox
 
 !pragma teoz true
 
-skinparam sequence {
-ArrowColor navy
-ActorBorderColor navy
-LifeLineBorderColor navy
-LifeLineBackgroundColor navy
-
-ParticipantBorderColor navy
-ParticipantBackgroundColor navy
-ParticipantFontColor navy
-
-ActorBackgroundColor navy
-ActorFontColor navy
-}
-
 skinparam defaultFontName Source Sans Pro
 skinparam sequenceMessageAlign center
 skinparam participantBackgroundColor #white
 skinparam noteBackgroundColor #white
 skinparam sequenceGroupBackgroundColor #white
 skinparam participantPadding 10
-
