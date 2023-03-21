@@ -11,6 +11,7 @@ Observer ->(10) Observable : addObserver()
 Observable ->(10) Observer : update(T)
 Observable ->(10) Observer : update(T)
 Observable ->(10) Observer : update(T)
+...
 
 alt
     Observable -->(10) Observer : error

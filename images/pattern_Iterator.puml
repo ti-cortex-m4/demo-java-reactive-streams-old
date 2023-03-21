@@ -12,6 +12,8 @@ Target ->(10) Caller : value
 Caller ->(10) Target : next()
 Target ->(10) Caller : value
 
+...
+
 Caller ->(10) Target : next()
 alt
 Target ->(10) Caller : value
