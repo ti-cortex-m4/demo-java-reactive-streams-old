@@ -17,15 +17,15 @@ loop until completed
     Publisher ->(10) Subscriber : onNext(T)
     Publisher ->(10) Subscriber : onNext(T)
     Publisher ->(10) Subscriber : onNext(T)
-end
 
-alt successful completion
-    Publisher ->(10) Subscriber : onComplete()
-else erroneous completion
-    Publisher ->(10) Subscriber : onError(Throwable)
-else cancellation
-    Subscriber ->(10) Subscription : cancel()
-    Subscription -->(10) Publisher
+    alt successful completion
+        Publisher ->(10) Subscriber : onComplete()
+    else erroneous completion
+        Publisher ->(10) Subscriber : onError(Throwable)
+    else cancellation
+        Subscriber ->(10) Subscription : cancel()
+        Subscription -->(10) Publisher
+    end
 end
 
 @enduml
