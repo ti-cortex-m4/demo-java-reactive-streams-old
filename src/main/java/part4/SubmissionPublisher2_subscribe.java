@@ -7,12 +7,10 @@ import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
 
-public class SubmissionPublisher2_subscribe {
+public class SubmissionPublisher2_subscribe extends SomeTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>()) {
-            System.out.println("getExecutor: " + publisher.getExecutor());
-            System.out.println("getMaxBufferCapacity: " + publisher.getMaxBufferCapacity());
 
             publisher.subscribe(new Flow.Subscriber<>() {
 
@@ -20,37 +18,37 @@ public class SubmissionPublisher2_subscribe {
 
                 @Override
                 public void onSubscribe(Flow.Subscription subscription) {
+                    logger.info("subscribed");
                     this.subscription = subscription;
-
-                    this.subscription.request(2);
-                    System.out.println("subscribed: " + subscription);
+                    this.subscription.request(1);
                 }
 
                 @Override
                 public void onNext(Long item) {
-                    this.subscription.request(2);
-
-                    System.out.println("next: " + item);
-                    System.out.println("estimateMaximumLag: " + publisher.estimateMaximumLag());
-                    System.out.println("estimateMinimumDemand: " + publisher.estimateMinimumDemand());
+                    delay();
+                    logger.info("received: {}", item);
+                    this.subscription.request(1);
                 }
 
                 @Override
                 public void onError(Throwable throwable) {
-                    System.out.println("error: " + throwable);
+                    logger.error("error", throwable);
                 }
 
                 @Override
                 public void onComplete() {
-                    System.out.println("completed");
+                    logger.info("completed");
                 }
             });
-            System.out.println("getNumberOfSubscribers: " + publisher.getNumberOfSubscribers());
 
-            LongStream.range(0, 10).forEach(publisher::submit);
+            LongStream.range(0, 10).forEach(item -> {
+                logger.info("produced: " + item);
+                publisher.submit(item);
+            });
+            publisher.close();
 
-            ExecutorService executorService = (ExecutorService)publisher.getExecutor();
-            executorService.awaitTermination(1, TimeUnit.SECONDS);
+            ExecutorService executorService = (ExecutorService) publisher.getExecutor();
+            executorService.awaitTermination(10, TimeUnit.SECONDS);
         }
     }
 }
