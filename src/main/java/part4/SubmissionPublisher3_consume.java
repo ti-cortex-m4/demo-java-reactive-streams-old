@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
@@ -19,11 +20,17 @@ public class SubmissionPublisher3_consume {
             System.out.println("getExecutor: " + publisher.getExecutor());
             System.out.println("getMaxBufferCapacity: " + publisher.getMaxBufferCapacity());
 
-            CompletableFuture<Void> consumerFuture = publisher.consume(item -> logger.info("consumed: " + item));
+            CompletableFuture<Void> consumerFuture = publisher
+                .consume(item -> logger.info("consumed: " + item));
 
-            LongStream.range(0, 10).forEach(publisher::submit);
+            LongStream.range(0, 10).forEach(item -> {
+                logger.info("produced: " + item);
+                publisher.submit(item);
+            });
 
-            ForkJoinPool.commonPool().awaitTermination(10, TimeUnit.SECONDS);
+            ExecutorService executorService = (ExecutorService)publisher.getExecutor();
+            executorService.awaitTermination(10, TimeUnit.SECONDS);
+
             publisher.close();
 
             consumerFuture.get();
