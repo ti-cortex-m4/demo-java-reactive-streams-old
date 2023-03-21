@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 public class SomeTest {
 
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected static final Logger logger = LoggerFactory.getLogger(SomeTest.class);
 
     protected static void delay() {
         try {
