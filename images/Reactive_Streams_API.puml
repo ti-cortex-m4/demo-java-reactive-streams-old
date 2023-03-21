@@ -8,8 +8,8 @@ skinparam ClassBackgroundColor white
 skinparam ClassBorderColor black
 skinparam CircledCharacterFontStyle normal
 
-interface Publisher<T> {
-+ void subscribe(Subscriber<? super T> s)
+interface Publisher<R> {
++ void subscribe(Subscriber<? super R> s)
 }
 
 interface Subscriber<T> {
