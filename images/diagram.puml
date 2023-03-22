@@ -6,15 +6,15 @@ skinparam RectangleBorderColor black
 skinparam RectangleFontName Source Sans Pro
 skinparam ArrowColor black
 
-header
+center header
 data, error, completion events
 end header
 
-footer
-backpressure and cancellation events
+center footer
+backpressure events
 end footer
 
-rectangle Producer {
+rectangle Publisher {
 }
 
 rectangle Processor1 {
@@ -29,8 +29,8 @@ rectangle ProcessorN {
 rectangle Subscriber {
 }
 
-Producer <- Processor1
-Producer -right> Processor1
+Publisher <- Processor1
+Publisher -right> Processor1
 
 Processor1 <- Processor2
 Processor1 -right> Processor2

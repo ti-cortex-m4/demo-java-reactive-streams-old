@@ -3,8 +3,8 @@
 
 skinparam participantPadding 20
 
-participant Observer
 participant Observable
+participant Observer
 
 Observer ->(10) Observable : addObserver()
 

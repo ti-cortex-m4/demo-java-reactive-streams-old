@@ -3,9 +3,9 @@
 
 skinparam participantPadding 10
 
-participant Subscriber
-participant Subscription
 participant Publisher
+participant Subscription
+participant Subscriber
 
 Subscriber ->(10) Publisher : subscribe(Subscriber)
 Publisher ->(10) Subscription : new Subscription()

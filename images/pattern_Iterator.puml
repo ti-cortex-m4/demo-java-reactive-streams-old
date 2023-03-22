@@ -3,8 +3,8 @@
 
 skinparam participantPadding 50
 
-participant Caller
 participant Target
+participant Caller
 
 Caller ->(10) Target : next()
 Target ->(10) Caller : value
