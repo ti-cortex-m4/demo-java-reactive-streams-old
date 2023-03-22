@@ -1,10 +1,18 @@
 @startuml
 
+skinparam linetype ortho
 skinparam RectangleBackgroundColor white
 skinparam RectangleBorderColor black
 skinparam RectangleFontName Source Sans Pro
-
 skinparam ArrowColor black
+
+header
+data, error, completion events
+end header
+
+footer
+backpressure and cancellation events
+end footer
 
 rectangle Producer {
 }
@@ -18,19 +26,19 @@ rectangle Processor2 {
 rectangle ProcessorN {
 }
 
-rectangle Consumer {
+rectangle Subscriber {
 }
 
-Producer -right-> Processor1
 Producer <- Processor1
+Producer -right> Processor1
 
-Processor1 -right-> Processor2
 Processor1 <- Processor2
+Processor1 -right> Processor2
 
-Processor2 -right-> ProcessorN
-Processor2 <- ProcessorN
+Processor2 <. ProcessorN
+Processor2 .right> ProcessorN
 
-ProcessorN -right-> Consumer
-ProcessorN <- Consumer
+ProcessorN <- Subscriber
+ProcessorN -right> Subscriber
 
 @enduml
