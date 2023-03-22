@@ -20,9 +20,6 @@ rectangle Publisher {
 rectangle Processor1 {
 }
 
-rectangle Processor2 {
-}
-
 rectangle ProcessorN {
 }
 
@@ -32,11 +29,8 @@ rectangle Subscriber {
 Publisher <- Processor1
 Publisher -right> Processor1
 
-Processor1 <- Processor2
-Processor1 -right> Processor2
-
-Processor2 <. ProcessorN
-Processor2 .right> ProcessorN
+Processor1 <. ProcessorN
+Processor1 .right> ProcessorN
 
 ProcessorN <- Subscriber
 ProcessorN -right> Subscriber
