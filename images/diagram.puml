@@ -1,0 +1,36 @@
+@startuml
+
+skinparam RectangleBackgroundColor white
+skinparam RectangleBorderColor black
+skinparam RectangleFontName Source Sans Pro
+
+skinparam ArrowColor black
+
+rectangle Producer {
+}
+
+rectangle Processor1 {
+}
+
+rectangle Processor2 {
+}
+
+rectangle ProcessorN {
+}
+
+rectangle Consumer {
+}
+
+Producer -right-> Processor1
+Producer <- Processor1
+
+Processor1 -right-> Processor2
+Processor1 <- Processor2
+
+Processor2 -right-> ProcessorN
+Processor2 <- ProcessorN
+
+ProcessorN -right-> Consumer
+ProcessorN <- Consumer
+
+@enduml
