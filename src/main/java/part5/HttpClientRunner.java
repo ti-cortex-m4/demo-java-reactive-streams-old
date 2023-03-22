@@ -17,7 +17,7 @@ public class HttpClientRunner {
             .version(HttpClient.Version.HTTP_2)
             .build();
 
-        Flow.Publisher<ByteBuffer> publisher = new StringPublisher("hello");
+        Flow.Publisher<ByteBuffer> publisher = new StringPublisher("The quick brown fox jumps over the lazy dog");
 
         HttpRequest request = HttpRequest.newBuilder()
             .uri(new URI("https://postman-echo.com/post"))
