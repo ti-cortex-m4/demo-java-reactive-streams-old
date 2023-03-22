@@ -12,15 +12,7 @@ Target ->(10) Caller : value
 Caller ->(10) Target : next()
 Target ->(10) Caller : value
 
-...
-
 Caller ->(10) Target : next()
-alt
 Target ->(10) Caller : value
-else
-Target -->(10) Caller : error
-else
-Target -->(10) Caller : no value
-end
 
 @enduml

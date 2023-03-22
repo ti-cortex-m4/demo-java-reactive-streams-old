@@ -14,7 +14,6 @@ Publisher ->(10) Subscriber : onSubscribe(Subscription)
 Publisher ->(10) Subscriber : onNext(T)
 Publisher ->(10) Subscriber : onNext(T)
 Publisher ->(10) Subscriber : onNext(T)
-...
 
 alt
     Publisher ->(10) Subscriber : onError(Throwable)
