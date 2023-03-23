@@ -17,11 +17,17 @@ end footer
 rectangle Publisher {
 }
 
-rectangle Processor1 {
-}
+rectangle Processor1 [
+  Processor 1
+]
 
-rectangle ProcessorN {
-}
+rectangle Processor2 [
+  Processor 2
+]
+
+rectangle ProcessorN [
+  Processor N
+]
 
 rectangle Subscriber {
 }
@@ -29,8 +35,11 @@ rectangle Subscriber {
 Publisher <- Processor1
 Publisher -right> Processor1
 
-Processor1 <. ProcessorN
-Processor1 .right> ProcessorN
+Processor1 <- Processor2
+Processor1 -right> Processor2
+
+Processor2 <. ProcessorN
+Processor2 .right> ProcessorN
 
 ProcessorN <- Subscriber
 ProcessorN -right> Subscriber
