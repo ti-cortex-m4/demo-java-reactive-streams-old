@@ -1,10 +1,14 @@
 @startuml
 
+scale 1.2
+
 skinparam linetype ortho
 skinparam RectangleBackgroundColor white
 skinparam RectangleBorderColor black
 skinparam RectangleFontName Source Sans Pro
 skinparam ArrowColor black
+skinparam HeaderFontSize 14
+skinparam FooterFontSize 14
 
 center header
 data, error, completion events
