@@ -1,15 +1,14 @@
+
 # Reactive Streams in Java
-
-
 
 
 ## Introduction
 
-_Reactive Streams_ is a cross-platform specification for processing a possibly unbounded sequence of events across asynchronous boundaries (threads, processes or network-connected computers) with non-blocking backpressure. _Backpressure_ is an application-level flow control from the consumer to the producer in order to scale the production of events in the producer in accordance with their current demand from the consumer.  Reactive Streams are designed to achieve high throughput and low latency when passing events between asynchronous processing stages takes a noticeable time.
+_Reactive Streams_ is a cross-platform specification for processing a possibly unbounded sequence of events across asynchronous boundaries (threads, processes or network-connected computers) with non-blocking back pressure. _Back pressure_ is application-level flow control from the event consumer to the event producer to scale the emitting of events in the producer in accordance with their demand from the consumer. Reactive streams are designed to achieve high throughput and low latency in sequential processing, where transferring events between asynchronous processing stages takes noticeable time.
 
 ![stream diagram](/images/stream_diagram.png)
 
-The Reactive Streams specification is already implemented in the different programming platforms (.NET, JVM, JavaScript) and network protocols (RSocket). In the Java ecosystem Reactive Streams are supported among others in:
+The Reactive Streams specification is already implemented in the various programming platforms (.NET, JVM, JavaScript) and network protocols (RSocket). In the Java ecosystem, reactive threads are supported in particular:
 
 
 
@@ -19,131 +18,123 @@ The Reactive Streams specification is already implemented in the different progr
 * message brokers (Apache Kafka, Pivotal RabbitMQ/AMQP)
 * cloud providers (AWS SDK for Java 2.0)
 
-_Reactive streams_ is a concurrency framework that was added in JDK 9. It consists of four nested interfaces in the _java.util.concurrent.Flow_ class (_Publisher_, _Subscriber_, _Subscription_, _Processor_) and the single implementation _java.util.concurrent.SubmissionPublisher_ class.
+_Reactive streams_ is a concurrency framework compatible with the Reactive Streams specification, which was added in JDK 9. It consists of four nested interfaces in the _java.util.concurrent.Flow_ class (_Publisher_, _Subscriber_, _Subscription_, _Processor_) and a single implementation - the _SubmissionPublisher_ class which implements the _Flow.Publisher_ interface.
 
 
 ## Architecture
 
-When transferring data events from a producer to a consumer, we strive to transmit _all_ messages with minimum latency and maximum throughput.
+When transmitting items from the producer to the consumer, the goal is to transmit _all_ items with minimal latency and maximum throughput.
 
->Latency is the time between event generation on the producer and its arriving to the consumer.
+<sub>Latency is the time between the generation of an item at the producer and its arrival to the consumer. </sub>
 
->Throughput is the amount of events transferred from producer to consumer per unit of time.
+<sub>Throughput is the number of items sent from producer to consumer per unit of time.</sub>
 
-However a producer and a consumer can be limitations that may prevent you from achieving the best performance:
-
-
-
-* A consumer may be slower than a producer
-* A producer may not stop generating events that consumer cannot process or reduce the rate of their generations
-* A consumer must not skip events that it cannot process
-* Both a producer and a consumer may have a limited amount of memory to buffer events and CPU cores to handle events processing asynchronously
-
-Also a communication channel between producer and consumer can have its own limitations. Transmission of an event of even minimum length across asynchronous boundaries (threads, processes or network-connected computers) requires a noteworthy amount of time.
-
-Here are the _minimum_ delays for typical hardware at the beginning of the 2020s:
+However, the producer and the consumer may have limitations that can prevent the best performance from being achieved:
 
 
 
-* the context switching between threads: few microseconds
-* the context switching between processes: few milliseconds
-* the network round-trip inside a cloud zone: few hundred microseconds
-* the network round-trip inside a cloud region: few milliseconds
-* the network round-trip between the US East and West coast or the US East coast and Europe: a hundred milliseconds
+* The consumer can be slower than the producer
+* The producer may not be able to stop emitting items that the consumer does not have time to process, or reduce the rate at which they are emitted
+* The consumer may not be able to skip items that he does not have time to process
+* The producer and the consumer may have a limited amount of memory for items buffering and CPU cores for asynchronous items processing
+* The communication channel between the producer and the consumer may have a limited bandwidth
 
-Although in most cases you can ignore thread and process switching delays, network delays should always be taken into account.
-
-There are several patterns that are used to create systems that send data events across asynchronous boundaries witch all such limitations:
+There are several patterns for sequential items processing that allows to bypass some or most of the above limitations:
 
 
 
 * Iterator
 * Observer
-* Reactive Extensions (ReactiveX)
+* Reactive Extensions
 * Reactive Streams
+
+These patterns fall into two groups: _pull_ models (in which the consumer determines when it requests items from the producer) and _push_ models (in which the producer determines when it sends items to the consumer).
 
 
 ### Iterator
 
-In the Iterator pattern, the consumer synchronously _pulls_ data events from the producer one-by-one. The producer sends events only when the consumer requests it. If the producer has no event when it is requested, it sends an empty response.
+In the Iterator pattern, the consumer synchronously _pulls_ items from the producer one by one. The producer sends an item only when the consumer requests it. If the producer has no item at the time of the request, it sends an empty response.
 
 ![Iterator](/images/Iterator.png)
-
-Pros
-
-
-
-* The consumer can start exchange at any time
-* The consumer can request the next data event when it processed the previous one
-* The consumer can stop exchange at any time
-
-Cons
-
-
-
-* The latency may be non-optimal because of an incorrectly chosen pulling period (too long pulling period results in high latency, too short pulling period results in wasted CPU and I/O resources)
-* The throutput is non-optimal because it takes one request-response to send each data event
-* A consumer can not determine if the producer has finished the evens generation
-
-When using the Iterator pattern that transfers data events one by one, the latency and throutput are often unsatisfactory. To improve these parameters with minor architecture changes, the same Iterator pattern is often used, which transfers data events not one by one, but in batches of fixed or variable size.
-
-![pattern Iterator with batching](/images/pattern_Iterator_with_batching.png)
 
 Pros:
 
 
 
-* The throutput is increased because number of request-responses is reduced from _one_ per data event to one for _all_ data events in a batch
+* The consumer can start the exchange at any time
+* The consumer can not request the next item if he has not yet processed the previous one
+* The consumer can stop the exchange at any time
 
-Cons
+Cons:
 
 
 
-* The latency is increased, because the producer takes more time to generate more events
-* If the batch size is too large, it may not fit in the memory of the producer or consumer
-* If the consumer wants to stop processing, it can do this no sooner than it has received the entire events batch
+* The latency may not be optimal due to incorrectly chosen pulling period (too long pulling period leads to high latency, too short pulling period wastes CPU and I/O resources)
+* The throutput is not optimal because it takes one request-response to send each item
+* The consumer can not determine if the producer is done emitting items
+
+When using the Iterator pattern that transmits items one at a time, latency and throutput are often unsatisfactory. To improve these parameters with minimal changes, the same Iterator pattern is often used, which transmits items in batches of fixed or variable size.
+
+![Iterator with batching](/images/Iterator_with_batching.png)
+
+Pros:
+
+
+
+* Throutput increases as the number of request-responses decreases from one for _each_ item to one for _all_ items in a batch
+
+Cons:
+
+
+
+* The latency increases because the producer needs more time to emit more items
+* If the batch size is too large, it may not fit in the memory of the producer or the consumer
+* If the consumer wants to stop processing, he can do so no sooner than he receives the entire items batch
 
 
 ### Observer
 
-In the Observer pattern, one or many consumers subscribe to a producer's data events. The producer asynchronously _pushes_ data events to all subscribed consumers as soon as they become available. A consumer can unsubscribe from the producer at any time if it does not need further events.
+In the Observer pattern, one or many consumers subscribe to the producer's events. The producer asynchronously _pushes_ events to all subscribed consumers as soon as they become available. The consumer can unsubscribe from the producer at any time if they do not need further events.
 
 ![Observer](/images/Observer.png)
 
-Pros
+Pros:
 
 
 
-* The consumer can start exchange at any time
-* The consumer can stop exchange at any time
-* The latency is lower than in synchronous _pull_ because producer sends events to the consumers as soon they become available
+* The consumer can start the exchange at any time
+* The consumer can stop the exchange at any time
+* The latency is lower than in synchronous _pull_ models because the producer sends events to the consumer as soon as they become available
 
-Const
+Cons:
 
 
 
-* A slower consumer can be overwhelmed by a stream of events from a faster producer
-* The consumer can not determine if the producer has finished the data evens generation
+* A slower consumer may be overwhelmed by the stream of events from a faster producer
+* The consumer cannot determine if the producer has finished emitting events
+* Implementing a concurrent producer can be non-trivial
 
 
 ### Reactive Extensions
 
-Reactive Extensions (ReactiveX) is a family of multi-platform frameworks to process synchronous or asynchronous streams, originally created by Microsoft. Implementation of Reactive Extensions for Java is the Netflix RxJava framework.
+Reactive Extensions (ReactiveX) is a family of multi-platform frameworks for handling synchronous or asynchronous events streams, originally created by Erik Meijer at Microsoft.
 
-In a simplistic way, Reactive Extensions can be thought of as a combination of the Observer and Iterator patterns and functional programming. From the Observer pattern they took the ability of a consumer to subscribe to events of a producer. From the Iterator pattern they took the ability to process streams of events of three types (data, error, completion). From the functional programming they took the ability to process streams of events with chained methods in imperative style (filter, map, reduce, split, merge, etc.).
+<sub>The implementation of Reactive Extensions for Java is the Netflix RxJava framework.</sub>
+
+In simplified terms, Reactive Extensions can be thought of as a combination of Observer and Iterator patterns and functional programming. From the Observer pattern they took the ability of the consumer to subscribe to producer events. From the Iterator pattern they took the ability to handle event streams of three types (data, error, completion). From functional programming they took the ability to handle event streams with chained methods (transform, filter, combine, etc.).
 
 ![Reactive Extensions](/images/Reactive_Extensions.png)
 
-As the Iterator pattern has synchronous _pull_ operations to handle data, error, and completion, Reactive Extensions has methods to do similar asynchronous _push_ operations.
+Just as the Iterator pattern has synchronous _pull_ operations to handle data, errors, and completion, Reactive Extensions has methods to perform similar asynchronous _push_ operations.
 
 
 <table>
   <tr>
    <td>
    </td>
-   <td>Iterator (pull)
+   <td>Iterator (<em>pull</em>)
    </td>
-   <td>Observable (push)
+   <td>Observable (<em>push</em>)
    </td>
   </tr>
   <tr>
@@ -173,52 +164,52 @@ As the Iterator pattern has synchronous _pull_ operations to handle data, error,
 </table>
 
 
-Pros
+Pros:
 
 
 
-* The consumer can start exchange at any time
-* The consumer can stop exchange at any time
-* A consumer can determine when the producer has finished the evens generation
-* The latency is lower than in synchronous _pull_ because producer sends events to the consumers as soon they become available
-* A consumer can process of events of three types (data, error, completion) uniformly
-* Processing event streams with chained methods can be simpler than processing them with nested event handlers
+* The consumer can start the exchange at any time
+* The consumer can stop the exchange at any time
+* The consumer can determine when the producer has finished emitting events
+* The latency is lower than in synchronous _pull_ models because the producer sends events to the consumer as soon as they become available
+* The consumer can handle the stream of events of the three types (data, error, completion) uniformly
+* Handling event streams with chained methods can be easier than handling them with nested event handlers
 
-Const
+Cons:
 
 
 
-* A slower consumer can be overwhelmed by a stream of events from a faster producer
+* A slower consumer may be overwhelmed by the stream of events from a faster producer
+* Implementing a concurrent producer can be non-trivial
 
 
 ### Reactive Streams
 
-Reactive Streams is an initiative to provide a standard for asynchronous stream processing with non-blocking backpressure.
+Reactive Streams is an initiative to provide a standard for asynchronous stream processing with non-blocking back pressure.
 
-Reactive Streams is a further development of Reactive Extensions that was developed to solve, among other things, the problem of overflowing a slower consumer with a stream of events from a faster producer. In a simplistic way, Reactive Streams can be thought of as a combination of the Reactive Extensions and batching.
+Reactive Streams is a further development of Reactive Extensions, which was developed in particular to solve the problem of overflow of a slower consumer with a stream of events from a faster producer. In simplified terms, Reactive Streams can be thought of as a combination of Reactive Extensions and batching.
 
-The consumer has a method for setting the number of events it wants to receive from the producer. This algorithm allows you to build systems that work equally efficiently regardless of whether the producer is faster or slower than the consumer, or even when the performance of the producer or consumer changes over time.
+Еhe consumer has the ability to inform the producer of the amount of events he would like to receive. This algorithm makes it possible to create systems that work equally efficiently regardless of whether the producer is faster than the consumer or vice versa, or even when performance of the producer or the consumer changes over time.
 
 ![Reactive Streams](/images/Reactive_Streams.png)
 
-Pros
+Pros:
 
 
 
-* The consumer can start exchange at any time
-* The consumer can stop exchange at any time
+* The consumer can start the exchange at any time
+* The consumer can stop the exchange at any time
 * The  consumer can determine when the producer has finished the evens generation
-* The latency is lower than in synchronous _pull_ because producer sends events to the consumers as soon they become available
-* The consumer can process of events of three types (data, error, completion) uniformly
-* Processing event streams with chained methods can be simpler than processing them with nested event handlers
+* The latency is lower than in synchronous _pull_ models because the producer sends events to the consumer as soon as they become available
+* The consumer can handle the stream of events of the three types (data, error, completion) uniformly
+* Handling event streams with chained methods can be easier than handling them with nested event handlers
 * The consumer can request events from the producer depending on its demand
 
-Cons
+Cons:
 
 
 
 * Implementing a concurrent producer can be non-trivial
-
 
 ## Back-pressure
 

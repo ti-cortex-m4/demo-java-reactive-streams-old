@@ -8,7 +8,9 @@ skinparam RectangleBorderColor black
 skinparam RectangleFontName Source Sans Pro
 skinparam ArrowColor black
 skinparam HeaderFontSize 14
+skinparam HeaderFontColor black
 skinparam FooterFontSize 14
+skinparam FooterFontColor black
 
 center header
 data, error, completion events
