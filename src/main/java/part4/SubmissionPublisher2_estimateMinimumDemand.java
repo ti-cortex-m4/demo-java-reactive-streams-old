@@ -50,7 +50,7 @@ public class SubmissionPublisher2_estimateMinimumDemand extends SomeTest {
 
             ExecutorService executorService = (ExecutorService) publisher.getExecutor();
             executorService.shutdown();
-            executorService.awaitTermination(10, TimeUnit.SECONDS);
+            executorService.awaitTermination(60, TimeUnit.SECONDS);
         }
 
     }

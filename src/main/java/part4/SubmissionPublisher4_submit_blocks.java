@@ -29,7 +29,7 @@ public class SubmissionPublisher4_submit_blocks extends SomeTest {
                 }
             );
 
-            ForkJoinPool.commonPool().awaitTermination(10, TimeUnit.SECONDS);
+            ForkJoinPool.commonPool().awaitTermination(60, TimeUnit.SECONDS);
             publisher.close();
 
             consumerFuture.get();

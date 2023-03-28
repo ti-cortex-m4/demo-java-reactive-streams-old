@@ -35,7 +35,7 @@ public class SubmissionPublisher7_chaining {
             publisher1.submit(3);
             publisher1.submit(5);
 
-            ForkJoinPool.commonPool().awaitTermination(10, TimeUnit.SECONDS);
+            ForkJoinPool.commonPool().awaitTermination(60, TimeUnit.SECONDS);
         }
     }
 

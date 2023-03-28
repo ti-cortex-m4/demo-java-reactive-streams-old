@@ -27,6 +27,6 @@ public class Runner {
         publisher.close();
 
         ForkJoinPool forkJoinPool = (ForkJoinPool) publisher.getExecutor();
-        forkJoinPool.awaitTermination(10, TimeUnit.SECONDS);
+        forkJoinPool.awaitTermination(60, TimeUnit.SECONDS);
     }
 }

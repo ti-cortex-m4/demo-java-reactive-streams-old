@@ -12,10 +12,7 @@ import java.util.stream.LongStream;
 public class SubmissionPublisher1_constructor extends SomeTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
-        ExecutorService executorService = Executors.newFixedThreadPool(1);
-        int maxBufferCapacity = Flow.defaultBufferSize();
-
-        try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(executorService, maxBufferCapacity)) {
+        try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>()) {
             logger.info("executor: {}", publisher.getExecutor());
             logger.info("maximum buffer capacity: {}", publisher.getMaxBufferCapacity());
 
@@ -33,8 +30,9 @@ public class SubmissionPublisher1_constructor extends SomeTest {
                 delay();
             }
 
-            ((ExecutorService) publisher.getExecutor()).shutdown();
-            ((ExecutorService) publisher.getExecutor()).awaitTermination(10, TimeUnit.SECONDS);
+            ExecutorService executorService = (ExecutorService) publisher.getExecutor();
+            executorService.shutdown();
+            executorService.awaitTermination(60, TimeUnit.SECONDS);
         }
     }
 }
