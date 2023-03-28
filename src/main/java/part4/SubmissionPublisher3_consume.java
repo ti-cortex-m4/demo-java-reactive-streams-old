@@ -19,7 +19,7 @@ public class SubmissionPublisher3_consume extends SomeTest {
                 logger.info("produced: " + item);
                 publisher.submit(item);
             });
-            
+
             publisher.close();
 
             consumerFuture.get();

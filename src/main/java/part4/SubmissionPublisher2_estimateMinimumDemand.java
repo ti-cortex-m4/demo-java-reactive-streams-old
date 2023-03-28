@@ -1,4 +1,3 @@
-
 package part4;
 
 import java.util.concurrent.ExecutionException;
@@ -44,12 +43,12 @@ public class SubmissionPublisher2_estimateMinimumDemand extends SomeTest {
             });
 
             LongStream.range(0, 10).forEach(item -> {
-                delay();
-                publisher.submit(item);
-              }
+                    delay();
+                    publisher.submit(item);
+                }
             );
 
-            ( (ExecutorService)publisher.getExecutor()).awaitTermination(10, TimeUnit.SECONDS);
+            ((ExecutorService) publisher.getExecutor()).awaitTermination(10, TimeUnit.SECONDS);
 //            publisher.close();
         }
 

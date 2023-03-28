@@ -1,13 +1,8 @@
-
 package part4;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Flow;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
@@ -29,7 +24,7 @@ public class SubmissionPublisher2_estimateMaximumLag extends SomeTest {
 
                 @Override
                 public void onNext(Long item) {
-                    delay(item.intValue());
+                    delay();
                     this.subscription.request(1);
 
                     System.out.println("next: " + item);
@@ -49,7 +44,7 @@ public class SubmissionPublisher2_estimateMaximumLag extends SomeTest {
 
             LongStream.range(0, 10).forEach(publisher::submit);
 
-            ( (ExecutorService)publisher.getExecutor()).awaitTermination(10, TimeUnit.SECONDS);
+            ((ExecutorService) publisher.getExecutor()).awaitTermination(10, TimeUnit.SECONDS);
 //            publisher.close();
         }
 

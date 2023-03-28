@@ -5,11 +5,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Flow;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiPredicate;
 import java.util.stream.LongStream;
 
 public class SubmissionPublisher6_offer_repeats extends SomeTest {
