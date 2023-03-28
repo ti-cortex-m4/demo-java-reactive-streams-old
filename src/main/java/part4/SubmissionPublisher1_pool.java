@@ -13,30 +13,27 @@ import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
 
-public class SubmissionPublisher1_pool {
-
-    private static final Logger logger = LoggerFactory.getLogger(SubmissionPublisher1_pool.class);
+public class SubmissionPublisher1_pool extends SomeTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        int maxBufferCapacity = Flow.defaultBufferSize() ;
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        int maxBufferCapacity = Flow.defaultBufferSize();
 
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(executorService, maxBufferCapacity)) {
-            System.out.println("getExecutor: " + publisher.getExecutor());
-            System.out.println("getMaxBufferCapacity: " + publisher.getMaxBufferCapacity());
+            logger.info("executor: {}", publisher.getExecutor());
+            logger.info("maximum buffer capacity: {}", publisher.getMaxBufferCapacity());
 
-            CompletableFuture<Void> consumerFuture1 = publisher.consume(item -> logger.info("consumed 1: " + item));
-            CompletableFuture<Void> consumerFuture2 = publisher.consume(item -> logger.info("consumed 2: " + item));
-            CompletableFuture<Void> consumerFuture3 = publisher.consume(item -> logger.info("consumed 3: " + item));
+            CompletableFuture<Void> consumerFuture1 = publisher.consume(item -> logger.info("consumed by consumer 1: {}", item));
+            CompletableFuture<Void> consumerFuture2 = publisher.consume(item -> logger.info("consumed by consumer 2: {}", item));
+            logger.info("number of subscribers: {}", publisher.getNumberOfSubscribers());
 
             LongStream.range(0, 10).forEach(publisher::submit);
 
-            ForkJoinPool.commonPool().awaitTermination(10, TimeUnit.SECONDS);
+            ( (ExecutorService)publisher.getExecutor()).awaitTermination(10, TimeUnit.SECONDS);
             publisher.close();
 
             consumerFuture1.get();
             consumerFuture2.get();
-            consumerFuture3.get();
         }
     }
 }
