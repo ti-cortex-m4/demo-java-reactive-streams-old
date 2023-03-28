@@ -17,17 +17,19 @@ public class SubmissionPublisher7_chaining {
              SubmissionPublisher<Integer> publisher2 = new SubmissionPublisher<>();
              SubmissionPublisher<Integer> publisher3 = new SubmissionPublisher<>()) {
 
-            publisher1.consume(x -> {
-                logger.info("step 1: {}", x);
-                delay();
-                publisher2.submit(x * x);
-            });
+            publisher3.consume(x -> logger.info("step 3: {}", x));
+
             publisher2.consume(x -> {
                 logger.info("step 2: {}", x);
                 delay();
                 publisher3.submit(x * x);
             });
-            publisher3.consume(x -> logger.info("step 3: {}", x));
+
+            publisher1.consume(x -> {
+                logger.info("step 1: {}", x);
+                delay();
+                publisher2.submit(x * x);
+            });
 
             publisher1.submit(2);
             publisher1.submit(3);
