@@ -3,7 +3,7 @@
 
 ## Introduction
 
-_Reactive Streams_ is a cross-platform specification for processing a possibly unbounded sequence of events across asynchronous boundaries (threads, processes or network-connected computers) with non-blocking back pressure. _Back pressure_ is application-level flow control from the event consumer to the event producer to scale the emitting of events in the producer in accordance with their demand from the consumer. Reactive streams are designed to achieve high throughput and low latency in sequential processing, where transferring events between asynchronous processing stages takes noticeable time.
+_Reactive Streams_ is a cross-platform specification for processing a possibly unbounded sequence of events across asynchronous boundaries (threads, processes or network-connected computers) with non-blocking backpressure. _Backpressure_ is application-level flow control from the event consumer to the event producer to scale the emitting of events in the producer in accordance with their demand from the consumer. Reactive streams are designed to achieve high throughput and low latency in sequential processing, where transferring events between asynchronous processing stages takes noticeable time.
 
 ![stream diagram](/images/stream_diagram.png)
 
@@ -180,7 +180,7 @@ Cons:
 
 ### Reactive Streams
 
-Reactive Streams is an initiative to provide a standard for asynchronous stream processing with non-blocking back pressure.
+Reactive Streams is an initiative to provide a standard for asynchronous stream processing with non-blocking backpressure.
 
 Reactive Streams is a further development of Reactive Extensions, which was developed in particular to solve the problem of overflow of a slower consumer with a stream of events from a faster producer. In simplified terms, Reactive Streams can be thought of as a combination of Reactive Extensions and batching.
 
@@ -209,9 +209,9 @@ Cons:
 
 ## Backpressure
 
-There are several solutions for situations where the consumer processes events slower than the producer emits them. This is not a problem for _pull_ models because the consumer is the initiator of the exchange. In _push_ models, the producer usually has no way to determine the rate of sending events, so the consumer may receive more events than he is able to handle. This performance mismatch can be resolved by back pressure in the consumer or in the producer.
+There are several solutions for situations where the consumer processes events slower than the producer emits them. This is not a problem for _pull_ models because the consumer is the initiator of the exchange. In _push_ models, the producer usually has no way to determine the rate of sending events, so the consumer may receive more events than he is able to handle. This performance mismatch can be resolved by backpressure in the consumer or in the producer.
 
-There are several ways to deal with the back pressure on the consumer side:
+There are several ways to deal with the backpressure on the consumer side:
 
 
 
@@ -221,11 +221,11 @@ There are several ways to deal with the back pressure on the consumer side:
 
 In this situation, the choice is either to lose the events or to introduce additional I/O operations to resend them.
 
-Back pressure is a solution in reactive streams to the problem of achieving maximum throughput with a slower consumer on the producer side _without_ losing messages. To start sending events from the producer, the consumer _pulls_ the number of events it wants to receive. Only then does the producer send events to the consumer, the producer never sends events on its own. If the consumer is deliberately faster than the producer, he can work in the _push_ model and request all events immediately after subscribing. If the consumer is deliberately slower than the producer, he can work in the _pull _model and request the next events only after the previous ones have been processed.
+Backpressure is a solution in reactive streams to the problem of achieving maximum throughput with a slower consumer on the producer side _without_ losing messages. To start sending events from the producer, the consumer _pulls_ the number of events it wants to receive. Only then does the producer send events to the consumer, the producer never sends events on its own. If the consumer is deliberately faster than the producer, he can work in the _push_ model and request all events immediately after subscribing. If the consumer is deliberately slower than the producer, he can work in the _pull _model and request the next events only after the previous ones have been processed.
 
 Thus, the model in which reactive streams operate can be described as a _dynamic push/pull_ model. Reactive stream switches between _push_ and _pull_ models depending on whether or not the consumer is able to receive data events at the speed of the producer. This model works effectively if the producer is faster than the consumer or vice versa, or if this relationship can change unpredictably over time.
 
-There are several ways to deal with the back pressure on the producer :
+There are several ways to deal with the backpressure on the producer :
 
 
 
@@ -235,7 +235,7 @@ There are several ways to deal with the back pressure on the producer :
 * pause generating events
 * cancel the events stream
 
-Back pressure shifts the overflow problem to the producer side, where it is supposed to be easier to solve. However, depending on the nature of the events and the implementation of the producer and the consumer, there may be better solutions than back pressure, such as simply dropping the events.
+Backpressure shifts the overflow problem to the producer side, where it is supposed to be easier to solve. However, depending on the nature of the events and the implementation of the producer and the consumer, there may be better solutions than backpressure, such as simply dropping the events.
 
 
 ## The Reactive Streams specification
@@ -375,7 +375,7 @@ When there are no more events, the Publisher completes the Subscription normally
 
 ## The JDK Flow API
 
-Reactive Streams started to be supported in JDK 9 in the form of the Flow API. The _java.util.concurrent.Flow_ class contains the _Publisher_, _Subscriber_, _Subscription_, _Processor _nested interfaces, which are 100% semantically equivalent to their respective Reactive Streams counterparts. Reactive Streams contains the _org.reactivestreams.FlowAdapters _class, which is a bridge between the Reactive Streams API in the _org.reactivestreams_ package and the JDK Flow API. The only implementation of the Reactive Streams specification that JDK provides so far is the _java.util.concurrent.SubmissionPublisher_ class that implements the _Publisher_ interface.
+Reactive Streams started to be supported in JDK 9 in the form of the Flow API. The _java.util.concurrent.Flow_ class contains the _Publisher_, _Subscriber_, _Subscription_, _Processor _nested interfaces, which are 100% semantically equivalent to their respective Reactive Streams counterparts. Reactive Streams contains the _org.reactivestreams.FlowAdapters _class, which is a bridge between the Reactive Streams API in the _org.reactivestreams_ package and the JDK Flow API in the _java.util.concurrent.Flow_ class. The only implementation of the Reactive Streams specification that JDK provides so far is the _java.util.concurrent.SubmissionPublisher_ class that implements the _Publisher_ interface.
 
 
 ### SubmissionPublisher
@@ -384,7 +384,7 @@ The [SubmissionPublisher](https://docs.oracle.com/javase/9/docs/api/java/util/co
 
 <sub>Normally the <em>SubmissionPublisher</em> class uses <em>ForkJoinPool.commonPool()</em> as an executor and <em>Flow.defaultBufferSize() = 256</em> as the maximum buffer capacity. </sub>
 
-According to the architecture of Reactive Streams, the _SubmissionPublisher_ class can use different back pressure strategies:
+According to the architecture of Reactive Streams, the _SubmissionPublisher_ class can use different backpressure strategies:
 
 
 
@@ -397,4 +397,11 @@ There are two ways for consumers to subscribe to the _SubmissionPublisher_ class
 
 The universal way is to use the inherited _Publisher#subscribe(Subscriber)_ method. This solution allows the use of the standard Reactive Streams workflow of the _Subscriber_ class with its _onSubscribe_, _onNext_, _onError_, _onComplete_ methods.
 
-The specialized way is to use the _SubmissionPublisher#consume(Consumer)_ method which returns a _CompletableFuture&lt;Void>_ result. This method is designed for a situation where it is known in advance that the consumer can handle the event stream emitted by the producer and no back pressure is required. Calling this method creates an implicit subscriber, which immediately calls the _Subscription#request(Long.MAX_VALUE)_ method to start the exchange in the _push_ model. The invocations of the _Consumer#accept_ method takes place in the _Consumer#_onNext of this implicit subscriber. The _CompletableFuture_ result allows the caller to [determine](https://github.com/aliakh/demo-java-completablefuture/blob/master/readme.md) whether the reactive stream is completed normally by the producer or cancel the subscription itself.
+The specialized way is to use the _SubmissionPublisher#consume(Consumer)_ method which returns a _CompletableFuture&lt;Void>_ result. This method is designed for a situation where it is known in advance that the consumer can handle the event stream emitted by the producer and no backpressure is required. Calling this method creates an implicit subscriber, which immediately calls the _Subscription#request(Long.MAX_VALUE)_ method to start the exchange in the _push_ model. The invocations of the _Consumer#accept_ method takes place in the _Consumer#onNext_ of this implicit subscriber. The _CompletableFuture_ result allows the caller to [determine](https://github.com/aliakh/demo-java-completablefuture/blob/master/readme.md) whether the reactive stream is completed normally by the producer or cancel the subscription itself.
+
+
+## Conclusion
+
+Reactive streams take a proper place among other parallel and concurrent Java frameworks. Before they appeared in the JDK, there were slightly related CompletableFuture and Stream APIs. CompletableFuture uses the push model but supports asynchronous computations of a single value. Stream supports sequential or parallel computations of multiple values, but uses the pull model. Reactive streams have taken a vacant place that supports synchronous or asynchronous computations of multiple values and can dynamically switch between the push and pull models. Reactive streams are suitable for processing possible unbounded sequences of events with unpredictable rates, such as user mouse and keyboard events, sensor events, latency-bound I/O events from storage or network etc.
+
+Application developers should not implement the interfaces of the Reactive Streams specification themselves. The specification is complex enough, especially in concurrent Publisher-Subscriber contracts, to be implemented correctly. Also the specification does not contain APIs for intermediate stream operations. They should use components (producer, processors, consumers) from existing frameworks and use the Reactive Streams API only to connect them together. Then application developers should use the much richer native framework APIs.
