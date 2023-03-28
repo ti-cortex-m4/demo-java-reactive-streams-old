@@ -49,6 +49,7 @@ public class SubmissionPublisher2_subscribe extends SomeTest {
             publisher.close();
 
             ExecutorService executorService = (ExecutorService) publisher.getExecutor();
+            executorService.shutdown();
             executorService.awaitTermination(10, TimeUnit.SECONDS);
         }
     }

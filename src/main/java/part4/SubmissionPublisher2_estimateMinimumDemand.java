@@ -48,8 +48,9 @@ public class SubmissionPublisher2_estimateMinimumDemand extends SomeTest {
                 }
             );
 
-            ((ExecutorService) publisher.getExecutor()).awaitTermination(10, TimeUnit.SECONDS);
-//            publisher.close();
+            ExecutorService executorService = (ExecutorService) publisher.getExecutor();
+            executorService.shutdown();
+            executorService.awaitTermination(10, TimeUnit.SECONDS);
         }
 
     }

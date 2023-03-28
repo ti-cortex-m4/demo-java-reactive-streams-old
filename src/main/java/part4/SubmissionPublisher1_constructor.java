@@ -12,7 +12,7 @@ import java.util.stream.LongStream;
 public class SubmissionPublisher1_constructor extends SomeTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
         int maxBufferCapacity = Flow.defaultBufferSize();
 
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(executorService, maxBufferCapacity)) {
@@ -24,14 +24,17 @@ public class SubmissionPublisher1_constructor extends SomeTest {
                     logger.info("consumed: {}", item);
                 }
             );
-            logger.info("number of subscribers: {}", publisher.getNumberOfSubscribers());
 
             LongStream.range(0, 10).forEach(publisher::submit);
-
-            ((ExecutorService) publisher.getExecutor()).awaitTermination(10, TimeUnit.SECONDS);
-
             publisher.close();
-            consumerFuture.get();
+
+            while (!consumerFuture.isDone()) {
+                logger.info("wait...");
+                delay();
+            }
+
+            ((ExecutorService) publisher.getExecutor()).shutdown();
+            ((ExecutorService) publisher.getExecutor()).awaitTermination(10, TimeUnit.SECONDS);
         }
     }
 }

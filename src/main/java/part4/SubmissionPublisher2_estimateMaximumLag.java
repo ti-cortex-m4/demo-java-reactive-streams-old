@@ -43,9 +43,11 @@ public class SubmissionPublisher2_estimateMaximumLag extends SomeTest {
             });
 
             LongStream.range(0, 10).forEach(publisher::submit);
-
-            ((ExecutorService) publisher.getExecutor()).awaitTermination(10, TimeUnit.SECONDS);
 //            publisher.close();
+
+            ExecutorService executorService = (ExecutorService) publisher.getExecutor();
+            executorService.shutdown();
+            executorService.awaitTermination(10, TimeUnit.SECONDS);
         }
 
     }
