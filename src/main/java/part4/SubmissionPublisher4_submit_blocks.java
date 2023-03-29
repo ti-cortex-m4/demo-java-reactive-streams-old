@@ -12,11 +12,9 @@ import java.util.stream.LongStream;
 
 public class SubmissionPublisher4_submit_blocks extends SomeTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(SubmissionPublisher4_submit_blocks.class);
-
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(ForkJoinPool.commonPool(), 2)) {
-            System.out.println("getMaxBufferCapacity: " + publisher.getMaxBufferCapacity());
+            logger.info("getMaxBufferCapacity: " + publisher.getMaxBufferCapacity());
 
             CompletableFuture<Void> consumerFuture = publisher.consume(item -> {
                 delay();
@@ -28,11 +26,16 @@ public class SubmissionPublisher4_submit_blocks extends SomeTest {
                     logger.info("submitted: " + item);
                 }
             );
-
-            ForkJoinPool.commonPool().awaitTermination(60, TimeUnit.SECONDS);
             publisher.close();
 
-            consumerFuture.get();
+            while (!consumerFuture.isDone()) {
+                logger.info("wait...");
+                delay();
+            }
+//            ForkJoinPool.commonPool().awaitTermination(60, TimeUnit.SECONDS);
+//            publisher.close();
+//
+//            consumerFuture.get();
         }
     }
 }

@@ -46,11 +46,11 @@ public class SubmissionPublisher2_subscribe extends SomeTest {
                 publisher.submit(item);
             });
 
-            publisher.close();
+//            publisher.close();
 
-            ExecutorService executorService = (ExecutorService) publisher.getExecutor();
-            executorService.shutdown();
-            executorService.awaitTermination(60, TimeUnit.SECONDS);
+//            ExecutorService executorService = (ExecutorService) publisher.getExecutor();
+//            executorService.shutdown();
+//            executorService.awaitTermination(60, TimeUnit.SECONDS);
         }
     }
 }

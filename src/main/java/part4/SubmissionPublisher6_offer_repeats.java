@@ -12,11 +12,8 @@ import java.util.stream.LongStream;
 
 public class SubmissionPublisher6_offer_repeats extends SomeTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(SubmissionPublisher6_offer_repeats.class);
-
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(ForkJoinPool.commonPool(), 2)) {
-            System.out.println("getMaxBufferCapacity: " + publisher.getMaxBufferCapacity());
 
             CompletableFuture<Void> consumerFuture = publisher.consume(item -> {
                 delay();
@@ -24,6 +21,7 @@ public class SubmissionPublisher6_offer_repeats extends SomeTest {
             });
 
             LongStream.range(0, 10).forEach(item -> {
+                logger.info("offered: " + item);
                     publisher.offer(item, (subscriber, value) -> {
                         delay();
                         logger.info("repeated: " + value);
@@ -32,10 +30,12 @@ public class SubmissionPublisher6_offer_repeats extends SomeTest {
                 }
             );
 
-            ForkJoinPool.commonPool().awaitTermination(60, TimeUnit.SECONDS);
             publisher.close();
 
-            consumerFuture.get();
+            while (!consumerFuture.isDone()) {
+                logger.info("wait...");
+                delay();
+            }
         }
     }
 }

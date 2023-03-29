@@ -8,27 +8,25 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
 
-public class SubmissionPublisher7_chaining {
-
-    private static final Logger logger = LoggerFactory.getLogger(SubmissionPublisher7_chaining.class);
+public class SubmissionPublisher7_chaining extends SomeTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         try (SubmissionPublisher<Integer> publisher1 = new SubmissionPublisher<>();
              SubmissionPublisher<Integer> publisher2 = new SubmissionPublisher<>();
              SubmissionPublisher<Integer> publisher3 = new SubmissionPublisher<>()) {
 
-            publisher3.consume(x -> logger.info("step 3: {}", x));
+            publisher3.consume(item -> logger.info("step 3: {}", item));
 
-            publisher2.consume(x -> {
-                logger.info("step 2: {}", x);
+            publisher2.consume(item -> {
+                logger.info("step 2: {}", item);
                 delay();
-                publisher3.submit(x * x);
+                publisher3.submit(item * item);
             });
 
-            publisher1.consume(x -> {
-                logger.info("step 1: {}", x);
+            publisher1.consume(item -> {
+                logger.info("step 1: {}", item);
                 delay();
-                publisher2.submit(x * x);
+                publisher2.submit(item * item);
             });
 
             publisher1.submit(2);

@@ -15,14 +15,20 @@ public class SubmissionPublisher3_consume extends SomeTest {
                 logger.info("consumed: " + item);
             });
 
-            LongStream.range(0, 10).forEach(item -> {
+            LongStream.range(0, 3).forEach(item -> {
                 logger.info("produced: " + item);
                 publisher.submit(item);
             });
-
             publisher.close();
 
-            consumerFuture.get();
+            while (!consumerFuture.isDone()) {
+                logger.info("wait...");
+                delay();
+            }
+//            publisher.close();
+
+//
+//            consumerFuture.get();
         }
     }
 }

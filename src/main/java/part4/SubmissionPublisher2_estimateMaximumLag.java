@@ -7,6 +7,7 @@ import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
 
+// Returns an estimate of the maximum number of items produced but not yet consumed among all current subscribers.
 public class SubmissionPublisher2_estimateMaximumLag extends SomeTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
@@ -19,7 +20,7 @@ public class SubmissionPublisher2_estimateMaximumLag extends SomeTest {
                 public void onSubscribe(Flow.Subscription subscription) {
                     this.subscription = subscription;
                     this.subscription.request(1);
-                    System.out.println("subscribed: " + subscription);
+                    logger.info("subscribed: " + subscription);
                 }
 
                 @Override
@@ -27,18 +28,18 @@ public class SubmissionPublisher2_estimateMaximumLag extends SomeTest {
                     delay();
                     this.subscription.request(1);
 
-                    System.out.println("next: " + item);
-                    System.out.println("estimateMaximumLag: " + publisher.estimateMaximumLag());
+                    logger.info("next: " + item);
+                    logger.info("estimateMaximumLag: " + publisher.estimateMaximumLag());
                 }
 
                 @Override
                 public void onError(Throwable throwable) {
-                    System.out.println("error: " + throwable);
+                    logger.info("error: " + throwable);
                 }
 
                 @Override
                 public void onComplete() {
-                    System.out.println("completed");
+                    logger.info("completed");
                 }
             });
 
