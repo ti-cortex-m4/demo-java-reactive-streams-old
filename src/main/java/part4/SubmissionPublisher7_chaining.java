@@ -33,15 +33,8 @@ public class SubmissionPublisher7_chaining extends SomeTest {
             publisher1.submit(3);
             publisher1.submit(5);
 
-            ForkJoinPool.commonPool().awaitTermination(60, TimeUnit.SECONDS);
-        }
-    }
 
-    private static void delay() {
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            ForkJoinPool.commonPool().awaitTermination(60, TimeUnit.SECONDS);
         }
     }
 }
