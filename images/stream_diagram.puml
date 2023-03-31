@@ -3,6 +3,7 @@
 scale 1.2
 
 skinparam linetype ortho
+
 skinparam RectangleBackgroundColor white
 skinparam RectangleBorderColor black
 skinparam RectangleFontName Source Sans Pro
