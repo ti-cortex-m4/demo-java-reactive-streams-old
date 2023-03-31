@@ -3,24 +3,25 @@
 
 ## Introduction
 
-_Reactive Streams_ is a cross-platform specification for processing a possibly unbounded sequence of events across asynchronous boundaries (threads, processes or network-connected computers) with non-blocking backpressure. _Backpressure_ is application-level flow control from the event consumer to the event producer to scale the emitting of events in the producer in accordance with their demand from the consumer.
+_Reactive Streams_ is a cross-platform specification for processing a possibly unbounded sequence of events across asynchronous boundaries (threads, actors or network-connected computers) with non-blocking backpressure. _Backpressure_ is application-level flow control from the event consumer to the event producer to control its emission rate.
 
-Reactive streams are designed to achieve high throughput and low latency in sequential processing, where transferring events between asynchronous processing stages takes noticeable time.
+The main purpose of Reactive Streams is to let the subscriber control how quickly the publisher produces events. This is implemented by switching between _push_ and _pull_ models automatically based on consumption rate. In Reactive Streams consumers can use bounded buffers of known size without the danger of memory overflow.
 
 ![stream diagram](/images/stream_diagram.png)
 
-The Reactive Streams specification is already implemented in the various programming platforms (.NET, JVM, JavaScript) and network protocols (RSocket). In the Java ecosystem, reactive threads are supported in particular:
+The Reactive Streams specification is already implemented in the various programming platforms (.NET, JVM, JavaScript) and network protocols (RSocket). In the Java ecosystem, reactive threads are supported in particular (listed alphabetically):
 
 
 
-* general-purpose frameworks (Lightbend Akka Streams, Pivotal Project Reactor, Netflix RxJava, Parallel Universe Quasar, SmallRye Mutiny)
-* web frameworks (Eclipse Vert.x, Lightbend Play Framework, Oracle Helidon, Pivotal WebFlux, Ratpack)
+* general-purpose frameworks (Eclipse Vert.x, Lightbend Akka Streams, Pivotal Project Reactor, Netflix RxJava, Parallel Universe Quasar, SmallRye Mutiny)
+* web frameworks (Lightbend Play Framework, Oracle Helidon, Pivotal WebFlux, Ratpack)
 * relational and non-relational databases (Apache Cassandra, Elasticsearch, MongoDB, PostgreSQL)
 * message brokers (Apache Kafka, Pivotal RabbitMQ/AMQP)
 * cloud providers (AWS SDK for Java 2.0)
+* network protocols (RSocket)
 
 
-## Architecture
+## Protocol evolution
 
 When transmitting items from the producer to the consumer, the goal is to transmit _all_ items with minimal latency and maximum throughput.
 
@@ -129,9 +130,9 @@ Just as the Iterator pattern has synchronous _pull_ operations to handle data, e
   <tr>
    <td>
    </td>
-   <td>Iterator (<em>pull</em>)
+   <td>Iterator (synchronous <em>pull</em>)
    </td>
-   <td>Observable (<em>push</em>)
+   <td>Observable (asynchronous <em>push</em>)
    </td>
   </tr>
   <tr>
@@ -186,7 +187,7 @@ Reactive Streams is an initiative to provide a standard for asynchronous stream 
 
 Reactive Streams is a further development of Reactive Extensions, which was developed in particular to solve the problem of overflow of a slower consumer with a stream of events from a faster producer. In simplified terms, Reactive Streams can be thought of as a combination of Reactive Extensions and batching.
 
-Еhe consumer has the ability to inform the producer of the amount of events he would like to receive. This algorithm makes it possible to create systems that work equally efficiently regardless of whether the producer is faster than the consumer or vice versa, or even when performance of the producer or the consumer changes over time.
+The consumer has the ability to inform the producer of the amount of events he would like to receive. This algorithm makes it possible to create streams which work equally efficiently regardless of whether the producer is faster than the consumer or vice versa, or even when performance of the producer or the consumer changes over time.
 
 ![Reactive Streams](/images/Reactive_Streams.png)
 
@@ -231,10 +232,15 @@ There are several ways to deal with the backpressure on the producer :
 
 
 
+* pause event generation, if possible
+
+otherwise:
+
+
+
 * buffer events in a bounded buffer
-* block the producer in the buffer is full
+* block the producer
 * drop events
-* pause generating events
 * cancel the events stream
 
 Backpressure shifts the overflow problem to the producer side, where it is supposed to be easier to solve. However, depending on the nature of the events and the implementation of the producer and the consumer, there may be better solutions than backpressure, such as simply dropping the events.
@@ -242,31 +248,22 @@ Backpressure shifts the overflow problem to the producer side, where it is suppo
 
 ## The Reactive Streams specification
 
-Reactive Streams is a [specification](https://www.reactive-streams.org/) to provide a standard for asynchronous stream processing with non-blocking back pressure for various runtime environments (JVM, .NET and JavaScript) as well as network protocols (RSocker). Reactive Streams introduces another concurrency communication that hides complexity of low-level multi-threading and synchronization and provides a high-level API to:
+Reactive Streams is a [specification](https://www.reactive-streams.org/) to provide a standard for asynchronous stream processing with non-blocking backpressure for various runtime environments (JVM, .NET and JavaScript) as well as network protocols. The Reactive Streams specification is created by engineers from Kaazing, Lightbend, Netflix, Pivotal, Red Hat, Twitter and others.
+
+The specification describes the concept of _reactive stream_ which has the following features:
 
 
 
-* process a potentially unbounded number of elements,
-* in sequence,
-* asynchronously passing elements between components,
-* with mandatory non-blocking backpressure.
+* reactive streams are potentially _unbounded_: they can handle zero, one, many, or an infinite number of events.
+* reactive streams are _sequenced_: consumers process events in the same order in which they were emitted by the producer.
+* reactive streams are _asynchronous_: they can use computing resources (CPU cores for one computer) for parallel processing in separate stream components.
+* reactive streams are _non-blocking_: they do not waste computing resources if the rates of the producer and the consumer are different
+* reactive streams use _mandatory backpressure_: consumers can request events from the producer according to their consumption rate.
+* reactive streams use _bounded buffers_: they can be implemented without unbounded buffers which can lead to out-of-memory errors
 
-The Reactive Streams [specification for the JVM](https://github.com/reactive-streams/reactive-streams-jvm) (the latest version 1.0.4 was released on May 26th, 2022) consists of the following parts:
+The Reactive Streams [specification for the JVM](https://github.com/reactive-streams/reactive-streams-jvm) (the latest version 1.0.4 was released on May 26th, 2022) contains the [textual specification](https://github.com/reactive-streams/reactive-streams-jvm/blob/v1.0.4/README.md#specification) and the Java [API](https://www.reactive-streams.org/reactive-streams-1.0.4-javadoc) which contains four interfaces that must be implemented according to this specification. There is also the [Technology Compatibility Kit](https://github.com/reactive-streams/reactive-streams-jvm/tree/master/tck) (TCK), a standard test suite for conformance testing of implementations.
 
-
-
-* the [textual specification](https://github.com/reactive-streams/reactive-streams-jvm/blob/v1.0.4/README.md#specification)
-* the Java [API](https://www.reactive-streams.org/reactive-streams-1.0.4-javadoc) which contains four interfaces that must be implemented according to this specification
-* the [Technology Compatibility Kit](https://github.com/reactive-streams/reactive-streams-jvm/tree/master/tck) (TCK), a standard test suite for conformance testing of implementations
-* the [implementation examples](https://www.reactive-streams.org/reactive-streams-examples-1.0.4-javadoc)
-
-Reactive Streams is a non-trivial specification. This happened because this specification was created after several mature implementations of reactive streams had been created.
-
-_It is not enough to implement the interfaces to make a reactive stream._ To work correctly in an asynchronous environment, components of reactive streams must obey their contracts. These contracts are summarized as textual specifications and verified in the Technology Compatibility Kit (TCK).
-
-_The Reactive Streams specification does not contain any implementations._ It was created to provide a minimal standard that should ensure interoperability across already existing Reactive Stream implementations. Application developers should rarely implement this specification on their own; instead, they should use components from existing implementations: Lightbend Akka Streams, Pivotal Project Reactor, Netflix RxJava, etc.
-
-_The Reactive Stream specification is limited._ It only covers the event stream between components (producers, consumers, processors). Other typical stream operations (transform, filter, combine, etc.) are not covered by this specification. Application developers should use this specification to select components from existing implementations and then use their native APIs.
+The Reactive Streams specification was created after several mature but incompatible implementations of Reactive Streams already existed. Therefore, the specification is currently limited and contains only low-level APIs. Application developers should use this specification to provide _interoperability_ between existing implementations. To have high-level functional APIs (transform, filter, combine, etc.) application developers should use implementations of this specification (Lightbend Akka Streams, Pivotal Project Reactor, Netflix RxJava, etc.) by their native APIs.
 
 
 ## The Reactive Streams API
@@ -287,7 +284,7 @@ The Reactive Streams API consists of the following interfaces, which are located
 
 The [Publisher](https://github.com/reactive-streams/reactive-streams-jvm#1-publisher-code) interface represents a producer of a potentially unbounded number of sequenced data and control events. A Publisher produces events according to the _demand_ received from one or many Subscribers.
 
-<sub><em>Demand</em> is the aggregated number of elements requested by a Subscriber which is yet to be delivered by the Publisher.</sub>
+<sub><em>Demand</em> is the aggregated number of elements requested by a Subscriber which is yet to be fulfilled by the Publisher.</sub>
 
 
 ```
@@ -379,7 +376,7 @@ When there are no more events, the Publisher completes the Subscription normally
 
 ## The JDK Flow API
 
-Reactive Streams started to be supported in JDK 9 in the form of the Flow API. The _java.util.concurrent.Flow_ class contains the _Publisher_, _Subscriber_, _Subscription_, _Processor _nested static interfaces, which are 100% semantically equivalent to their respective Reactive Streams counterparts. Reactive Streams contains the _org.reactivestreams.FlowAdapters _class, which is a bridge between the Reactive Streams API in the _org.reactivestreams_ package and the JDK Flow API in the _java.util.concurrent.Flow_ class. The only implementation of the Reactive Streams specification that JDK provides so far is the _java.util.concurrent.SubmissionPublisher_ class that implements the _Publisher_ interface.
+Reactive Streams started to be supported in JDK 9 in the form of the Flow API. The _java.util.concurrent.Flow_ class contains the _Publisher_, _Subscriber_, _Subscription_, _Processor_ nested static interfaces, which are 100% semantically equivalent to their respective Reactive Streams counterparts. Reactive Streams contains the _org.reactivestreams.FlowAdapters _class, which is a bridge between the Reactive Streams API in the _org.reactivestreams_ package and the JDK Flow API in the _java.util.concurrent.Flow_ class. The only implementation of the Reactive Streams specification that JDK provides so far is the _java.util.concurrent.SubmissionPublisher_ class that implements the _Publisher_ interface.
 
 
 ### SubmissionPublisher
@@ -408,4 +405,4 @@ The specialized way is to use the _SubmissionPublisher#consume(Consumer)_ method
 
 Reactive streams take a proper place among other parallel and concurrent Java frameworks. Before they appeared in the JDK, there were slightly related CompletableFuture and Stream APIs. CompletableFuture uses the _push_ model but supports asynchronous computations of a single value. Stream supports sequential or parallel computations of multiple values, but uses the _pull_ model. Reactive streams have taken a vacant place that supports synchronous or asynchronous computations of multiple values and can dynamically switch between the _push_ and _pull_ models. Reactive streams are suitable for processing possible unbounded sequences of events with unpredictable rates, such as user mouse and keyboard events, sensor events, latency-bound I/O events from file or network etc.
 
-Application developers should not implement the interfaces of the Reactive Streams specification themselves. The specification is complex enough, especially in concurrent Publisher-Subscriber contracts, to be implemented correctly. Also the specification does not contain APIs for intermediate stream operations. They should use components (producer, processors, consumers) from existing frameworks and use the Reactive Streams API only to connect them together. Then application developers should use the much richer native framework APIs.
+Application developers should not implement the interfaces of the Reactive Streams specification themselves. The specification is complex enough, especially in concurrent Publisher-Subscriber contracts, to be implemented correctly. Also the specification does not contain APIs for intermediate stream operations. They should use stream stages (producers, processors, consumers) from existing frameworks and use the Reactive Streams API only to connect them together. Then application developers should use the much richer native framework APIs.
