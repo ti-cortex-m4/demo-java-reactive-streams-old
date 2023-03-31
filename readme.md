@@ -1,4 +1,4 @@
-# Reactive Streams in Java
+# Reactive Streams specification in Java
 
 
 ## Introduction
@@ -68,10 +68,10 @@ Cons:
 
 
 * The latency may not be optimal due to incorrectly chosen pulling period (too long pulling period leads to high latency, too short pulling period wastes CPU and I/O resources)
-* The throutput is not optimal because it takes one request-response to send each item
+* The throughput is not optimal because it takes one request-response to send each item
 * The consumer can not determine if the producer is done emitting items
 
-When using the Iterator pattern that transmits items one at a time, latency and throutput are often unsatisfactory. To improve these parameters with minimal changes, the same Iterator pattern is often used, which transmits items in batches of fixed or variable size.
+When using the Iterator pattern that transmits items one at a time, latency and throughput are often unsatisfactory. To improve these parameters with minimal changes, the same Iterator pattern is often used, which transmits items in batches of fixed or variable size.
 
 ![Iterator with batching](/images/Iterator_with_batching.png)
 
