@@ -1,4 +1,4 @@
-package part5;
+package demo.reactivestreams.part5;
 
 import java.net.URI;
 import java.net.URISyntaxException;
