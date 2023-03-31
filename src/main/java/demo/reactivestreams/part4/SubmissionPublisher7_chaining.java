@@ -1,7 +1,4 @@
-package part4;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package demo.reactivestreams.part4;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;

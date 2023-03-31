@@ -1,13 +1,9 @@
-package part4;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package demo.reactivestreams.part4;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SubmissionPublisher;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
 
 public class SubmissionPublisher4_submit_blocks extends SomeTest {
