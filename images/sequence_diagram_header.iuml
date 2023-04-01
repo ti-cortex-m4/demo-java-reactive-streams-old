@@ -1,5 +1,4 @@
 scale 1.2
-hide footbox
 
 !pragma teoz true
 
@@ -9,3 +8,5 @@ skinparam participantBackgroundColor #white
 skinparam noteBackgroundColor #white
 skinparam sequenceGroupBackgroundColor #white
 skinparam participantPadding 10
+
+hide footbox
