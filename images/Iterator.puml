@@ -6,13 +6,13 @@ skinparam participantPadding 50
 participant Target
 participant Caller
 
-Caller ->(10) Target : next()
-Target ->(10) Caller : value
+Caller ->>(10) Target : next()
+Target ->>(10) Caller : value
 
-Caller ->(10) Target : next()
-Target ->(10) Caller : value
+Caller ->>(10) Target : next()
+Target ->>(10) Caller : value
 
-Caller ->(10) Target : next()
-Target ->(10) Caller : value
+Caller ->>(10) Target : next()
+Target ->>(10) Caller : value
 
 @enduml

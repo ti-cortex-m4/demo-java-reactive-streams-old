@@ -7,22 +7,22 @@ participant Publisher
 participant Subscription
 participant Subscriber
 
-Subscriber ->(10) Publisher : subscribe(Subscriber)
-Publisher ->(10) Subscription : new Subscription()
-Publisher ->(10) Subscriber : onSubscribe(Subscription)
+Subscriber ->>(10) Publisher : subscribe(Subscriber)
+Publisher ->>(10) Subscription : new Subscription()
+Publisher ->>(10) Subscriber : onSubscribe(Subscription)
 
-Subscriber ->(10) Subscription : request(long)
+Subscriber ->>(10) Subscription : request(long)
 
-Publisher ->(10) Subscriber : onNext(T)
-Publisher ->(10) Subscriber : onNext(T)
-Publisher ->(10) Subscriber : onNext(T)
+Publisher ->>(10) Subscriber : onNext(T)
+Publisher ->>(10) Subscriber : onNext(T)
+Publisher ->>(10) Subscriber : onNext(T)
 
 alt
-    Publisher ->(10) Subscriber : onError(Throwable)
+    Publisher ->>(10) Subscriber : onError(Throwable)
 else
-    Publisher ->(10) Subscriber : onComplete()
+    Publisher ->>(10) Subscriber : onComplete()
 else
-    Subscriber ->(10) Subscription : cancel()
+    Subscriber ->>(10) Subscription : cancel()
 end
 
 @enduml
