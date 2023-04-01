@@ -8,7 +8,9 @@ import java.util.concurrent.SubmissionPublisher;
 public class SubmissionPublisher2_constructor extends SomeTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
-        try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>()) {
+        Executor executor = Executors.newSingleThreadExecutor();
+        int maxBufferCapacity = 1;
+        try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(executor, maxBufferCapacity)) {
             logger.info("executor: {}", publisher.getExecutor());
             logger.info("maximum buffer capacity: {}", publisher.getMaxBufferCapacity());
         }

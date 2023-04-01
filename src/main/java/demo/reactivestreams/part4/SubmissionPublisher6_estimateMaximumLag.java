@@ -1,36 +1,40 @@
 package demo.reactivestreams.part4;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
 
-public class SubmissionPublisher2_subscribe extends SomeTest {
+// Returns an estimate of the maximum number of items produced but not yet consumed among all current subscribers.
+public class SubmissionPublisher6_estimateMaximumLag extends SomeTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>()) {
-
             publisher.subscribe(new Flow.Subscriber<>() {
 
                 private Flow.Subscription subscription;
 
                 @Override
                 public void onSubscribe(Flow.Subscription subscription) {
-                    logger.info("subscribed");
                     this.subscription = subscription;
                     this.subscription.request(1);
+                    logger.info("subscribed: " + subscription);
                 }
 
                 @Override
                 public void onNext(Long item) {
                     delay();
-                    logger.info("received: {}", item);
                     this.subscription.request(1);
+
+                    logger.info("next: " + item);
+                    logger.info("estimateMaximumLag: " + publisher.estimateMaximumLag());
                 }
 
                 @Override
                 public void onError(Throwable throwable) {
-                    logger.error("error", throwable);
+                    logger.info("error: " + throwable);
                 }
 
                 @Override
@@ -39,16 +43,13 @@ public class SubmissionPublisher2_subscribe extends SomeTest {
                 }
             });
 
-            LongStream.range(0, 10).forEach(item -> {
-                logger.info("produced: " + item);
-                publisher.submit(item);
-            });
-
+            LongStream.range(0, 10).forEach(publisher::submit);
 //            publisher.close();
 
-//            ExecutorService executorService = (ExecutorService) publisher.getExecutor();
-//            executorService.shutdown();
-//            executorService.awaitTermination(60, TimeUnit.SECONDS);
+            ExecutorService executorService = (ExecutorService) publisher.getExecutor();
+            executorService.shutdown();
+            executorService.awaitTermination(60, TimeUnit.SECONDS);
         }
+
     }
 }

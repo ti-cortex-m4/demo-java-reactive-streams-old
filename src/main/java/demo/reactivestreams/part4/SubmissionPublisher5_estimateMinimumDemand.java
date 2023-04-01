@@ -7,8 +7,8 @@ import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
 
-// Returns an estimate of the maximum number of items produced but not yet consumed among all current subscribers.
-public class SubmissionPublisher2_estimateMaximumLag extends SomeTest {
+// Returns an estimate of the minimum number of items requested (via request) but not yet produced, among all current subscribers.
+public class SubmissionPublisher5_estimateMinimumDemand extends SomeTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>()) {
@@ -19,17 +19,17 @@ public class SubmissionPublisher2_estimateMaximumLag extends SomeTest {
                 @Override
                 public void onSubscribe(Flow.Subscription subscription) {
                     this.subscription = subscription;
-                    this.subscription.request(1);
+                    this.subscription.request(10);
                     logger.info("subscribed: " + subscription);
                 }
 
                 @Override
                 public void onNext(Long item) {
-                    delay();
-                    this.subscription.request(1);
+                    //delay(item.intValue());
+                    //this.subscription.request(1);
 
                     logger.info("next: " + item);
-                    logger.info("estimateMaximumLag: " + publisher.estimateMaximumLag());
+                    logger.info("estimateMinimumDemand: " + publisher.estimateMinimumDemand());
                 }
 
                 @Override
@@ -43,8 +43,11 @@ public class SubmissionPublisher2_estimateMaximumLag extends SomeTest {
                 }
             });
 
-            LongStream.range(0, 10).forEach(publisher::submit);
-//            publisher.close();
+            LongStream.range(0, 10).forEach(item -> {
+                    delay();
+                    publisher.submit(item);
+                }
+            );
 
             ExecutorService executorService = (ExecutorService) publisher.getExecutor();
             executorService.shutdown();
