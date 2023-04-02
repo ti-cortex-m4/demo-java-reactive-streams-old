@@ -9,7 +9,7 @@ The Reactive Streams specification was created to solve two problems. First, to 
 
 ![reactive stream diagram](/images/reactive_stream_diagram.png)
 
-The Reactive Streams specification is designed for the various programming platforms (.NET, JVM, JavaScript) and network protocols. This specification is already implemented in particular:
+The Reactive Streams specification is designed for the various programming platforms (.NET, JVM, JavaScript) and network protocols. This specification is implemented, in particular:
 
 
 
@@ -25,19 +25,17 @@ The Reactive Streams specification is designed for the various programming platf
 
 When transmitting items from the producer to the consumer, the goal is to send _all_ items with minimal latency and maximum throughput.
 
-<sub>Latency is the time between the generation of an item at the producer and its arrival to the consumer. </sub>
-
-<sub>Throughput is the number of items sent from producer to consumer per unit of time.</sub>
+<sub>Latency is the time between the generation of an item at the producer and its arrival in the consumer. Throughput is the number of items sent from producer to consumer per unit of time.</sub>
 
 However, the producer and the consumer may have limitations that can prevent the best performance from being achieved:
 
 
 
-* The consumer can be slower than the producer
-* The producer may not be able to stop emitting items that the consumer does not have time to process or reduce the rate at which they are emitted
-* The consumer may not be able to skip items that he does not have time to process
-* The producer and the consumer may have a limited amount of memory for items buffering and CPU cores for asynchronous items processing
-* The communication channel between the producer and the consumer may have a limited bandwidth
+* The consumer can be slower than the producer.
+* The producer may not be able to slow or stop emitting items that the consumer does not have time to process.
+* The consumer may not be able to skip items that it does not have time to process.
+* The producer and consumer may have a limited amount of memory to buffer items and CPU cores to process items asynchronously.
+* The communication channel between the producer and the consumer may have limited bandwidth.
 
 There are several patterns for sequential items processing, that allows bypassing some or most of the above limitations:
 
@@ -48,12 +46,12 @@ There are several patterns for sequential items processing, that allows bypassin
 * Reactive Extensions
 * Reactive Streams
 
-These patterns fall into two groups: _pull_ models (in which the consumer determines when it requests items from the producer) and _push_ models (in which the producer determines when it sends items to the consumer).
+These patterns fall into two groups: synchronous _pull_ models (in which the consumer determines when to request items from the producer) and asynchronous _push_ models (in which the producer determines when to emit items to the consumer).
 
 
 ### Iterator
 
-In the Iterator pattern, the consumer synchronously _pulls_ items from the producer one by one. The producer sends an item only when the consumer requests it. If the producer has no item at the time of the request, it sends an empty response.
+In the Iterator pattern, the consumer synchronously _pulls_ items from the producer one-by-one. The producer sends an item only when the consumer requests it. If the producer has no item at the time of the request, it sends an empty response.
 
 ![Iterator](/images/Iterator.png)
 
@@ -61,17 +59,17 @@ Pros:
 
 
 
-* The consumer can start the exchange at any time
-* The consumer can not request the next item if he has not yet processed the previous one
-* The consumer can stop the exchange at any time
+* The consumer can start the exchange at any time.
+* The consumer can not request the next item if he has not yet processed the previous one.
+* The consumer can stop the exchange at any time.
 
 Cons:
 
 
 
-* The latency may not be optimal due to an incorrectly chosen pulling period (too long pulling period leads to high latency, too short pulling period wastes CPU and I/O resources)
-* The throughput is not optimal because it takes one requests/response to send each item
-* The consumer can not determine if the producer is done emitting items
+* The latency may not be optimal due to an incorrectly chosen pulling period (too long pulling period leads to high latency, too short pulling period wastes CPU and I/O resources).
+* The throughput is not optimal because it takes one request/response to send each item.
+* The consumer can not determine if the producer is done emitting items.
 
 When using the Iterator pattern that transmits items one at a time, latency and throughput are often unsatisfactory. To improve these parameters with minimal changes, the same Iterator pattern is often used, which transmits items in batches of fixed or variable size.
 
@@ -81,20 +79,20 @@ Pros:
 
 
 
-* Throughput increases as the number of request-responses decreases from one for _each_ item to one for _all_ items in a batch
+* Throughput increases as the number of requests and responses decreases from one for _each_ item to one for _all_ items in a batch.
 
 Cons:
 
 
 
-* The latency increases because the producer needs more time to emit more items
-* If the batch size is too large, it may not fit in the memory of the producer or the consumer
-* If the consumer wants to stop processing, he can do so no sooner than he receives the entire items batch
+* The latency increases because the producer needs more time to emit more items.
+* If the batch size is too large, it may not fit in the memory of the producer or the consumer.
+* If the consumer wants to stop processing, he can do so no sooner than he receives the entire item batch.
 
 
 ### Observer
 
-In the Observer pattern, one or many consumers subscribe to the producer's events. The producer asynchronously _pushes_ events to all subscribed consumers as soon as they become available. The consumer can unsubscribe from the producer at any time if they do not need further events.
+In the Observer pattern one or many consumers subscribe to the producer's events. The producer asynchronously _pushes_ events to all subscribed consumers as soon as they become available. The consumer can unsubscribe from the producer at any time if it does not need further events.
 
 ![Observer](/images/Observer.png)
 
@@ -102,17 +100,17 @@ Pros:
 
 
 
-* The consumer can start the exchange at any time
-* The consumer can stop the exchange at any time
-* The latency is lower than in synchronous _pull_ models because the producer sends events to the consumer as soon as they become available
+* The consumer can start the exchange at any time.
+* The consumer can stop the exchange at any time.
+* The latency is lower than in synchronous _pull_ models because the producer sends events to the consumer as soon as they become available.
 
 Cons:
 
 
 
-* A slower consumer may be overwhelmed by the stream of events from a faster producer
-* The consumer cannot determine if the producer has finished emitting events
-* Implementing a concurrent producer can be non-trivial
+* A slower consumer may be overwhelmed by the stream of events from a faster producer.
+* The consumer cannot determine if the producer has finished emitting events.
+* Implementing a concurrent producer may be non-trivial.
 
 
 ### Reactive Extensions
@@ -121,7 +119,7 @@ Reactive Extensions (ReactiveX) is a family of multi-platform frameworks for han
 
 <sub>The implementation of Reactive Extensions for Java is the Netflix RxJava framework.</sub>
 
-In simplified terms, Reactive Extensions can be thought of as a combination of the Observer and Iterator patterns and functional programming. From the Observer pattern, they took the ability of the consumer to subscribe to producer events. From the Iterator pattern, they took the ability to handle event streams of three types (data, error, completion). From functional programming, they took the ability to handle event streams with chained methods (transform, filter, combine, etc.).
+In a simplified way, Reactive Extensions can be thought of as a combination of the Observer and Iterator patterns and functional programming. From the Observer pattern, they took the ability of the consumer to subscribe to producer events. From the Iterator pattern, they took the ability to handle event streams of three types (data, error, completion). From functional programming, they took the ability to handle event streams with chained methods (transform, filter, combine, etc.).
 
 ![Reactive Extensions](/images/Reactive_Extensions.png)
 
@@ -168,26 +166,24 @@ Pros:
 
 
 
-* The consumer can start the exchange at any time
-* The consumer can stop the exchange at any time
-* The consumer can determine when the producer has finished emitting events
-* The latency is lower than in synchronous _pull_ models because the producer sends events to the consumer as soon as they become available
-* The consumer can handle the stream of events of the three types (data, error, completion) uniformly
-* Handling event streams with chained methods can be easier than handling them with nested event handlers
+* The consumer can start the exchange at any time.
+* The consumer can stop the exchange at any time.
+* The consumer can determine when the producer has finished emitting events.
+* The latency is lower than in synchronous _pull_ models because the producer sends events to the consumer as soon as they become available.
+* The consumer can uniformly handle the stream of events of the three types (data, error, completion).
+* Handling event streams with chained methods can be easier than with nested event handlers.
 
 Cons:
 
 
 
-* A slower consumer may be overwhelmed by the stream of events from a faster producer
-* Implementing a concurrent producer can be non-trivial
+* A slower consumer may be overwhelmed by the stream of events from a faster producer.
+* Implementing a concurrent producer may be non-trivial.
 
 
 ### Reactive Streams
 
-Reactive Streams is an initiative to provide a standard for asynchronous stream processing with non-blocking backpressure.
-
-Reactive Streams are a further development of Reactive Extensions, which were created to solve the problem of unbounded buffers that were used to reconcile the processing rates of a faster producer and a slower consumer. In simplified terms, Reactive Streams can be thought of as a combination of Reactive Extensions and batching.
+Reactive Streams is a further development of Reactive Extensions, which were created to solve the problem of unbounded buffers that were used to reconcile the processing rates of a faster producer and a slower consumer. In a simplified way, Reactive Streams can be thought of as a combination of Reactive Extensions and batching.
 
 In Reactive Extensions, a Publisher can send events to a Subscriber as soon as they become available, and in any quantity. In Reactive Streams, a Publisher must send events to a Subscriber only after requesting them, and no more than the requested quantity.
 
@@ -197,19 +193,19 @@ Pros:
 
 
 
-* The consumer can start the exchange at any time
-* The consumer can stop the exchange at any time
-* The  consumer can determine when the producer has finished the events emitting
-* The latency is lower than in synchronous _pull_ models because the producer sends events to the consumer as soon as they become available
-* The consumer can handle the stream of events of the three types (data, error, completion) uniformly
-* Handling event streams with chained methods can be easier than handling them with nested event handlers
-* The consumer can request events from the producer depending on its demand
+* The consumer can start the exchange at any time.
+* The consumer can stop the exchange at any time.
+* The consumer can determine when the producer has finished the events emitting.
+* The latency is lower than in synchronous _pull_ models because the producer sends events to the consumer as soon as they become available.
+* The consumer can uniformly handle the stream of events of the three types (data, error, completion).
+* Handling event streams with chained methods can be easier than handling them with nested event handlers.
+* The consumer can request events from the producer depending on its demand.
 
 Cons:
 
 
 
-* Implementing a concurrent producer can be non-trivial
+* Implementing a concurrent producer may be non-trivial.
 
 
 ## Backpressure
@@ -226,20 +222,15 @@ There are several ways to deal with the backpressure on the consumer side:
 
 In this situation, the choice is either to lose the events or to introduce additional I/O operations to resend them.
 
-Backpressure is a solution in reactive streams to the problem of achieving maximum throughput with a slower consumer on the producer side _without_ losing events. To start sending events from the producer, the consumer _pulls_ the number of events it wants to receive. Only then does the producer send events to the consumer, the producer never sends events on its own. If the consumer is deliberately faster than the producer, he can work in the _push_ model and request all events immediately after subscribing. If the consumer is deliberately slower than the producer, he can work in the _pull_ model and request the next events only after the previous ones have been processed.
+<sub>Backpressure on the consumer side may be inefficient because dropped events require I/O operations to send them from the producer.</sub>
 
-Thus, the model in which reactive streams operate can be described as a _dynamic push/pull_ model. Reactive stream switches between _push_ and _pull_ models depending on whether or not the consumer can receive data events at the speed of the producer. This model works effectively if the producer is faster than the consumer or vice versa, or if this relationship can change unpredictably over time.
+Backpressure is a solution in reactive streams to the problem of unbounded buffers with a slower consumer on the producer side _without_ losing events. To start sending events from the producer, the consumer _pulls_ the number of events it wants to receive. Only then does the producer send events to the consumer, the producer never sends events on its own initiative. If the consumer is faster than the producer, he can work in the _push_ model and request all events immediately after subscribing. If the consumer is slower than the producer, he can work in the _pull_ model and request the next events only after the previous ones have been processed. So, the model in which reactive streams operate can be described as a _dynamic push/pull_ model. This model works effectively if the producer is faster or slower than the consumer, or even that ratio can change over time.
 
 There are several ways to deal with the backpressure on the producer:
 
 
 
-* pause event generation, if possible
-
-otherwise:
-
-
-
+* pause emitting events
 * buffer events in a bounded buffer
 * block the producer
 * drop events
@@ -250,22 +241,22 @@ Backpressure shifts the overflow problem to the producer side, where it is suppo
 
 ## The Reactive Streams specification
 
-Reactive Streams is a [specification](https://www.reactive-streams.org/) to provide a standard for asynchronous stream processing with non-blocking backpressure for various runtime environments (JVM, .NET, and JavaScript) as well as network protocols. The Reactive Streams specification is created by engineers from Kaazing, Lightbend, Netflix, Pivotal, Red Hat, Twitter, and others.
+Reactive Streams is a [specification](https://www.reactive-streams.org/) to provide a standard for asynchronous stream processing with non-blocking backpressure for various runtime environments (JVM, .NET, and JavaScript) and network protocols. The Reactive Streams specification is created by engineers from Kaazing, Lightbend, Netflix, Pivotal, Red Hat, Twitter, and others.
 
-The specification describes the concept of _reactive stream_ which has the following features:
+The specification describes the concept of _reactive stream_ that has the following features:
 
 
 
-* reactive streams are potentially _unbounded_: they can handle zero, one, many, or an infinite number of events.
-* reactive streams are _sequenced_: consumers process events in the same order in which they were emitted by the producer.
-* reactive streams can be _synchronous_ or _asynchronous_: they can use computing resources (CPU cores for one computer) for parallel processing in separate stream components.
-* reactive streams are _non-blocking_: they do not waste computing resources if the rates of the producer and the consumer are different
-* reactive streams use _mandatory backpressure_: consumers can request events from the producer according to their consumption rate.
-* reactive streams use _bounded buffers_: they can be implemented without unbounded buffers which can lead to out-of-memory errors
+* Reactive Streams are potentially _unbounded_: they can handle zero, one, many, or an infinite number of events.
+* Reactive Streams are _sequenced_: consumers process events in the same order in which the producer emits them.
+* Reactive Streams can be _synchronous_ or _asynchronous_: they can use computing resources (CPU cores for one computer) for parallel processing in separate stream components.
+* Reactive Streams are _non-blocking_: they do not waste computing resources if the producer and consumer rates are different.
+* Reactive Streams use _mandatory backpressure_: consumers can request events from the producer according to their consumption rate.
+* Reactive Streams use _bounded buffers_: they can be implemented without unbounded buffers that can lead to out-of-memory errors.
 
-The Reactive Streams [specification for the JVM](https://github.com/reactive-streams/reactive-streams-jvm) (the latest version 1.0.4 was released on May 26th, 2022) contains the [textual specification](https://github.com/reactive-streams/reactive-streams-jvm/blob/v1.0.4/README.md#specification) and the Java [API](https://www.reactive-streams.org/reactive-streams-1.0.4-javadoc) which contains four interfaces that must be implemented according to this specification. There is also the [Technology Compatibility Kit](https://github.com/reactive-streams/reactive-streams-jvm/tree/master/tck) (TCK), a standard test suite for conformance testing of implementations.
+The Reactive Streams [specification for the JVM](https://github.com/reactive-streams/reactive-streams-jvm) (the latest version 1.0.4 was released on May 26th, 2022) contains the textual specification and the Java API which contains four interfaces that must be implemented according to this specification. There is also the Technology Compatibility Kit (TCK), a standard test suite for conformance testing of implementations.
 
-The Reactive Streams specification was created after several mature but incompatible implementations of Reactive Streams already existed. Therefore, the specification is currently limited and contains only low-level APIs. Application developers should use this specification to provide _interoperability_ between existing implementations. To have high-level functional APIs (transform, filter, combine, etc.) application developers should use implementations of this specification (Lightbend Akka Streams, Pivotal Project Reactor, Netflix RxJava, etc.) by their native APIs.
+The Reactive Streams specification was created after several mature but incompatible implementations of Reactive Streams already existed. Therefore, the specification is currently limited and contains only low-level APIs. Application developers should use this specification to provide _interoperability_ between existing implementations. To have high-level functional APIs (transform, filter, combine, etc.), application developers should use implementations of this specification (Lightbend Akka Streams, Pivotal Project Reactor, Netflix RxJava, etc.) by their native APIs.
 
 
 ## The Reactive Streams API
@@ -274,19 +265,19 @@ The Reactive Streams API consists of the following interfaces, which are located
 
 
 
-* _Publisher&lt;T>_: a producer of data and control events
-* _Subscriber&lt;T>_: a consumer of events
-* _Subscription_: a connection that links a Publisher and a Subscriber
-* _Processor&lt;T,R>_: a processor of events that acts as both a Subscriber and a Publisher
+* The _Publisher&lt;T>_ interface represents a producer of data and control events
+* The _Subscriber&lt;T>_ interface represents a consumer of events
+* The _Subscription_ interface represents a connection that links a _Publisher_ and a _Subscriber_
+* The _Processor&lt;T,R>_ interface represents a processor of events that acts as both a _Subscriber_ and a _Publisher_
 
 ![Reactive Streams API](/images/Reactive_Streams_API.png)
 
 
 ### Publisher
 
-The Publisher interface represents a producer of a potentially unbounded number of sequenced data and control events. A Publisher produces events according to the _demand_ received from one or many Subscribers.
+The _Publisher_ interface represents a producer of a potentially unbounded number of sequenced data and control events. A _Publisher_ produces events according to the _demand_ received from one or many _Subscribers_.
 
-<sub><em>Demand</em> is the aggregated number of elements requested by a Subscriber which is yet to be fulfilled by the Publisher.</sub>
+<sub>Demand is the aggregated number of elements requested by a Subscriber which is yet to be fulfilled by the Publisher.</sub>
 
 
 ```
@@ -300,12 +291,12 @@ This interface has the following method:
 
 
 
-* the _Publisher#subscribe(Subscriber)_ method requests the Publisher to start sending events to the Subscriber
+* The _Publisher#subscribe(Subscriber)_ method requests the _Publisher_ to start sending events to the _Subscriber_.
 
 
 ### Subscriber
 
-The Subscriber interface represents a consumer of events. Multiple Subscribers can subscribe and unsubscribe from a Producer at various points in time.
+The _Subscriber_ interface represents a consumer of events. Multiple _Subscriber_s can subscribe and unsubscribe from a _Producer_ at different times.
 
 
 ```
@@ -322,15 +313,17 @@ This interface has the following methods:
 
 
 
-* the _onSubscribe(Subscription)_ method is invoked when the Producer accepted a new Subscription
-* the _onNext(T)_ method is invoked on each received item
-* the _onError(Throwable)_ method is invoked at erroneous completion
-* the _onComplete()_ method is invoked on successful completion
+* The _onSubscribe(Subscription)_ method is invoked when the _Producer_ accepts a new _Subscription_.
+* The _onNext(T)_ method is invoked on each received item.
+* The _onError(Throwable)_ method is invoked at erroneous completion.
+* The _onComplete()_ method is invoked on successful completion.
+
+<sub>A <em>Producer</em> must invoke <em>Subscriber</em> methods <em>onSubscribe</em>, <em>onNext</em>, <em>onError</em>, <em>onComplete</em> serially means that the invocations must not overlap. When the invocations are performed asynchronously, the caller has to establish a happens-before relationship between them.</sub>
 
 
 ### Subscription
 
-The Subscription interface represents a connection between a Publisher and a Subscriber. Through a Subscription, the Subscriber can request items from the Publisher or cancel the connection at any time.
+The _Subscription_ interface represents a connection between a _Publisher_ and a _Subscriber_. Through a _Subscription_, the _Subscriber_ can request items from the _Publisher_ or cancel the connection at any time.
 
 
 ```
@@ -345,8 +338,10 @@ This interface has the following methods:
 
 
 
-* the _request(long)_ method adds the given number of items to the unfulfilled demand for this Subscription
-* the _cancel()_ method requests the Publisher to stop sending items and clean up resources
+* The _request(long)_ method adds the given number of items to the unfulfilled demand for this Subscription.
+* The _cancel()_ method requests the Publisher to stop sending items and clean up resources.
+
+<sub>A <em>Subscriber</em> must invoke <em>Subscription</em> methods <em>request</em>, <em>cancel</em> serially means that the invocations must not overlap. When the invocations are performed asynchronously, the caller has to establish a happens-before relationship between them.</sub>
 
 
 ### Processor
@@ -365,7 +360,7 @@ public interface Processor<T, R> extends Subscriber<T>, Publisher<R> {
 
 ![Reactive Streams workflow](/images/Reactive_Streams_workflow.png)
 
-When a Subscriber wants to start receiving events from a Publisher, it calls the _Publisher#subscribe(Subscriber)_ method and passes itself as a parameter. If the Publisher accepts the request, it creates a new Subscription object and invokes the _Subscriber#onSubscribe(Subscription)_ method with it. If the Publisher rejects the request or otherwise fails (for example, it has already subscribed), it invokes the _Subscriber#onError(Throwable)_ method.
+When a Subscriber wants to start receiving events from a Publisher, it calls the _Publisher#subscribe(Subscriber)_ method and passes itself as a parameter. If the _Publisher_ accepts the request, it creates a new _Subscription_ object and invokes the _Subscriber#onSubscribe(Subscription)_ method with it. If the Publisher rejects the request or otherwise fails (for example, it has already subscribed), it invokes the _Subscriber#onError(Throwable)_ method.
 
 Once the connection between Publisher and Subscriber is established through the Subscription object, the Subscriber can request events and the Publisher can emit them. When the Subscriber wants to receive events, it calls the _Subscription#request(long)_ method with a number of items requested. Typically, the first such call occurs in the _Subscriber#onSubscribe_ method. If the Subscriber wants to stop receiving events, it calls the _Subscription#cancel()_ method. After this method is called, the Subscriber can continue to receive events to meet the previously requested demand. A canceled Subscription does not receive _Subscriber#onComplete()_ or _Subscriber#onError(Throwable)_ events.
 
@@ -378,12 +373,12 @@ When there are no more events, the Publisher completes the Subscription normally
 
 ## The JDK Flow API
 
-Reactive Streams started to be supported in JDK 9 in the form of the Flow API. The _java.util.concurrent.Flow_ class contains the _Publisher_, _Subscriber_, _Subscription_, _Processor_ nested static interfaces, which are 100% semantically equivalent to their respective Reactive Streams counterparts. Reactive Streams contains the _org.reactivestreams.FlowAdapters_ class, which is a bridge between the Reactive Streams API in the _org.reactivestreams_ package and the JDK Flow API in the _java.util.concurrent.Flow_ class. The only implementation of the Reactive Streams specification that JDK provides so far is the _java.util.concurrent.SubmissionPublisher_ class that implements the _Publisher_ interface.
+Reactive Streams started to be supported in JDK 9 in the form of the Flow API. The _java.util.concurrent.Flow_ class contains nested static interfaces _Publisher_, _Subscriber_, _Subscription_, _Processor_, which are 100% semantically equivalent to their respective Reactive Streams counterparts. The Reactive Streams specification contains the _org.reactivestreams.FlowAdapters_ class, which is a bridge between the Reactive Streams API in the _org.reactivestreams_ package and the JDK Flow API in the _java.util.concurrent.Flow_ class. The only implementation of the Reactive Streams specification that JDK provides so far is the _java.util.concurrent.SubmissionPublisher_ class that implements the _Publisher_ interface.
 
 
 ### SubmissionPublisher
 
-The SubmissionPublisher class is an implementation of the _Publisher_ interface, which is compliant with the Reactive Streams specification. The _SubmissionPublisher_ class is implemented using an executor (to send events asynchronously to multiple consumers) and a bounded buffer for each consumer (to reconcile temporary differences in producer and consumer rates).
+The _SubmissionPublisher_ class is an implementation of the _Publisher_ interface, which is compliant with the Reactive Streams specification. The _SubmissionPublisher_ class is implemented using an executor (to send events asynchronously to multiple consumers) and a bounded buffer for each consumer (to reconcile temporary differences in producer and consumer rates).
 
 <sub>Normally the <em>SubmissionPublisher</em> class uses <em>ForkJoinPool.commonPool()</em> as an executor and <em>Flow.defaultBufferSize() = 256</em> as the maximum buffer capacity. </sub>
 
@@ -391,20 +386,20 @@ According to the architecture of Reactive Streams, the _SubmissionPublisher_ cla
 
 
 
-* _buffering_: for each Subscriber, the Publisher creates a Subscription that contains a bounded buffer with an initial minimum size that can be expanded to the maximum buffer capacity
-* _throttling_: during the emitting, the Publisher can use the _estimateMaximumLag_ (an estimate of the maximum number of items produced but not yet consumed among all subscribers) and _estimateMinimumDemand_ (an estimate of the minimum number of items requested but not yet produced among all subscribers) methods to predict the buffers saturation
-* _blocking_: if the Publisher uses the _submit_ method to send items to Subscribers, when the buffer is full, this method blocks until there is free space in the buffer
-* _dropping_ and _retrying_: if the Publisher uses the _offer_ method to send items to the Subscribers, when the buffer becomes full, this method can drop items (immediately or with a timeout) with or without the possibility to retry once
+* _Buffering_: for each Subscriber, the Publisher creates a Subscription that contains a bounded buffer with an initial minimum size that can be expanded to the maximum buffer capacity.
+* _Throttling_: during the emitting, the Publisher can use the _estimateMaximumLag_ (an estimate of the maximum number of items produced but not yet consumed among all subscribers) and _estimateMinimumDemand_ (an estimate of the minimum number of items requested but not yet produced among all subscribers) methods to predict the buffers saturation.
+* _Blocking_: if the Publisher uses the _submit_ method to send items to Subscribers, then when the buffer is full, this method blocks until there is free space in the buffer.
+* _Dropping_ and _retrying_: if the Publisher uses the _offer_ method to send items to the Subscribers, then when the buffer becomes full, this method can drop items (immediately or with a timeout) with or without the possibility to retry once.
 
-There are two ways for consumers to subscribe to the _SubmissionPublisher_ class: universal and specialized.
+There are two methods for consumers to subscribe to the _SubmissionPublisher_ class: inherited from the Publisher interface and declared in this class.
 
 The universal way is to use the inherited _Publisher#subscribe(Subscriber)_ method. This solution allows the use of the standard Reactive Streams workflow of the _Subscriber_ class with its _onSubscribe_, _onNext_, _onError_, _onComplete_ methods.
 
-The specialized way is to use the _SubmissionPublisher#consume(Consumer)_ method which returns a _CompletableFuture&lt;Void>_ result. This method is designed for a situation where it is known in advance that the consumer can handle the event stream emitted by the producer and no backpressure is required. Calling this method creates an implicit subscriber, which immediately calls the _Subscription#request(Long.MAX_VALUE)_ method to start the exchange in the _push_ model. The invocations of the _Consumer#accept_ method takes place in the _Consumer#onNext_ of this implicit subscriber. The _[CompletableFuture](https://github.com/aliakh/demo-java-completablefuture/blob/master/readme.md)_ result allows the caller to determine whether the reactive stream is completed normally or exceptionally by the producer or to cancel the subscription itself.
+The specialized way is to use the _SubmissionPublisher#consume(Consumer)_ method that returns a _CompletableFuture&lt;Void>_ result. This method is designed for a situation where it is known in advance that the consumer can handle the event stream emitted by the producer and no backpressure is required. Calling this method creates an implicit subscriber, which immediately calls the _Subscription#request(Long.MAX_VALUE)_ method to start the exchange in the _push_ model. The invocations of the _Consumer#accept_ method takes place in the _Consumer#onNext_ of this implicit subscriber. The _[CompletableFuture](https://github.com/aliakh/demo-java-completablefuture/blob/master/readme.md)_ result allows the caller to determine whether the reactive stream is completed normally or exceptionally by the producer or to cancel the subscription itself.
 
 
 ## Conclusion
 
-Reactive streams take a proper place among other parallel and concurrent Java frameworks. Before they appeared in the JDK, there were slightly related CompletableFuture and Stream APIs. CompletableFuture uses the _push_ model but supports asynchronous computations of a single value. Stream supports sequential or parallel computations of multiple values, but uses the _pull_ model. Reactive streams have taken a vacant place that supports synchronous or asynchronous computations of multiple values and can dynamically switch between the _push_ and _pull_ models. Reactive streams are suitable for processing possible unbounded sequences of events with unpredictable rates, such as mouse and keyboard events, sensor events, latency-bound I/O events from file or network, etc.
+Reactive streams take a proper place among other parallel and concurrent Java frameworks. Before they appeared in the JDK, there were slightly related CompletableFuture and Stream APIs. CompletableFuture uses the _push_ model but supports asynchronous computations of a single value. Stream supports sequential or parallel computations of multiple values but uses the _pull_ model. Reactive streams have taken a vacant place that supports synchronous or asynchronous computations of multiple values and additionally can dynamically switch between the _push_ and _pull_ models. Reactive streams are suitable for processing possible unbounded sequences of events with unpredictable rates, such as mouse and keyboard events, sensor events, latency-bound I/O events from file or network, etc.
 
-Application developers should not implement the interfaces of the Reactive Streams specification themselves. The specification is complex enough, especially in concurrent publisher-subscriber contracts, to be implemented correctly. Also, the specification does not contain APIs for intermediate stream operations. They should use stream stages (producers, processors, consumers) from existing frameworks and use the Reactive Streams API only to connect them together. Then application developers should use the much richer native framework APIs.
+Application developers should not implement the interfaces of the Reactive Streams specification themselves. The specification is complex enough, especially in concurrent publisher-subscriber contracts to be implemented correctly. Also, the specification does not contain APIs for intermediate stream operations. They should use stream components (producers, processors, consumers) from existing frameworks and use the Reactive Streams API only to connect them together. Then application developers should use the much richer native frameworks APIs.
