@@ -10,16 +10,16 @@ public class SubmissionPublisher7_submit_blocks extends SomeTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(ForkJoinPool.commonPool(), 2)) {
-            logger.info("getMaxBufferCapacity: " + publisher.getMaxBufferCapacity());
+            logger.info("getMaxBufferCapacity: {}", publisher.getMaxBufferCapacity());
 
             CompletableFuture<Void> consumerFuture = publisher.consume(item -> {
                 delay();
-                logger.info("consumed:  " + item);
+                logger.info("consumed:  {}", item);
             });
 
             LongStream.range(0, 10).forEach(item -> {
                     publisher.submit(item);
-                    logger.info("submitted: " + item);
+                    logger.info("submitted: {}", item);
                 }
             );
             publisher.close();

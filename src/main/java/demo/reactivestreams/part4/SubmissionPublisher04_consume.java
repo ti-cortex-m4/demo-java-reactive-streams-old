@@ -12,11 +12,11 @@ public class SubmissionPublisher04_consume extends SomeTest {
 
             CompletableFuture<Void> consumerFuture = publisher.consume(item -> {
                 delay();
-                logger.info("consumed: " + item);
+                logger.info("consumed: {}", item);
             });
 
             LongStream.range(0, 10).forEach(item -> {
-                logger.info("produced: " + item);
+                logger.info("produced: {}", item);
                 publisher.submit(item);
             });
             publisher.close();

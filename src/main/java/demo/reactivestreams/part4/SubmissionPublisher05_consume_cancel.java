@@ -22,7 +22,7 @@ public class SubmissionPublisher05_consume_cancel extends SomeTest {
             logger.info("number of subscribers: {}", publisher.getNumberOfSubscribers());
 
             LongStream.range(0, 10).forEach(item -> {
-                logger.info("produced: " + item);
+                logger.info("produced: {}", item);
                 publisher.submit(item);
             });
             publisher.close();

@@ -13,14 +13,14 @@ public class SubmissionPublisher8_offer_drops extends SomeTest {
 
             CompletableFuture<Void> consumerFuture = publisher.consume(item -> {
                 delay();
-                logger.info("consumed: " + item);
+                logger.info("consumed: {}", item);
             });
 
             LongStream.range(0, 10).forEach(item -> {
-                    logger.info("offered: " + item);
+                    logger.info("offered: {}", item);
                     publisher.offer(item, (subscriber, value) -> {
                         delay();
-                        logger.info("dropped: " + value);
+                        logger.info("dropped: {}", value);
                         return false;
                     });
                 }

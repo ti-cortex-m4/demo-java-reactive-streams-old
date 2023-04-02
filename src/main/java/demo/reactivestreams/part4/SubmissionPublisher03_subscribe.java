@@ -26,7 +26,7 @@ public class SubmissionPublisher03_subscribe extends SomeTest {
                 @Override
                 public void onNext(Long item) {
                     delay();
-                    logger.info("received: {}", item);
+                    logger.info("next: {}", item);
                     this.subscription.request(1);
                 }
 
@@ -42,10 +42,9 @@ public class SubmissionPublisher03_subscribe extends SomeTest {
             });
 
             LongStream.range(0, 10).forEach(item -> {
-                logger.info("produced: " + item);
+                logger.info("produced: {}", item);
                 publisher.submit(item);
             });
-
             publisher.close();
 
             ExecutorService executorService = (ExecutorService) publisher.getExecutor();
