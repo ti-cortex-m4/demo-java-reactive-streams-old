@@ -10,11 +10,7 @@ public class SomeTest {
     protected static final Logger logger = LoggerFactory.getLogger(SomeTest.class);
 
     protected static void delay() {
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        delay(1);
     }
 
     protected static void delay(int seconds) {

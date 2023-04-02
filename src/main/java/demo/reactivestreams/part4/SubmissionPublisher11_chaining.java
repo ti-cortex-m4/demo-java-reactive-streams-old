@@ -33,7 +33,6 @@ public class SubmissionPublisher11_chaining extends SomeTest {
             publisher1.submit(2);
             publisher1.submit(3);
             publisher1.submit(5);
-            publisher1.submit(7);
             publisher1.close();
 
             CompletableFuture<Void> futures = CompletableFuture.allOf(consumerFuture1,consumerFuture2,consumerFuture3);
