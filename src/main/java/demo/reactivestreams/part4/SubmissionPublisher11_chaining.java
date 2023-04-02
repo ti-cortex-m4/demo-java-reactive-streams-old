@@ -33,10 +33,28 @@ public class SubmissionPublisher11_chaining extends AbstractTest {
             publisher1.submit(5);
             publisher1.close();
 
-            CompletableFuture<Void> futures = CompletableFuture.allOf(consumerFuture1,consumerFuture2,consumerFuture3);
-            logger.info("wait...");
+            while (!consumerFuture1.isDone()) {
+                logger.info("wait1...");
+                delay();
+            }
+            logger.info("completed1");
 
-            futures.get();
+            while (!consumerFuture2.isDone()) {
+                logger.info("wait2...");
+                delay();
+            }
+            logger.info("completed2");
+
+            while (!consumerFuture3.isDone()) {
+                logger.info("wait3...");
+                delay();
+            }
+            logger.info("completed3");
+
+//            CompletableFuture<Void> futures = CompletableFuture.allOf(consumerFuture1,consumerFuture2,consumerFuture3);
+//            logger.info("wait...");
+//
+//            futures.get();
             logger.info("completed");
 
 //            ForkJoinPool.commonPool().awaitTermination(60, TimeUnit.SECONDS);
