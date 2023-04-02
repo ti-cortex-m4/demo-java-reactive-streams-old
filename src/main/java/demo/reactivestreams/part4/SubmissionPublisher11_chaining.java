@@ -12,24 +12,27 @@ public class SubmissionPublisher11_chaining extends SomeTest {
              SubmissionPublisher<Integer> publisher2 = new SubmissionPublisher<>();
              SubmissionPublisher<Integer> publisher3 = new SubmissionPublisher<>()) {
 
-            publisher3.consume(item -> logger.info("step 3: {}", item));
+            publisher3.consume(item -> {
+                delay();
+                logger.info("step 3: {}", item);
+            });
 
             publisher2.consume(item -> {
-                logger.info("step 2: {}", item);
                 delay();
+                logger.info("step 2: {}", item);
                 publisher3.submit(item * item);
             });
 
             publisher1.consume(item -> {
-                logger.info("step 1: {}", item);
                 delay();
+                logger.info("step 1: {}", item);
                 publisher2.submit(item * item);
             });
 
             publisher1.submit(2);
             publisher1.submit(3);
             publisher1.submit(5);
-
+            publisher1.submit(7);
 
             ForkJoinPool.commonPool().awaitTermination(60, TimeUnit.SECONDS);
         }

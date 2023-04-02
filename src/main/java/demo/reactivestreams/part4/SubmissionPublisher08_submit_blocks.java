@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.LongStream;
@@ -12,14 +11,14 @@ import java.util.stream.LongStream;
 public class SubmissionPublisher08_submit_blocks extends SomeTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
-        try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(ForkJoinPool.commonPool(), 2)) {
+        try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(ForkJoinPool.commonPool(), 3)) {
             logger.info("getMaxBufferCapacity: {}", publisher.getMaxBufferCapacity());
 
             List<Long> consumedItems = new ArrayList<>();
 
             CompletableFuture<Void> consumerFuture = publisher.consume(item -> {
                 delay();
-                logger.info("consumed:  {}", item);
+                logger.info("consumed: {}", item);
                 consumedItems.add(item);
             });
 
@@ -36,7 +35,7 @@ public class SubmissionPublisher08_submit_blocks extends SomeTest {
             }
             logger.info("completed");
 
-            logger.info("consumed: {}",consumedItems );
+            logger.info("consumed: {}", consumedItems);
         }
     }
 }

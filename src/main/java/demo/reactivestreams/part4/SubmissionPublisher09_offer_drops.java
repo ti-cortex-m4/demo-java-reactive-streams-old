@@ -11,7 +11,7 @@ import java.util.stream.LongStream;
 public class SubmissionPublisher09_offer_drops extends SomeTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
-        try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(ForkJoinPool.commonPool(), 2)) {
+        try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(ForkJoinPool.commonPool(), 3)) {
 
             List<Long> consumedItems = new ArrayList<>();
             List<Long> droppedItems = new ArrayList<>();
@@ -41,8 +41,8 @@ public class SubmissionPublisher09_offer_drops extends SomeTest {
             }
             logger.info("completed");
 
-            logger.info("consumed: {}",consumedItems );
-            logger.info("dropped: {}",droppedItems );
+            logger.info("consumed: {}", consumedItems);
+            logger.info("dropped: {}", droppedItems);
         }
     }
 }
