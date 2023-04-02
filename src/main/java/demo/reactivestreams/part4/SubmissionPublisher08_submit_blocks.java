@@ -1,5 +1,7 @@
 package demo.reactivestreams.part4;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -13,9 +15,12 @@ public class SubmissionPublisher08_submit_blocks extends SomeTest {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(ForkJoinPool.commonPool(), 2)) {
             logger.info("getMaxBufferCapacity: {}", publisher.getMaxBufferCapacity());
 
+            List<Long> consumedItems = new ArrayList<>();
+
             CompletableFuture<Void> consumerFuture = publisher.consume(item -> {
                 delay();
                 logger.info("consumed:  {}", item);
+                consumedItems.add(item);
             });
 
             LongStream.range(0, 10).forEach(item -> {
@@ -30,10 +35,8 @@ public class SubmissionPublisher08_submit_blocks extends SomeTest {
                 delay();
             }
             logger.info("completed");
-//            ForkJoinPool.commonPool().awaitTermination(60, TimeUnit.SECONDS);
-//            publisher.close();
-//
-//            consumerFuture.get();
+
+            logger.info("consumed: {}",consumedItems );
         }
     }
 }
