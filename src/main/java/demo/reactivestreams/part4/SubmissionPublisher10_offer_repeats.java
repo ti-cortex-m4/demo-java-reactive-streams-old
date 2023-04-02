@@ -6,7 +6,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.LongStream;
 
-public class SubmissionPublisher9_offer_repeats extends SomeTest {
+public class SubmissionPublisher10_offer_repeats extends SomeTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(ForkJoinPool.commonPool(), 2)) {

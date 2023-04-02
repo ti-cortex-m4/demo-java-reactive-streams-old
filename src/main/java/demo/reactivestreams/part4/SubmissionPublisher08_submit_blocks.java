@@ -10,7 +10,7 @@ import java.util.stream.LongStream;
 public class SubmissionPublisher08_submit_blocks extends SomeTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
-        try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(Executors.newSingleThreadExecutor(), 2)) {
+        try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(ForkJoinPool.commonPool(), 2)) {
             logger.info("getMaxBufferCapacity: {}", publisher.getMaxBufferCapacity());
 
             CompletableFuture<Void> consumerFuture = publisher.consume(item -> {

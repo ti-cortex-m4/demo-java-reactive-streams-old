@@ -5,7 +5,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
 
-public class SubmissionPublisher10_chaining extends SomeTest {
+public class SubmissionPublisher11_chaining extends SomeTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         try (SubmissionPublisher<Integer> publisher1 = new SubmissionPublisher<>();
