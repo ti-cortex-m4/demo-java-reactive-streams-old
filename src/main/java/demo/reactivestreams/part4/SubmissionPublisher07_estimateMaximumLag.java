@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
 
 // Returns an estimate of the maximum number of items produced but not yet consumed among all current subscribers.
-public class SubmissionPublisher07_estimateMaximumLag extends SomeTest {
+public class SubmissionPublisher07_estimateMaximumLag extends AbstractTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>()) {

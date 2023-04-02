@@ -5,7 +5,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.LongStream;
 
-public class SubmissionPublisher04_consume extends SomeTest {
+public class SubmissionPublisher04_consume extends AbstractTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>()) {

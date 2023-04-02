@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
 
 // Returns an estimate of the minimum number of items requested (via request) but not yet produced, among all current subscribers.
-public class SubmissionPublisher06_estimateMinimumDemand extends SomeTest {
+public class SubmissionPublisher06_estimateMinimumDemand extends AbstractTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>()) {

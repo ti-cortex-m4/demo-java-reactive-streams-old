@@ -5,9 +5,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
-public class SomeTest {
+public abstract class AbstractTest {
 
-    protected static final Logger logger = LoggerFactory.getLogger(SomeTest.class);
+    protected static final Logger logger = LoggerFactory.getLogger(AbstractTest.class);
 
     protected static void delay() {
         delay(1);

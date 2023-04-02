@@ -5,7 +5,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.SubmissionPublisher;
 
-public class SubmissionPublisher02_constructor extends SomeTest {
+public class SubmissionPublisher02_constructor extends AbstractTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         Executor executor = Executors.newSingleThreadExecutor();
