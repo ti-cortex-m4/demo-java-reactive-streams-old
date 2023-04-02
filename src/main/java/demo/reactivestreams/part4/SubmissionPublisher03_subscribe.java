@@ -42,7 +42,7 @@ public class SubmissionPublisher03_subscribe extends SomeTest {
             });
 
             LongStream.range(0, 10).forEach(item -> {
-                logger.info("produced: {}", item);
+                logger.info("submitted: {}", item);
                 publisher.submit(item);
             });
             publisher.close();

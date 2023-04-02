@@ -16,7 +16,7 @@ public class SubmissionPublisher04_consume extends SomeTest {
             });
 
             LongStream.range(0, 10).forEach(item -> {
-                logger.info("produced: {}", item);
+                logger.info("submitted: {}", item);
                 publisher.submit(item);
             });
             publisher.close();
