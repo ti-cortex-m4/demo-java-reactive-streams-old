@@ -1,10 +1,9 @@
 package demo.reactivestreams.part4;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
 
 public class SubmissionPublisher03_subscribe extends AbstractTest {
@@ -12,13 +11,15 @@ public class SubmissionPublisher03_subscribe extends AbstractTest {
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>()) {
 
+            CountDownLatch countDownLatch = new CountDownLatch(1);
+
             publisher.subscribe(new Flow.Subscriber<>() {
 
                 private Flow.Subscription subscription;
 
                 @Override
                 public void onSubscribe(Flow.Subscription subscription) {
-                    logger.info("subscribed: {}",subscription);
+                    logger.info("subscribed: {}", subscription);
                     this.subscription = subscription;
                     this.subscription.request(1);
                 }
@@ -38,6 +39,7 @@ public class SubmissionPublisher03_subscribe extends AbstractTest {
                 @Override
                 public void onComplete() {
                     logger.info("completed");
+                    countDownLatch.countDown();
                 }
             });
 
@@ -47,9 +49,9 @@ public class SubmissionPublisher03_subscribe extends AbstractTest {
             });
             publisher.close();
 
-            ExecutorService executorService = (ExecutorService) publisher.getExecutor();
-            executorService.shutdown();
-            executorService.awaitTermination(60, TimeUnit.SECONDS);
+            logger.info("wait...");
+            countDownLatch.await();
+            logger.info("finished");
         }
     }
 }

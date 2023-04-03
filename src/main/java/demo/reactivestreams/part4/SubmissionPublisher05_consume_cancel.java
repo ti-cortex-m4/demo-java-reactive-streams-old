@@ -34,7 +34,7 @@ public class SubmissionPublisher05_consume_cancel extends AbstractTest {
                 logger.info("wait...");
                 delay();
             }
-            logger.info("completed");
+            logger.info("finished");
         }
     }
 }

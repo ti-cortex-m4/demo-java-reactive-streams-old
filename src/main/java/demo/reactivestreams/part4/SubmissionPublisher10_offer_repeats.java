@@ -39,7 +39,7 @@ public class SubmissionPublisher10_offer_repeats extends AbstractTest {
                 logger.info("wait...");
                 delay();
             }
-            logger.info("completed");
+            logger.info("finished");
 
             logger.info("consumed: {}", consumedItems);
             logger.info("repeated: {}", repeatedItems);

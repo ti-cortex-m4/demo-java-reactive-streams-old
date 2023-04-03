@@ -39,7 +39,7 @@ public class SubmissionPublisher09_offer_drops extends AbstractTest {
                 logger.info("wait...");
                 delay();
             }
-            logger.info("completed");
+            logger.info("finished");
 
             logger.info("consumed: {}", consumedItems);
             logger.info("dropped: {}", droppedItems);

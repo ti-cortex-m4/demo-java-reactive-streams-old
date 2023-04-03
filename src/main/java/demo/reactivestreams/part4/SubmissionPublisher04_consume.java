@@ -25,7 +25,7 @@ public class SubmissionPublisher04_consume extends AbstractTest {
                 logger.info("wait...");
                 delay();
             }
-            logger.info("completed");
+            logger.info("finished");
         }
     }
 }

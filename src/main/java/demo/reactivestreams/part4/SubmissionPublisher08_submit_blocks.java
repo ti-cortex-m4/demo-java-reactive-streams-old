@@ -33,7 +33,7 @@ public class SubmissionPublisher08_submit_blocks extends AbstractTest {
                 logger.info("wait...");
                 delay();
             }
-            logger.info("completed");
+            logger.info("finished");
 
             logger.info("consumed: {}", consumedItems);
         }

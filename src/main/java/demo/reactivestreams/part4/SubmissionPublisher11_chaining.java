@@ -11,18 +11,18 @@ public class SubmissionPublisher11_chaining extends AbstractTest {
              SubmissionPublisher<Integer> publisher2 = new SubmissionPublisher<>();
              SubmissionPublisher<Integer> publisher3 = new SubmissionPublisher<>()) {
 
-            CompletableFuture<Void> consumerFuture3 =publisher3.consume(item -> {
+            CompletableFuture<Void> consumerFuture3 = publisher3.consume(item -> {
                 delay();
                 logger.info("step 3: {}", item);
             });
 
-            CompletableFuture<Void> consumerFuture2 =publisher2.consume(item -> {
+            CompletableFuture<Void> consumerFuture2 = publisher2.consume(item -> {
                 delay();
                 logger.info("step 2: {}", item);
                 publisher3.submit(item * item);
             });
 
-            CompletableFuture<Void> consumerFuture1 =publisher1.consume(item -> {
+            CompletableFuture<Void> consumerFuture1 = publisher1.consume(item -> {
                 delay();
                 logger.info("step 1: {}", item);
                 publisher2.submit(item * item);
