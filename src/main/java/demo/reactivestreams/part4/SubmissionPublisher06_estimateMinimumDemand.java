@@ -1,5 +1,6 @@
 package demo.reactivestreams.part4;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Flow;
@@ -12,6 +13,9 @@ public class SubmissionPublisher06_estimateMinimumDemand extends AbstractTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>()) {
+
+            CountDownLatch countDownLatch = new CountDownLatch(1);
+
             publisher.subscribe(new Flow.Subscriber<>() {
 
                 private Flow.Subscription subscription;
@@ -37,19 +41,21 @@ public class SubmissionPublisher06_estimateMinimumDemand extends AbstractTest {
                 @Override
                 public void onComplete() {
                     logger.info("completed");
+                    countDownLatch.countDown();
                 }
             });
 
             LongStream.range(0, 10).forEach(item -> {
                     delay();
+                    logger.info("submitted: {}", item);
                     publisher.submit(item);
                 }
             );
             publisher.close();
 
-            ExecutorService executorService = (ExecutorService) publisher.getExecutor();
-            executorService.shutdown();
-            executorService.awaitTermination(60, TimeUnit.SECONDS);
+            logger.info("wait...");
+            countDownLatch.await();
+            logger.info("finished");
         }
     }
 }
