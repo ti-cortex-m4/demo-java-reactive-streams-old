@@ -9,7 +9,7 @@ public class SubmissionPublisher02_constructor extends AbstractTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         Executor executor = Executors.newSingleThreadExecutor();
-        int maxBufferCapacity = 1;
+        int maxBufferCapacity = 2;
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(executor, maxBufferCapacity)) {
             logger.info("executor: {}", publisher.getExecutor());
             logger.info("maximum buffer capacity: {}", publisher.getMaxBufferCapacity());

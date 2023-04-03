@@ -18,7 +18,7 @@ public class SubmissionPublisher03_subscribe extends AbstractTest {
 
                 @Override
                 public void onSubscribe(Flow.Subscription subscription) {
-                    logger.info("subscribed");
+                    logger.info("subscribed: {}",subscription);
                     this.subscription = subscription;
                     this.subscription.request(1);
                 }
