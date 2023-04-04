@@ -24,21 +24,19 @@ public class NumbersPublisher extends SubmissionPublisher<Integer> {
 
     public static void main(String[] args) throws InterruptedException {
         NumbersPublisher publisher = new NumbersPublisher(10);
-
         NumbersSubscriber subscriber = new NumbersSubscriber();
+
         publisher.subscribe(subscriber);
 
-        IntStream.range(0, publisher.getCount())
-            .forEach(i -> {
-                logger.info("Publisher.submit: {}", i);
-                publisher.submit(i);
-            });
+        IntStream.range(0, publisher.getCount()).forEach(i -> {
+            logger.info("publisher.submit: {}", i);
+            publisher.submit(i);
+        });
 
-        logger.info("Publisher.close");
+        logger.info("publisher.close");
         publisher.close();
 
         ForkJoinPool forkJoinPool = (ForkJoinPool) publisher.getExecutor();
         forkJoinPool.awaitTermination(60, TimeUnit.SECONDS);
     }
-
 }

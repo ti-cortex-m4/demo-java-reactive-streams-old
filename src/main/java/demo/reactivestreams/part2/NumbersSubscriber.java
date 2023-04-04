@@ -13,25 +13,24 @@ public class NumbersSubscriber implements Flow.Subscriber<Integer> {
 
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
-        logger.info("Subscriber.onSubscribe: {}", subscription);
+        logger.info("subscriber.subscribe");
         this.subscription = subscription;
         this.subscription.request(1);
     }
 
     @Override
     public void onNext(Integer item) {
-        logger.info("Subscriber.onNext: {}", item);
+        logger.info("subscriber.next: {}", item);
         this.subscription.request(1);
     }
 
     @Override
     public void onError(Throwable throwable) {
-        logger.info("Subscriber.onError: {}", throwable.getMessage());
-        throwable.printStackTrace();
+        logger.error("subscriber.error", throwable);
     }
 
     @Override
     public void onComplete() {
-        logger.info("Subscriber.onComplete");
+        logger.info("subscriber.completed");
     }
 }
