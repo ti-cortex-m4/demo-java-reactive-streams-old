@@ -9,7 +9,7 @@
  * work. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.*
  ************************************************************************/
 
-package demo.reactivestreams.part1;
+package demo.reactivestreams.part0;
 
 import java.util.concurrent.Flow;
 

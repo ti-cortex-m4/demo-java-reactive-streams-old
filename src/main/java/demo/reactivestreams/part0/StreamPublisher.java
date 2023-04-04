@@ -1,4 +1,4 @@
-package demo.reactivestreams.part1;
+package demo.reactivestreams.part0;
 
 import java.util.Iterator;
 import java.util.concurrent.Flow;
@@ -109,27 +109,27 @@ public class StreamPublisher<T> implements Flow.Publisher<T> {
 
     public static void main(String[] args) {
         new StreamPublisher<>(() -> Stream.of(1, 2, 3, 4, 5, 6))
-                .subscribe(new Flow.Subscriber<>() {
-                    @Override
-                    public void onSubscribe(Flow.Subscription subscription) {
-                        System.out.println("Subscribed");
-                        subscription.request(6);
-                    }
+            .subscribe(new Flow.Subscriber<>() {
+                @Override
+                public void onSubscribe(Flow.Subscription subscription) {
+                    System.out.println("Subscribed");
+                    subscription.request(6);
+                }
 
-                    @Override
-                    public void onNext(Integer item) {
-                        System.out.println(item);
-                    }
+                @Override
+                public void onNext(Integer item) {
+                    System.out.println(item);
+                }
 
-                    @Override
-                    public void onError(Throwable throwable) {
-                        System.out.println("Error: " + throwable);
-                    }
+                @Override
+                public void onError(Throwable throwable) {
+                    System.out.println("Error: " + throwable);
+                }
 
-                    @Override
-                    public void onComplete() {
-                        System.out.println("Complete");
-                    }
-                });
+                @Override
+                public void onComplete() {
+                    System.out.println("Complete");
+                }
+            });
     }
 }

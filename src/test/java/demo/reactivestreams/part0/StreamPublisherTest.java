@@ -1,7 +1,5 @@
-package demo.reactivestreams.part1;
+package demo.reactivestreams.part0;
 
-
-import com.example.utils.ReactiveStreamsFlowBridge;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.tck.PublisherVerification;
 import org.reactivestreams.tck.TestEnvironment;
