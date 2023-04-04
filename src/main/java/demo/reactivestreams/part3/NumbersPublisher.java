@@ -1,12 +1,11 @@
-package demo.reactivestreams.part2;
+package demo.reactivestreams.part3;
 
+import demo.reactivestreams.part2.NumbersSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SubmissionPublisher;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 public class NumbersPublisher extends SubmissionPublisher<Integer> {

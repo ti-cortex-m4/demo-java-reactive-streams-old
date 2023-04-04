@@ -1,37 +1,43 @@
-package part3;
+package demo.reactivestreams.part3;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
 
 public class NumbersSubscriber implements Flow.Subscriber<Integer> {
 
     private static final Logger logger = LoggerFactory.getLogger(NumbersSubscriber.class);
 
+    private final CountDownLatch countDownLatch;
     private Flow.Subscription subscription;
+
+    public NumbersSubscriber(CountDownLatch countDownLatch) {
+        this.countDownLatch = countDownLatch;
+    }
 
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
-        logger.info("Subscriber.onSubscribe: {}", subscription);
+        logger.info("subscriber.subscribe");
         this.subscription = subscription;
         this.subscription.request(1);
     }
 
     @Override
     public void onNext(Integer item) {
-        logger.info("Subscriber.onNext: {}", item);
+        logger.info("subscriber.next: {}", item);
         this.subscription.request(1);
     }
 
     @Override
     public void onError(Throwable throwable) {
-        logger.info("Subscriber.onError: {}", throwable.getMessage());
-        throwable.printStackTrace();
+        logger.error("subscriber.error", throwable);
     }
 
     @Override
     public void onComplete() {
-        logger.info("Subscriber.onComplete");
+        logger.info("subscriber.completed");
+        countDownLatch.countDown();
     }
 }

@@ -1,4 +1,4 @@
-package part3;
+package demo.reactivestreams.part3;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +14,7 @@ public class Runner {
     public static void main(String[] args) throws InterruptedException {
         NumbersPublisher publisher = new NumbersPublisher(10);
 
-        NumbersFilterProcessor processor = new NumbersFilterProcessor();
+        NumbersProcessor processor = new NumbersProcessor();
         publisher.subscribe(processor);
 
         NumbersSubscriber subscriber = new NumbersSubscriber();

@@ -3,13 +3,19 @@ package demo.reactivestreams.part2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
 
 public class NumbersSubscriber implements Flow.Subscriber<Integer> {
 
     private static final Logger logger = LoggerFactory.getLogger(NumbersSubscriber.class);
 
+    private final CountDownLatch countDownLatch;
     private Flow.Subscription subscription;
+
+    public NumbersSubscriber(CountDownLatch countDownLatch) {
+        this.countDownLatch = countDownLatch;
+    }
 
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
@@ -32,5 +38,6 @@ public class NumbersSubscriber implements Flow.Subscriber<Integer> {
     @Override
     public void onComplete() {
         logger.info("subscriber.completed");
+        countDownLatch.countDown();
     }
 }
