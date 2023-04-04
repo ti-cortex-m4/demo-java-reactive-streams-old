@@ -29,10 +29,11 @@ public class SubmissionPublisher12_chaining_consume extends AbstractTest {
                 publisher2.submit(item * 10);
             });
 
-            LongStream.range(1, 10).forEach(item -> {
+            LongStream.range(1, 3).forEach(item -> {
                 logger.info("submitted: {}", item);
                 publisher1.submit(item);
             });
+
             publisher1.close();
 
             logger.info("(1) wait...");
@@ -41,11 +42,15 @@ public class SubmissionPublisher12_chaining_consume extends AbstractTest {
             }
             logger.info("(1) completed");
 
+            publisher2.close();
+
             logger.info("(2) wait...");
             while (!consumerFuture2.isDone()) {
                 delay();
             }
             logger.info("(2) completed");
+
+            publisher3.close();
 
             logger.info("(3) wait...");
             while (!consumerFuture3.isDone()) {

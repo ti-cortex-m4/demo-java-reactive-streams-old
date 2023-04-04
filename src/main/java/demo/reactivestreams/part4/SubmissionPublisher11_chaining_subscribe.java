@@ -20,7 +20,7 @@ public class SubmissionPublisher11_chaining_subscribe extends AbstractTest {
             processor1.subscribe(processor2);
             publisher.subscribe(processor1);
 
-            LongStream.range(1, 10).forEach(item -> {
+            LongStream.range(1, 3).forEach(item -> {
                 logger.info("submitted: {}", item);
                 publisher.submit(item);
             });
