@@ -33,20 +33,20 @@ public class SubmissionPublisher12_chaining_consume extends AbstractTest {
             publisher1.submit(3);
             publisher1.close();
 
+            logger.info("wait1...");
             while (!consumerFuture1.isDone()) {
-                logger.info("wait1...");
                 delay();
             }
             logger.info("completed1");
 
+            logger.info("wait2...");
             while (!consumerFuture2.isDone()) {
-                logger.info("wait2...");
                 delay();
             }
             logger.info("completed2");
 
+            logger.info("wait3...");
             while (!consumerFuture3.isDone()) {
-                logger.info("wait3...");
                 delay();
             }
             logger.info("completed3");

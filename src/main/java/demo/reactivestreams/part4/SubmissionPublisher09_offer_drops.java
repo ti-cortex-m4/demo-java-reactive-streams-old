@@ -35,8 +35,8 @@ public class SubmissionPublisher09_offer_drops extends AbstractTest {
 
             publisher.close();
 
+            logger.info("wait...");
             while (!consumerFuture.isDone()) {
-                logger.info("wait...");
                 delay();
             }
             logger.info("finished");

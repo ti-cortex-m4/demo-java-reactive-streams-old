@@ -30,8 +30,8 @@ public class SubmissionPublisher05_consume_cancel extends AbstractTest {
             delay(5);
             consumerFuture2.cancel(true);
 
+            logger.info("wait...");
             while (!consumerFuture1.isDone()) {
-                logger.info("wait...");
                 delay();
             }
             logger.info("finished");
