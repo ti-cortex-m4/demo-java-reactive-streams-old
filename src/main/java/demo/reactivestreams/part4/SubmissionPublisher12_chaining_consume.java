@@ -19,18 +19,18 @@ public class SubmissionPublisher12_chaining_consume extends AbstractTest {
             CompletableFuture<Void> consumerFuture2 = publisher2.consume(item -> {
                 delay();
                 logger.info("step 2: {}", item);
-                publisher3.submit(item * item);
+                publisher3.submit(item * 10);
             });
 
             CompletableFuture<Void> consumerFuture1 = publisher1.consume(item -> {
                 delay();
                 logger.info("step 1: {}", item);
-                publisher2.submit(item * item);
+                publisher2.submit(item * 10);
             });
 
+            publisher1.submit(1);
             publisher1.submit(2);
             publisher1.submit(3);
-            publisher1.submit(5);
             publisher1.close();
 
             while (!consumerFuture1.isDone()) {

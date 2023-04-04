@@ -29,7 +29,6 @@ public class SubmissionPublisher11_chaining_subscribe extends AbstractTest {
             ExecutorService executorService = (ExecutorService) publisher.getExecutor();
             executorService.shutdown();
             executorService.awaitTermination(60, TimeUnit.SECONDS);
-
         }
     }
 
@@ -48,7 +47,6 @@ public class SubmissionPublisher11_chaining_subscribe extends AbstractTest {
             logger.info("{}.onSubscribe: {}", name, subscription);
             this.subscription = subscription;
             this.subscription.request(1);
-
         }
 
         @Override
