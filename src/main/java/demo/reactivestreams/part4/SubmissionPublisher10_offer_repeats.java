@@ -11,7 +11,7 @@ import java.util.stream.LongStream;
 public class SubmissionPublisher10_offer_repeats extends AbstractTest {
 
     public static void main(String[] args) {
-        try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(ForkJoinPool.commonPool(), 3)) {
+        try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(ForkJoinPool.commonPool(), 4)) {
 
             List<Long> consumedItems = new ArrayList<>();
             List<Long> repeatedItems = new ArrayList<>();
@@ -32,7 +32,7 @@ public class SubmissionPublisher10_offer_repeats extends AbstractTest {
                     });
                 }
             );
-
+            //delay(10);
             publisher.close();
 
             logger.info("wait...");

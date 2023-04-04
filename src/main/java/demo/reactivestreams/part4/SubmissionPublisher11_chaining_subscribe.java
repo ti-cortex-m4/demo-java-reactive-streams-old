@@ -5,23 +5,25 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.LongStream;
 
 public class SubmissionPublisher11_chaining_subscribe extends AbstractTest {
 
     public static void main(String[] args) throws InterruptedException {
-        try (SubmissionPublisher<Integer> publisher = new SubmissionPublisher<>()) {
+        try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>()) {
 
-            Processor step1 = new Processor("step1");
-            Processor step2 = new Processor("step2");
-            Processor step3 = new Processor("step3");
+            Processor processor1 = new Processor("(1)");
+            Processor processor2 = new Processor("(2)");
+            Processor processor3 = new Processor("(3)");
 
-            step2.subscribe(step3);
-            step1.subscribe(step2);
-            publisher.subscribe(step1);
+            processor2.subscribe(processor3);
+            processor1.subscribe(processor2);
+            publisher.subscribe(processor1);
 
-            publisher.submit(1);
-            publisher.submit(2);
-            publisher.submit(3);
+            LongStream.range(1, 10).forEach(item -> {
+                logger.info("submitted: {}", item);
+                publisher.submit(item);
+            });
             publisher.close();
 
             logger.info("finished");
@@ -32,7 +34,7 @@ public class SubmissionPublisher11_chaining_subscribe extends AbstractTest {
         }
     }
 
-    static class Processor extends SubmissionPublisher<Integer> implements Flow.Processor<Integer, Integer> {
+    static class Processor extends SubmissionPublisher<Long> implements Flow.Processor<Long, Long> {
 
         private final String name;
 
@@ -44,28 +46,28 @@ public class SubmissionPublisher11_chaining_subscribe extends AbstractTest {
 
         @Override
         public void onSubscribe(Flow.Subscription subscription) {
-            logger.info("{}.onSubscribe: {}", name, subscription);
+            logger.info("{} subscribed", name);
             this.subscription = subscription;
             this.subscription.request(1);
         }
 
         @Override
-        public void onNext(Integer item) {
+        public void onNext(Long item) {
             delay();
-            logger.info("{}.onNext: {}", name, item);
+            logger.info("{} next: {}", name, item);
             submit(item * 10);
             this.subscription.request(1);
         }
 
         @Override
         public void onError(Throwable throwable) {
-            logger.error("{}.onError", name, throwable);
+            logger.error("{} error: {}", name, throwable);
             closeExceptionally(throwable);
         }
 
         @Override
         public void onComplete() {
-            logger.info("{}.onComplete", name);
+            logger.info("{} completed", name);
             close();
         }
     }

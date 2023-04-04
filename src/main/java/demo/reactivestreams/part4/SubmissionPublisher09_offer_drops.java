@@ -11,7 +11,7 @@ import java.util.stream.LongStream;
 public class SubmissionPublisher09_offer_drops extends AbstractTest {
 
     public static void main(String[] args) {
-        try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(ForkJoinPool.commonPool(), 3)) {
+        try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(ForkJoinPool.commonPool(), 4)) {
 
             List<Long> consumedItems = new ArrayList<>();
             List<Long> droppedItems = new ArrayList<>();
@@ -33,6 +33,7 @@ public class SubmissionPublisher09_offer_drops extends AbstractTest {
                 }
             );
 
+            //delay(10);
             publisher.close();
 
             logger.info("wait...");

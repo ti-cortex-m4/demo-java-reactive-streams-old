@@ -3,13 +3,14 @@ package demo.reactivestreams.part4;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.SubmissionPublisher;
+import java.util.stream.LongStream;
 
 public class SubmissionPublisher12_chaining_consume extends AbstractTest {
 
     public static void main(String[] args) {
-        try (SubmissionPublisher<Integer> publisher1 = new SubmissionPublisher<>();
-             SubmissionPublisher<Integer> publisher2 = new SubmissionPublisher<>();
-             SubmissionPublisher<Integer> publisher3 = new SubmissionPublisher<>()) {
+        try (SubmissionPublisher<Long> publisher1 = new SubmissionPublisher<>();
+             SubmissionPublisher<Long> publisher2 = new SubmissionPublisher<>();
+             SubmissionPublisher<Long> publisher3 = new SubmissionPublisher<>()) {
 
             CompletableFuture<Void> consumerFuture3 = publisher3.consume(item -> {
                 delay();
@@ -28,36 +29,31 @@ public class SubmissionPublisher12_chaining_consume extends AbstractTest {
                 publisher2.submit(item * 10);
             });
 
-            publisher1.submit(1);
-            publisher1.submit(2);
-            publisher1.submit(3);
+            LongStream.range(1, 10).forEach(item -> {
+                logger.info("submitted: {}", item);
+                publisher1.submit(item);
+            });
             publisher1.close();
 
-            logger.info("wait1...");
+            logger.info("(1) wait...");
             while (!consumerFuture1.isDone()) {
                 delay();
             }
-            logger.info("completed1");
+            logger.info("(1) completed");
 
-            logger.info("wait2...");
+            logger.info("(2) wait...");
             while (!consumerFuture2.isDone()) {
                 delay();
             }
-            logger.info("completed2");
+            logger.info("(2) completed");
 
-            logger.info("wait3...");
+            logger.info("(3) wait...");
             while (!consumerFuture3.isDone()) {
                 delay();
             }
-            logger.info("completed3");
+            logger.info("(3) completed");
 
-//            CompletableFuture<Void> futures = CompletableFuture.allOf(consumerFuture1,consumerFuture2,consumerFuture3);
-//            logger.info("wait...");
-//
-//            futures.get();
-            logger.info("completed");
-
-//            ForkJoinPool.commonPool().awaitTermination(60, TimeUnit.SECONDS);
+            logger.info("finished");
         }
     }
 }
