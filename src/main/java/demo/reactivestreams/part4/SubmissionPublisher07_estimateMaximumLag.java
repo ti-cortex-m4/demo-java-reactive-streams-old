@@ -6,13 +6,14 @@ import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.LongStream;
 
-// Returns an estimate of the maximum number of items produced but not yet consumed among all current subscribers.
+// returns an estimate of the maximum number of items produced but not yet consumed among all current subscribers.
 public class SubmissionPublisher07_estimateMaximumLag extends AbstractTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>()) {
 
-            CountDownLatch countDownLatch = new CountDownLatch(1);
+            final int count = 10;
+            CountDownLatch countDownLatch = new CountDownLatch(count);
 
             publisher.subscribe(new Flow.Subscriber<>() {
 
@@ -32,6 +33,8 @@ public class SubmissionPublisher07_estimateMaximumLag extends AbstractTest {
 
                     logger.info("next: {}", item);
                     logger.info("estimateMaximumLag: {}", publisher.estimateMaximumLag());
+
+                    countDownLatch.countDown();
                 }
 
                 @Override
@@ -42,21 +45,18 @@ public class SubmissionPublisher07_estimateMaximumLag extends AbstractTest {
                 @Override
                 public void onComplete() {
                     logger.info("completed");
-                    countDownLatch.countDown();
                 }
             });
 
-            LongStream.range(0, 3).forEach(item -> {
+            LongStream.range(0, count).forEach(item -> {
                     logger.info("submitted: {}", item);
                     publisher.submit(item);
                 }
             );
-//            publisher.close();
 
             logger.info("wait...");
             countDownLatch.await();
             logger.info("finished");
         }
-
     }
 }
