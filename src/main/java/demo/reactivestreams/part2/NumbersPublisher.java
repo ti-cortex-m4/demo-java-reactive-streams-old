@@ -1,15 +1,26 @@
-package part2;
+package demo.reactivestreams.part2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
-public class Runner {
+public class NumbersPublisher extends SubmissionPublisher<Integer> {
 
-    private static final Logger logger = LoggerFactory.getLogger(Runner.class);
+    private static final Logger logger = LoggerFactory.getLogger(NumbersPublisher.class);
+
+    private final int count;
+
+    public NumbersPublisher(int count) {
+        this.count = count;
+    }
+
+    public int getCount() {
+        return count;
+    }
 
     public static void main(String[] args) throws InterruptedException {
         NumbersPublisher publisher = new NumbersPublisher(10);
@@ -29,4 +40,5 @@ public class Runner {
         ForkJoinPool forkJoinPool = (ForkJoinPool) publisher.getExecutor();
         forkJoinPool.awaitTermination(60, TimeUnit.SECONDS);
     }
+
 }

@@ -1,10 +1,13 @@
-package part2;
+package demo.reactivestreams.part2;
 
+import demo.reactivestreams.part2.NumbersPublisher;
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowPublisherVerification;
+import org.testng.annotations.Test;
 
 import java.util.concurrent.Flow;
 
+@Test
 public class NumbersPublisherTest extends FlowPublisherVerification<Integer> {
 
     public NumbersPublisherTest() {
