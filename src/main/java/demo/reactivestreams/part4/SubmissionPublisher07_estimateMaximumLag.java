@@ -2,10 +2,8 @@ package demo.reactivestreams.part4;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
 
 // Returns an estimate of the maximum number of items produced but not yet consumed among all current subscribers.

@@ -1,6 +1,5 @@
 package demo.reactivestreams.part4;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
@@ -8,86 +7,62 @@ import java.util.concurrent.SubmissionPublisher;
 public class SubmissionPublisher11_chaining_subscribe extends AbstractTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
-        try (SubmissionPublisher<Integer> publisher1 = new SubmissionPublisher<>();
-             SubmissionPublisher<Integer> publisher2 = new SubmissionPublisher<>();
-             SubmissionPublisher<Integer> publisher3 = new SubmissionPublisher<>()) {
+        try (SubmissionPublisher<Integer> publisher = new SubmissionPublisher<>()) {
 
-            CompletableFuture<Void> consumerFuture3 = publisher3.consume(item -> {
-                delay();
-                logger.info("step 3: {}", item);
-            });
+            Processor step3 = new Processor("step3");
 
-            CompletableFuture<Void> consumerFuture2 = publisher2.consume(item -> {
-                delay();
-                logger.info("step 2: {}", item);
-                publisher3.submit(item * item);
-            });
+            Processor step2 = new Processor("step2");
+            step2.subscribe(step3);
 
-            CompletableFuture<Void> consumerFuture1 = publisher1.consume(item -> {
-                delay();
-                logger.info("step 1: {}", item);
-                publisher2.submit(item * item);
-            });
+            Processor step1 = new Processor("step1");
+            step1.subscribe(step2);
 
-            publisher1.submit(2);
-            publisher1.submit(3);
-            publisher1.submit(5);
+            publisher.subscribe(step1);
 
-            publisher1.close();
-            while (!consumerFuture1.isDone()) {
-                logger.info("step 1: wait...");
-                delay();
-            }
-            logger.info("step 1: completed");
-
-            publisher2.close();
-            while (!consumerFuture2.isDone()) {
-                logger.info("step 2: wait...");
-                delay();
-            }
-            logger.info("step 2: completed");
-
-            publisher3.close();
-            while (!consumerFuture3.isDone()) {
-                logger.info("step 3: wait...");
-                delay();
-            }
-            logger.info("step 3: completed");
+            publisher.submit(2);
+            publisher.submit(3);
+            publisher.submit(5);
+            publisher.close();
 
             logger.info("finished");
         }
     }
 
-    static class Step1 extends SubmissionPublisher<Long> implements Flow.Processor<Long, Long> {
+    static class Processor extends SubmissionPublisher<Integer> implements Flow.Processor<Integer, Integer> {
+
+        private final String name;
 
         private Flow.Subscription subscription;
 
+        Processor(String name) {
+            this.name = name;
+        }
+
         @Override
         public void onSubscribe(Flow.Subscription subscription) {
-            logger.info("step1.onSubscribe: {}", subscription);
+            logger.info("{}.onSubscribe: {}", name, subscription);
             this.subscription = subscription;
             this.subscription.request(1);
 
         }
 
         @Override
-        public void onNext(Long item) {
-            logger.info("step1.onNext: {}", item);
-            submit(item);
+        public void onNext(Integer item) {
+            logger.info("{}.onNext: {}", name, item);
+            submit(item * item);
             this.subscription.request(1);
         }
 
         @Override
         public void onError(Throwable throwable) {
-            logger.error("step1.onError", throwable);
+            logger.error("{}.onError", name, throwable);
             closeExceptionally(throwable);
         }
 
         @Override
         public void onComplete() {
-            logger.info("step1.onComplete");
+            logger.info("{}.onComplete", name);
             close();
         }
     }
-
 }
