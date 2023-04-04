@@ -1,7 +1,6 @@
 package demo.reactivestreams.part4;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.LongStream;
 

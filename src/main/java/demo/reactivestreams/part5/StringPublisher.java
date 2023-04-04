@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Flow;
 
-public class StringPublisher implements Flow.Publisher<ByteBuffer>{
+public class StringPublisher implements Flow.Publisher<ByteBuffer> {
 
     private final String string;
 

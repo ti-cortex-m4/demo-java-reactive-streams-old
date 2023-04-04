@@ -1,6 +1,5 @@
 package demo.reactivestreams.part4;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;

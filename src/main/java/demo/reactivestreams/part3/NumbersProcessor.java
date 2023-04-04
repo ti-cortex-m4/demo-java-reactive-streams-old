@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
-import java.util.function.Predicate;
 
 public class NumbersProcessor extends SubmissionPublisher<Integer> implements Flow.Processor<Integer, Integer> {
 
@@ -26,7 +25,7 @@ public class NumbersProcessor extends SubmissionPublisher<Integer> implements Fl
         logger.info("processor.next: {}", item);
         if (item % 2 == 0) {
             logger.info("processor.submit: {}", item);
-            submit(item*item);
+            submit(item * item);
         } else {
             logger.info("processor.skip: {}", item);
         }
@@ -35,7 +34,7 @@ public class NumbersProcessor extends SubmissionPublisher<Integer> implements Fl
 
     @Override
     public void onError(Throwable throwable) {
-        logger.error("processor.error",throwable);
+        logger.error("processor.error", throwable);
         closeExceptionally(throwable);
     }
 

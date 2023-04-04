@@ -18,16 +18,15 @@ public class NumbersPublisher extends SubmissionPublisher<Integer> {
         this.count = count;
     }
 
-    public int getCount() {
-        return count;
-    }
-
     public static void main(String[] args) throws InterruptedException {
-        NumbersPublisher publisher = new NumbersPublisher(10);
         CountDownLatch countDownLatch = new CountDownLatch(1);
+
+        NumbersPublisher publisher = new NumbersPublisher(10);
+        NumbersProcessor processor = new NumbersProcessor();
         NumbersSubscriber subscriber = new NumbersSubscriber(countDownLatch);
 
-        publisher.subscribe(subscriber);
+        processor.subscribe(subscriber);
+        publisher.subscribe(processor);
 
         IntStream.range(0, publisher.getCount()).forEach(i -> {
             logger.info("publisher.submit: {}", i);
@@ -38,5 +37,9 @@ public class NumbersPublisher extends SubmissionPublisher<Integer> {
         publisher.close();
 
         countDownLatch.await();
+    }
+
+    public int getCount() {
+        return count;
     }
 }

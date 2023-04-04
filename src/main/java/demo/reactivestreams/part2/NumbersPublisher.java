@@ -4,9 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SubmissionPublisher;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 public class NumbersPublisher extends SubmissionPublisher<Integer> {
@@ -19,13 +17,10 @@ public class NumbersPublisher extends SubmissionPublisher<Integer> {
         this.count = count;
     }
 
-    public int getCount() {
-        return count;
-    }
-
     public static void main(String[] args) throws InterruptedException {
-        NumbersPublisher publisher = new NumbersPublisher(10);
         CountDownLatch countDownLatch = new CountDownLatch(1);
+
+        NumbersPublisher publisher = new NumbersPublisher(10);
         NumbersSubscriber subscriber = new NumbersSubscriber(countDownLatch);
 
         publisher.subscribe(subscriber);
@@ -39,5 +34,9 @@ public class NumbersPublisher extends SubmissionPublisher<Integer> {
         publisher.close();
 
         countDownLatch.await();
+    }
+
+    public int getCount() {
+        return count;
     }
 }

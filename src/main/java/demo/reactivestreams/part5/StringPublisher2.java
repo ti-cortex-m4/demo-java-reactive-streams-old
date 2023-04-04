@@ -21,6 +21,11 @@ public class StringPublisher2 extends SubmissionPublisher<ByteBuffer> {
         subscription.request(1);
     }
 
-    public void onError(Throwable ex) { closeExceptionally(ex); }
-    public void onComplete() { close(); }
+    public void onError(Throwable ex) {
+        closeExceptionally(ex);
+    }
+
+    public void onComplete() {
+        close();
+    }
 }
