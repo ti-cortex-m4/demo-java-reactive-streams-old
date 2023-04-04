@@ -4,7 +4,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.SubmissionPublisher;
 
-public class SubmissionPublisher11_chaining extends AbstractTest {
+public class SubmissionPublisher12_chaining_consume extends AbstractTest {
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         try (SubmissionPublisher<Integer> publisher1 = new SubmissionPublisher<>();
