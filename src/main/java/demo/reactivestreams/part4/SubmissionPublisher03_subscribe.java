@@ -1,14 +1,13 @@
 package demo.reactivestreams.part4;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.LongStream;
 
 public class SubmissionPublisher03_subscribe extends AbstractTest {
 
-    public static void main(String[] args) throws InterruptedException, ExecutionException {
+    public static void main(String[] args) throws InterruptedException {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>()) {
 
             CountDownLatch countDownLatch = new CountDownLatch(1);

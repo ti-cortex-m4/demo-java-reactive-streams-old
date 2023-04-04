@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 public class SubmissionPublisher11_chaining_subscribe extends AbstractTest {
 
-    public static void main(String[] args) throws InterruptedException, ExecutionException {
+    public static void main(String[] args) throws InterruptedException {
         try (SubmissionPublisher<Integer> publisher = new SubmissionPublisher<>()) {
 
             Processor step1 = new Processor("step1");

@@ -9,7 +9,7 @@ import java.util.stream.LongStream;
 // returns an estimate of the maximum number of items produced but not yet consumed among all current subscribers.
 public class SubmissionPublisher07_estimateMaximumLag extends AbstractTest {
 
-    public static void main(String[] args) throws InterruptedException, ExecutionException {
+    public static void main(String[] args) throws InterruptedException {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>()) {
 
             final int count = 10;

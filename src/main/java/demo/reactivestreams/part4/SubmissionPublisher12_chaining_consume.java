@@ -6,7 +6,7 @@ import java.util.concurrent.SubmissionPublisher;
 
 public class SubmissionPublisher12_chaining_consume extends AbstractTest {
 
-    public static void main(String[] args) throws InterruptedException, ExecutionException {
+    public static void main(String[] args) {
         try (SubmissionPublisher<Integer> publisher1 = new SubmissionPublisher<>();
              SubmissionPublisher<Integer> publisher2 = new SubmissionPublisher<>();
              SubmissionPublisher<Integer> publisher3 = new SubmissionPublisher<>()) {

@@ -7,7 +7,7 @@ import java.util.stream.LongStream;
 
 public class SubmissionPublisher04_consume extends AbstractTest {
 
-    public static void main(String[] args) throws InterruptedException, ExecutionException {
+    public static void main(String[] args) {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>()) {
 
             CompletableFuture<Void> consumerFuture = publisher.consume(item -> {

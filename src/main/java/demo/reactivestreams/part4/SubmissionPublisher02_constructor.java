@@ -7,7 +7,7 @@ import java.util.concurrent.SubmissionPublisher;
 
 public class SubmissionPublisher02_constructor extends AbstractTest {
 
-    public static void main(String[] args) throws InterruptedException, ExecutionException {
+    public static void main(String[] args) {
         Executor executor = Executors.newSingleThreadExecutor();
         int maxBufferCapacity = 2;
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(executor, maxBufferCapacity)) {

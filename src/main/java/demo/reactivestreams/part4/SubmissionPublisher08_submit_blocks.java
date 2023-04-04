@@ -10,7 +10,7 @@ import java.util.stream.LongStream;
 
 public class SubmissionPublisher08_submit_blocks extends AbstractTest {
 
-    public static void main(String[] args) throws InterruptedException, ExecutionException {
+    public static void main(String[] args) {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(ForkJoinPool.commonPool(), 3)) {
             logger.info("maximum buffer capacity: {}", publisher.getMaxBufferCapacity());
 

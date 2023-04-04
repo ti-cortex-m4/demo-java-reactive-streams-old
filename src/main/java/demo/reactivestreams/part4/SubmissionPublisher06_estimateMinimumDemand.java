@@ -9,7 +9,7 @@ import java.util.stream.LongStream;
 // returns an estimate of the minimum number of items requested (via request) but not yet produced, among all current subscribers.
 public class SubmissionPublisher06_estimateMinimumDemand extends AbstractTest {
 
-    public static void main(String[] args) throws InterruptedException, ExecutionException {
+    public static void main(String[] args) throws InterruptedException {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>()) {
 
             final int count = 10;
