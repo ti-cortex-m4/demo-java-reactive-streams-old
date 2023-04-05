@@ -8,13 +8,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.IntStream;
 
-public class NumbersPublisher extends SubmissionPublisher<Integer> {
+public class SubmissionIteratorPublisher extends SubmissionPublisher<Integer> {
 
-    private static final Logger logger = LoggerFactory.getLogger(NumbersPublisher.class);
+    private static final Logger logger = LoggerFactory.getLogger(SubmissionIteratorPublisher.class);
 
     private final int count;
 
-    public NumbersPublisher(int count) {
+    public SubmissionIteratorPublisher(int count) {
         this.count = count;
     }
 
@@ -25,8 +25,8 @@ public class NumbersPublisher extends SubmissionPublisher<Integer> {
     public static void main(String[] args) throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
 
-        NumbersPublisher publisher = new NumbersPublisher(10);
-        NumbersProcessor processor = new NumbersProcessor();
+        SubmissionIteratorPublisher publisher = new SubmissionIteratorPublisher(10);
+        SubmissionProcessor processor = new SubmissionProcessor();
         BackpressureSubscriber subscriber = new BackpressureSubscriber(countDownLatch);
 
         processor.subscribe(subscriber);

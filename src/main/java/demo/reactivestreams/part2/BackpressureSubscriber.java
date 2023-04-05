@@ -11,6 +11,7 @@ public class BackpressureSubscriber implements Flow.Subscriber<Integer> {
     private static final Logger logger = LoggerFactory.getLogger(BackpressureSubscriber.class);
 
     private final CountDownLatch countDownLatch;
+
     private Flow.Subscription subscription;
 
     public BackpressureSubscriber(CountDownLatch countDownLatch) {
@@ -19,7 +20,7 @@ public class BackpressureSubscriber implements Flow.Subscriber<Integer> {
 
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
-        logger.info("subscriber.subscribe");
+        logger.info("subscriber.subscribe: {}", subscription);
         this.subscription = subscription;
         this.subscription.request(1);
     }
@@ -37,7 +38,7 @@ public class BackpressureSubscriber implements Flow.Subscriber<Integer> {
 
     @Override
     public void onComplete() {
-        logger.info("subscriber.completed");
+        logger.info("subscriber.complete");
         countDownLatch.countDown();
     }
 }

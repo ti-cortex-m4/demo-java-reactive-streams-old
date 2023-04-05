@@ -6,9 +6,9 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 
-public class NumbersProcessor extends SubmissionPublisher<Integer> implements Flow.Processor<Integer, Integer> {
+public class SubmissionProcessor extends SubmissionPublisher<Integer> implements Flow.Processor<Integer, Integer> {
 
-    private static final Logger logger = LoggerFactory.getLogger(NumbersProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(SubmissionProcessor.class);
 
     private Flow.Subscription subscription;
 

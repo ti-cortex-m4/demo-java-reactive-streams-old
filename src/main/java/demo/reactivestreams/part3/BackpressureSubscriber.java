@@ -6,20 +6,21 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
 
-public class NumbersSubscriber implements Flow.Subscriber<Integer> {
+public class BackpressureSubscriber implements Flow.Subscriber<Integer> {
 
-    private static final Logger logger = LoggerFactory.getLogger(NumbersSubscriber.class);
+    private static final Logger logger = LoggerFactory.getLogger(BackpressureSubscriber.class);
 
     private final CountDownLatch countDownLatch;
+
     private Flow.Subscription subscription;
 
-    public NumbersSubscriber(CountDownLatch countDownLatch) {
+    public BackpressureSubscriber(CountDownLatch countDownLatch) {
         this.countDownLatch = countDownLatch;
     }
 
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
-        logger.info("subscriber.subscribe");
+        logger.info("subscriber.subscribe: {}", subscription);
         this.subscription = subscription;
         this.subscription.request(1);
     }

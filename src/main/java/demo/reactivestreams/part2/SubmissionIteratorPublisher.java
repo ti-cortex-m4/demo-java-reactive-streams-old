@@ -3,6 +3,7 @@ package demo.reactivestreams.part2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.IntStream;
@@ -11,14 +12,14 @@ public class SubmissionIteratorPublisher extends SubmissionPublisher<Integer> {
 
     private static final Logger logger = LoggerFactory.getLogger(SubmissionIteratorPublisher.class);
 
-    private final int count;
+    private final Iterator<Integer> iterator;
 
     public SubmissionIteratorPublisher(int count) {
-        this.count = count;
+        this.iterator = IntStream.rangeClosed(1, count).iterator();
     }
 
-    public int getCount() {
-        return count;
+    public Iterator<Integer> getIterator() {
+        return iterator;
     }
 
     public static void main(String[] args) throws InterruptedException {
@@ -29,9 +30,9 @@ public class SubmissionIteratorPublisher extends SubmissionPublisher<Integer> {
 
         publisher.subscribe(subscriber);
 
-        IntStream.range(0, publisher.getCount()).forEach(i -> {
-            logger.info("publisher.submit: {}", i);
-            publisher.submit(i);
+        publisher.getIterator().forEachRemaining(item -> {
+            logger.info("publisher.next: {}", item);
+            subscriber.onNext(item);
         });
 
         logger.info("publisher.close");
