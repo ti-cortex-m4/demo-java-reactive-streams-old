@@ -7,15 +7,15 @@ import org.testng.annotations.Test;
 import java.util.concurrent.Flow;
 
 @Test
-public class NumbersPublisherTest extends FlowPublisherVerification<Integer> {
+public class SubmissionIteratorPublisherTest extends FlowPublisherVerification<Integer> {
 
-    public NumbersPublisherTest() {
+    public SubmissionIteratorPublisherTest() {
         super(new TestEnvironment());
     }
 
     @Override
     public Flow.Publisher<Integer> createFlowPublisher(long elements) {
-        return new NumbersPublisher((int) elements);
+        return new SubmissionIteratorPublisher((int) elements);
     }
 
     @Override

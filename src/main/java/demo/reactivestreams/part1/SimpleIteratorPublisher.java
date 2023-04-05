@@ -1,6 +1,5 @@
 package demo.reactivestreams.part1;
 
-import demo.reactivestreams.part2.NumbersPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

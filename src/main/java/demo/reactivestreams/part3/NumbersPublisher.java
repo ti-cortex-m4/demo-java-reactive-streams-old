@@ -1,6 +1,6 @@
 package demo.reactivestreams.part3;
 
-import demo.reactivestreams.part2.NumbersSubscriber;
+import demo.reactivestreams.part2.BackpressureSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +27,7 @@ public class NumbersPublisher extends SubmissionPublisher<Integer> {
 
         NumbersPublisher publisher = new NumbersPublisher(10);
         NumbersProcessor processor = new NumbersProcessor();
-        NumbersSubscriber subscriber = new NumbersSubscriber(countDownLatch);
+        BackpressureSubscriber subscriber = new BackpressureSubscriber(countDownLatch);
 
         processor.subscribe(subscriber);
         publisher.subscribe(processor);
