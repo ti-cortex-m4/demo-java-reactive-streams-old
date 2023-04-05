@@ -18,6 +18,10 @@ public class NumbersPublisher extends SubmissionPublisher<Integer> {
         this.count = count;
     }
 
+    public int getCount() {
+        return count;
+    }
+
     public static void main(String[] args) throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
 
@@ -37,9 +41,5 @@ public class NumbersPublisher extends SubmissionPublisher<Integer> {
         publisher.close();
 
         countDownLatch.await();
-    }
-
-    public int getCount() {
-        return count;
     }
 }

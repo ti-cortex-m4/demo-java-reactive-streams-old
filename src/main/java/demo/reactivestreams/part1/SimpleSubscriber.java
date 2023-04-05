@@ -20,8 +20,8 @@ public class SimpleSubscriber implements Flow.Subscriber<Integer> {
     }
 
     @Override
-    public void onError(Throwable throwable) {
-        logger.error("error", throwable);
+    public void onError(Throwable t) {
+        logger.error("error", t);
     }
 
     @Override
