@@ -5,9 +5,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Flow;
 
-public class SimpleSubscriber implements Flow.Subscriber<Integer> {
+public class NoBackpressureSubscriber implements Flow.Subscriber<Integer> {
 
-    private static final Logger logger = LoggerFactory.getLogger(SimpleSubscriber.class);
+    private static final Logger logger = LoggerFactory.getLogger(NoBackpressureSubscriber.class);
 
     @Override
     public void onSubscribe(Flow.Subscription subscription) {

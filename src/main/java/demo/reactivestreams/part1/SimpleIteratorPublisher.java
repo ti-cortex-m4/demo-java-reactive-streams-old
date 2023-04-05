@@ -5,11 +5,11 @@ import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 
-public class SimplePublisher implements Flow.Publisher<Integer> {
+public class SimpleIteratorPublisher implements Flow.Publisher<Integer> {
 
     private final Iterator<Integer> iterator;
 
-    public SimplePublisher(int count) {
+    public SimpleIteratorPublisher(int count) {
         this.iterator = IntStream.rangeClosed(1, count).iterator();
     }
 
@@ -55,6 +55,6 @@ public class SimplePublisher implements Flow.Publisher<Integer> {
     }
 
     public static void main(String[] args) {
-        new SimplePublisher(10).subscribe(new SimpleSubscriber());
+        new SimpleIteratorPublisher(10).subscribe(new NoBackpressureSubscriber());
     }
 }
