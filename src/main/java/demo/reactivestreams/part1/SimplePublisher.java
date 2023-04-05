@@ -16,8 +16,12 @@ public class SimplePublisher implements Flow.Publisher<Integer> {
     @Override
     public void subscribe(Flow.Subscriber<? super Integer> subscriber) {
         subscriber.onSubscribe(new SimpleSubscription(subscriber));
-        iterator.forEachRemaining(subscriber::onNext);
-        subscriber.onComplete();
+        try {
+            iterator.forEachRemaining(subscriber::onNext);
+            subscriber.onComplete();
+        } catch (Throwable t) {
+            subscriber.onError(t);
+        }
     }
 
     private class SimpleSubscription implements Flow.Subscription {
