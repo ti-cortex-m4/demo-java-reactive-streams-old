@@ -1,6 +1,5 @@
 package demo.reactivestreams.part3;
 
-import demo.reactivestreams.part2.BackpressureSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

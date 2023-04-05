@@ -2,10 +2,11 @@
  * Licensed under MIT No Attribution (SPDX: MIT-0) *
  ***************************************************/
 
-package org.reactivestreams.example.unicast;
+package org.reactivestreams.example.unicast.subscriber;
 
-import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
+import org.reactivestreams.example.unicast.publisher.NumberIterablePublisher;
+import org.reactivestreams.example.unicast.subscriber.AsyncSubscriber;
 import org.reactivestreams.tck.SubscriberBlackboxVerification;
 import org.reactivestreams.tck.TestEnvironment;
 import org.testng.annotations.Test;
