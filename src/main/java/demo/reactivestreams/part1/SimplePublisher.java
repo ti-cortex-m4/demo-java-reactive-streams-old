@@ -1,4 +1,4 @@
-package part1;
+package demo.reactivestreams.part1;
 
 import java.util.Iterator;
 import java.util.concurrent.Flow;
@@ -48,5 +48,9 @@ public class SimplePublisher implements Flow.Publisher<Integer> {
         public void cancel() {
             terminated.set(true);
         }
+    }
+
+    public static void main(String[] args) {
+        new SimplePublisher(10).subscribe(new SimpleSubscriber());
     }
 }

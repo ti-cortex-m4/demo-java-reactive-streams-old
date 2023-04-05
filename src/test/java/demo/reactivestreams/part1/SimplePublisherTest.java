@@ -1,5 +1,6 @@
-package part1;
+package demo.reactivestreams.part1;
 
+import demo.reactivestreams.part1.SimplePublisher;
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowPublisherVerification;
 

@@ -1,4 +1,4 @@
-package part1;
+package demo.reactivestreams.part1;
 
 import java.util.concurrent.Flow;
 
