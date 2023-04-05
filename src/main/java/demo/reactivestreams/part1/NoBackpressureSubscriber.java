@@ -11,21 +11,21 @@ public class NoBackpressureSubscriber implements Flow.Subscriber<Integer> {
 
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
-        logger.info("subscribed: {}", subscription);
+        logger.info("subscriber.subscribe: {}", subscription);
     }
 
     @Override
     public void onNext(Integer item) {
-        logger.info("next: {}", item);
+        logger.info("subscriber.next: {}", item);
     }
 
     @Override
     public void onError(Throwable t) {
-        logger.error("error", t);
+        logger.error("subscriber.error", t);
     }
 
     @Override
     public void onComplete() {
-        logger.info("completed");
+        logger.info("subscriber.complete");
     }
 }

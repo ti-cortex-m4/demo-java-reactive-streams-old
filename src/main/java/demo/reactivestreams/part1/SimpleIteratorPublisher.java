@@ -1,11 +1,17 @@
 package demo.reactivestreams.part1;
 
+import demo.reactivestreams.part2.NumbersPublisher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Iterator;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 
 public class SimpleIteratorPublisher implements Flow.Publisher<Integer> {
+
+    private static final Logger logger = LoggerFactory.getLogger(SimpleIteratorPublisher.class);
 
     private final Iterator<Integer> iterator;
 
@@ -15,11 +21,19 @@ public class SimpleIteratorPublisher implements Flow.Publisher<Integer> {
 
     @Override
     public void subscribe(Flow.Subscriber<? super Integer> subscriber) {
+        logger.info("publisher.subscribe");
         subscriber.onSubscribe(new SimpleSubscription(subscriber));
+
         try {
-            iterator.forEachRemaining(subscriber::onNext);
+            iterator.forEachRemaining(item -> {
+                logger.info("publisher.next: {}", item);
+                subscriber.onNext(item);
+            });
+
+            logger.info("publisher.complete");
             subscriber.onComplete();
         } catch (Throwable t) {
+            logger.info("publisher.error");
             subscriber.onError(t);
         }
     }
@@ -35,6 +49,8 @@ public class SimpleIteratorPublisher implements Flow.Publisher<Integer> {
 
         @Override
         public void request(long n) {
+            logger.info("subscription.request: {}", n);
+
             if (n <= 0) {
                 subscriber.onError(new IllegalArgumentException());
             }
@@ -50,6 +66,7 @@ public class SimpleIteratorPublisher implements Flow.Publisher<Integer> {
 
         @Override
         public void cancel() {
+            logger.info("subscription.cancel");
             terminated.set(true);
         }
     }
