@@ -22,6 +22,8 @@ public class StreamPublisherTest extends FlowPublisherVerification<Integer> {
 
     @Override
     public Flow.Publisher<Integer> createFailedFlowPublisher() {
-        return new StreamPublisher<Integer>(() -> {            throw new RuntimeException();        });
+        return new StreamPublisher<Integer>(() -> {
+            throw new RuntimeException();
+        });
     }
 }
