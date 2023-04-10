@@ -17,12 +17,12 @@ public class Runner {
 
         StreamPublisher<Integer> publisher = new StreamPublisher<>(() -> Stream.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9));
 
-        BackpressureSubscriber subscriber1 = new BackpressureSubscriber(countDownLatch1);
+        BackpressurePullSubscriber subscriber1 = new BackpressurePullSubscriber(countDownLatch1);
         publisher.subscribe(subscriber1);
 
         Delay.delay(5);
 
-        BackpressureSubscriber subscriber2 = new BackpressureSubscriber(countDownLatch2);
+        BackpressurePullSubscriber subscriber2 = new BackpressurePullSubscriber(countDownLatch2);
         publisher.subscribe(subscriber2);
 
 //        publisher.getIterator().forEachRemaining(item -> {

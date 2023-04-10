@@ -7,15 +7,15 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
 
-public class BackpressureSubscriber implements Flow.Subscriber<Integer> {
+public class BackpressurePullSubscriber implements Flow.Subscriber<Integer> {
 
-    private static final Logger logger = LoggerFactory.getLogger(BackpressureSubscriber.class);
+    private static final Logger logger = LoggerFactory.getLogger(BackpressurePullSubscriber.class);
 
     private final CountDownLatch countDownLatch;
 
     private Flow.Subscription subscription;
 
-    public BackpressureSubscriber(CountDownLatch countDownLatch) {
+    public BackpressurePullSubscriber(CountDownLatch countDownLatch) {
         this.countDownLatch = countDownLatch;
     }
 
