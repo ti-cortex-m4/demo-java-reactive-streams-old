@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Stream;
 
 public class Runner {
 
@@ -14,8 +15,8 @@ public class Runner {
     public static void main(String[] args) throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
 
-        SubmissionIteratorPublisher publisher = new SubmissionIteratorPublisher(10);
-        demo.reactivestreams.part2.BackpressureSubscriber subscriber = new BackpressureSubscriber(countDownLatch);
+        StreamPublisher<Integer> publisher = new StreamPublisher<>(() -> Stream.of(0,1,2,3,4,5));
+        BackpressureSubscriber subscriber = new BackpressureSubscriber(countDownLatch);
 
         publisher.subscribe(subscriber);
 
