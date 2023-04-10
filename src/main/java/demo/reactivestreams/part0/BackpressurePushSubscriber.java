@@ -23,14 +23,13 @@ public class BackpressurePushSubscriber implements Flow.Subscriber<Integer> {
     public void onSubscribe(Flow.Subscription subscription) {
         logger.info("subscriber.subscribe: {}", subscription);
         this.subscription = subscription;
-        this.subscription.request(1);
+        this.subscription.request(Long.MAX_VALUE);
     }
 
     @Override
     public void onNext(Integer item) {
         Delay.delay();
         logger.info("subscriber.next: {}", item);
-        this.subscription.request(1);
     }
 
     @Override
