@@ -1,5 +1,6 @@
 package demo.reactivestreams.part0;
 
+import demo.reactivestreams.Delay;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +28,7 @@ public class BackpressureSubscriber implements Flow.Subscriber<Integer> {
 
     @Override
     public void onNext(Integer item) {
+        Delay.delay();
         logger.info("subscriber.next: {}", item);
         this.subscription.request(1);
     }

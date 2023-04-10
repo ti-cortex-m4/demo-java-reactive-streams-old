@@ -1,7 +1,6 @@
 package demo.reactivestreams.part0;
 
-import demo.reactivestreams.part2.BackpressureSubscriber;
-import demo.reactivestreams.part2.SubmissionIteratorPublisher;
+import demo.reactivestreams.Delay;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,21 +12,28 @@ public class Runner {
     private static final Logger logger = LoggerFactory.getLogger(Runner.class);
 
     public static void main(String[] args) throws InterruptedException {
-        CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch countDownLatch1 = new CountDownLatch(1);
+        CountDownLatch countDownLatch2 = new CountDownLatch(1);
 
-        StreamPublisher<Integer> publisher = new StreamPublisher<>(() -> Stream.of(0,1,2,3,4,5));
-        BackpressureSubscriber subscriber = new BackpressureSubscriber(countDownLatch);
+        StreamPublisher<Integer> publisher = new StreamPublisher<>(() -> Stream.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9));
 
-        publisher.subscribe(subscriber);
+        BackpressureSubscriber subscriber1 = new BackpressureSubscriber(countDownLatch1);
+        publisher.subscribe(subscriber1);
 
-        publisher.getIterator().forEachRemaining(item -> {
-            logger.info("publisher.next: {}", item);
-            subscriber.onNext(item);
-        });
+        Delay.delay(5);
+
+        BackpressureSubscriber subscriber2 = new BackpressureSubscriber(countDownLatch2);
+        publisher.subscribe(subscriber2);
+
+//        publisher.getIterator().forEachRemaining(item -> {
+//            logger.info("publisher.next: {}", item);
+//            subscriber.onNext(item);
+//        });
 
         logger.info("publisher.close");
-        publisher.close();
+//        publisher.close();
 
-        countDownLatch.await();
+        countDownLatch1.await();
+        countDownLatch2.await();
     }
 }
