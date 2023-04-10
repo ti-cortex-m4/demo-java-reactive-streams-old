@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Flow;
 import java.util.stream.Stream;
 
 public class Runner {
@@ -17,12 +18,12 @@ public class Runner {
 
         StreamPublisher<Integer> publisher = new StreamPublisher<>(() -> Stream.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9));
 
-        BackpressurePullSubscriber subscriber1 = new BackpressurePullSubscriber(countDownLatch1);
+        Flow.Subscriber<Integer> subscriber1 = new PushSubscriber<>(countDownLatch1);
         publisher.subscribe(subscriber1);
 
         Delay.delay(5);
 
-        BackpressurePullSubscriber subscriber2 = new BackpressurePullSubscriber(countDownLatch2);
+        Flow.Subscriber<Integer> subscriber2 = new PushSubscriber<>(countDownLatch2);
         publisher.subscribe(subscriber2);
 
 //        publisher.getIterator().forEachRemaining(item -> {

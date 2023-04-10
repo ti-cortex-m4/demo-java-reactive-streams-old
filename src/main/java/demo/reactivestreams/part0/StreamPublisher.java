@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class StreamPublisher<T> implements Flow.Publisher<T> {
+
     private final Supplier<Stream<? extends T>> streamSupplier;
 
     public StreamPublisher(Supplier<Stream<? extends T>> streamSupplier) {
@@ -23,6 +24,7 @@ public class StreamPublisher<T> implements Flow.Publisher<T> {
     }
 
     private class StreamSubscription implements Flow.Subscription {
+
         private final Flow.Subscriber<? super T> subscriber;
         private final Iterator<? extends T> iterator;
         private final AtomicBoolean isTerminated = new AtomicBoolean(false);

@@ -7,15 +7,15 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
 
-public class BackpressurePushSubscriber implements Flow.Subscriber<Integer> {
+public class PullSubscriber<T> implements Flow.Subscriber<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(BackpressurePushSubscriber.class);
+    private static final Logger logger = LoggerFactory.getLogger(PullSubscriber.class);
 
     private final CountDownLatch countDownLatch;
 
     private Flow.Subscription subscription;
 
-    public BackpressurePushSubscriber(CountDownLatch countDownLatch) {
+    public PullSubscriber(CountDownLatch countDownLatch) {
         this.countDownLatch = countDownLatch;
     }
 
@@ -23,13 +23,14 @@ public class BackpressurePushSubscriber implements Flow.Subscriber<Integer> {
     public void onSubscribe(Flow.Subscription subscription) {
         logger.info("subscriber.subscribe: {}", subscription);
         this.subscription = subscription;
-        this.subscription.request(Long.MAX_VALUE);
+        this.subscription.request(1);
     }
 
     @Override
-    public void onNext(Integer item) {
+    public void onNext(T item) {
         Delay.delay();
         logger.info("subscriber.next: {}", item);
+        this.subscription.request(1);
     }
 
     @Override
