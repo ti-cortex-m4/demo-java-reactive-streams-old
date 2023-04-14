@@ -1,10 +1,12 @@
-package demo.reactivestreams.part1;
+package demo.reactivestreams.part00;
 
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowPublisherVerification;
+import org.testng.annotations.Test;
 
 import java.util.concurrent.Flow;
 
+@Test
 public class SimpleIteratorPublisherTest extends FlowPublisherVerification<Integer> {
 
     public SimpleIteratorPublisherTest() {
