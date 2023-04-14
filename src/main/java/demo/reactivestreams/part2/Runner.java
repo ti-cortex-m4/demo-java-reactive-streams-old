@@ -1,14 +1,9 @@
 package demo.reactivestreams.part2;
 
-import demo.reactivestreams.Delay;
-import demo.reactivestreams.part1.IteratorPublisher;
-import demo.reactivestreams.part1.PushSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Flow;
 
 public class Runner {
 

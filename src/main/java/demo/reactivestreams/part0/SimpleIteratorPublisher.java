@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.IntStream;
 
 public class SimpleIteratorPublisher implements Flow.Publisher<Integer> {
 
@@ -14,8 +13,8 @@ public class SimpleIteratorPublisher implements Flow.Publisher<Integer> {
 
     private final Iterator<Integer> iterator;
 
-    public SimpleIteratorPublisher(int count) {
-        this.iterator = IntStream.rangeClosed(1, count).iterator();
+    public SimpleIteratorPublisher(Iterator<Integer> iterator) {
+        this.iterator = iterator;
     }
 
     @Override
@@ -70,7 +69,4 @@ public class SimpleIteratorPublisher implements Flow.Publisher<Integer> {
         }
     }
 
-    public static void main(String[] args) {
-        new SimpleIteratorPublisher(10).subscribe(new NoBackpressureSubscriber());
-    }
 }
