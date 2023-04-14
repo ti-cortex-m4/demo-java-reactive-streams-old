@@ -4,7 +4,7 @@ import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowPublisherVerification;
 import org.testng.annotations.Test;
 
-import java.util.List;
+import java.util.Iterator;
 import java.util.concurrent.Flow;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
@@ -18,18 +18,17 @@ public class IteratorPublisherTest extends FlowPublisherVerification<Integer> {
 
     @Override
     public Flow.Publisher<Integer> createFlowPublisher(long elements) {
-        return new IteratorPublisher<>(() -> {
-            List<Integer> list = Stream
-                .iterate(0, UnaryOperator.identity())
-                .limit(elements)
-                .toList();
-            return list.iterator();
-        });
+        Iterator<Integer> iterator = Stream
+            .iterate(0, UnaryOperator.identity())
+            .limit(elements)
+            .toList()
+            .iterator();
+        return new IteratorPublisher<>(() -> iterator);
     }
 
     @Override
     public Flow.Publisher<Integer> createFailedFlowPublisher() {
-        return new IteratorPublisher<Integer>(() -> {
+        return new IteratorPublisher<>(() -> {
             throw new RuntimeException();
         });
     }
