@@ -1,6 +1,7 @@
 package demo.reactivestreams.part1;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -8,22 +9,22 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-public class StreamPublisher<T> implements Flow.Publisher<T> {
+public class IteratorPublisher<T> implements Flow.Publisher<T> {
 
-    private final Supplier<Stream<? extends T>> streamSupplier;
+    private final Supplier<Iterator<? extends T>> iteratorSupplier;
 
-    public StreamPublisher(Supplier<Stream<? extends T>> streamSupplier) {
-        this.streamSupplier = streamSupplier;
+    public IteratorPublisher(Supplier<Iterator<? extends T>> iteratorSupplier) {
+        this.iteratorSupplier = iteratorSupplier;
     }
 
     @Override
     public void subscribe(Flow.Subscriber<? super T> subscriber) {
-        StreamSubscription subscription = new StreamSubscription(subscriber);
+        IteratorSubscription subscription = new IteratorSubscription(subscriber);
         subscriber.onSubscribe(subscription);
         subscription.doOnSubscribed();
     }
 
-    private class StreamSubscription implements Flow.Subscription {
+    private class IteratorSubscription implements Flow.Subscription {
 
         private final Flow.Subscriber<? super T> subscriber;
         private final Iterator<? extends T> iterator;
@@ -31,12 +32,12 @@ public class StreamPublisher<T> implements Flow.Publisher<T> {
         private final AtomicLong demand = new AtomicLong();
         private final AtomicReference<Throwable> error = new AtomicReference<>();
 
-        StreamSubscription(Flow.Subscriber<? super T> subscriber) {
+        IteratorSubscription(Flow.Subscriber<? super T> subscriber) {
             this.subscriber = subscriber;
             Iterator<? extends T> iterator = null;
 
             try {
-                iterator = streamSupplier.get().iterator();
+                iterator = iteratorSupplier.get();
             } catch (Throwable e) {
                 error.set(e);
             }
@@ -110,7 +111,7 @@ public class StreamPublisher<T> implements Flow.Publisher<T> {
     }
 
     public static void main(String[] args) {
-        new StreamPublisher<>(() -> Stream.of(1, 2, 3, 4, 5, 6))
+        new IteratorPublisher<>(() -> List.of(1, 2, 3, 4, 5, 6).iterator())
             .subscribe(new Flow.Subscriber<>() {
                 @Override
                 public void onSubscribe(Flow.Subscription subscription) {

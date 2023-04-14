@@ -1,0 +1,35 @@
+package demo.reactivestreams.part2;
+
+import demo.reactivestreams.Delay;
+import demo.reactivestreams.part1.IteratorPublisher;
+import demo.reactivestreams.part1.PushSubscriber;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Flow;
+
+public class Runner {
+
+    private static final Logger logger = LoggerFactory.getLogger(Runner.class);
+
+    public static void main(String[] args) throws InterruptedException {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+
+        SubmissionIteratorPublisher publisher = new SubmissionIteratorPublisher(10);
+        PullSubscriber subscriber = new PullSubscriber(countDownLatch);
+
+        publisher.subscribe(subscriber);
+
+        publisher.getIterator().forEachRemaining(item -> {
+            logger.info("publisher.next: {}", item);
+            subscriber.onNext(item);
+        });
+
+        logger.info("publisher.close");
+        publisher.close();
+
+        countDownLatch.await();
+    }
+}

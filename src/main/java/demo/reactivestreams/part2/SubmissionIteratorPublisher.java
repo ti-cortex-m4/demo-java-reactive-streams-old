@@ -21,23 +21,4 @@ public class SubmissionIteratorPublisher extends SubmissionPublisher<Integer> {
     public Iterator<Integer> getIterator() {
         return iterator;
     }
-
-    public static void main(String[] args) throws InterruptedException {
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-
-        SubmissionIteratorPublisher publisher = new SubmissionIteratorPublisher(10);
-        BackpressureSubscriber subscriber = new BackpressureSubscriber(countDownLatch);
-
-        publisher.subscribe(subscriber);
-
-        publisher.getIterator().forEachRemaining(item -> {
-            logger.info("publisher.next: {}", item);
-            subscriber.onNext(item);
-        });
-
-        logger.info("publisher.close");
-        publisher.close();
-
-        countDownLatch.await();
-    }
 }
