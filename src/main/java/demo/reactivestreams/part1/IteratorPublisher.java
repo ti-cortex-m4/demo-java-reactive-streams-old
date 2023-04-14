@@ -1,5 +1,8 @@
 package demo.reactivestreams.part1;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Flow;
@@ -10,6 +13,8 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class IteratorPublisher<T> implements Flow.Publisher<T> {
+
+    private static final Logger logger = LoggerFactory.getLogger(IteratorPublisher.class);
 
     private final Supplier<Iterator<? extends T>> iteratorSupplier;
 
@@ -47,6 +52,8 @@ public class IteratorPublisher<T> implements Flow.Publisher<T> {
 
         @Override
         public void request(long n) {
+            logger.info("subscription.request: {}", n);
+
             if (n <= 0 && !terminate()) {
                 subscriber.onError(new IllegalArgumentException("negative subscription request"));
                 return;
@@ -91,6 +98,7 @@ public class IteratorPublisher<T> implements Flow.Publisher<T> {
 
         @Override
         public void cancel() {
+            logger.info("subscription.cancel");
             terminate();
         }
 

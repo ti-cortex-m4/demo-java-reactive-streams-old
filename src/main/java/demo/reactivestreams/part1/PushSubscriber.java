@@ -11,12 +11,12 @@ public class PushSubscriber<T> implements Flow.Subscriber<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(PushSubscriber.class);
 
-    private final CountDownLatch countDownLatch;
+    private final CountDownLatch completeLatch;
 
     private Flow.Subscription subscription;
 
-    public PushSubscriber(CountDownLatch countDownLatch) {
-        this.countDownLatch = countDownLatch;
+    public PushSubscriber(CountDownLatch completeLatch) {
+        this.completeLatch = completeLatch;
     }
 
     @Override
@@ -40,6 +40,6 @@ public class PushSubscriber<T> implements Flow.Subscriber<T> {
     @Override
     public void onComplete() {
         logger.info("subscriber.complete");
-        countDownLatch.countDown();
+        completeLatch.countDown();
     }
 }
