@@ -11,17 +11,19 @@ public class PullSubscriber implements Flow.Subscriber<Integer> {
 
     private static final Logger logger = LoggerFactory.getLogger(PullSubscriber.class);
 
+    private final int idx;
     private final CountDownLatch countDownLatch;
 
     private Flow.Subscription subscription;
 
-    public PullSubscriber(CountDownLatch countDownLatch) {
+    public PullSubscriber(int idx, CountDownLatch countDownLatch) {
+        this.idx = idx;
         this.countDownLatch = countDownLatch;
     }
 
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
-        logger.info("subscriber.subscribe: {}", subscription);
+        logger.info("{} subscriber.subscribe: {}", idx, subscription);
         this.subscription = subscription;
         this.subscription.request(1);
     }
@@ -29,18 +31,18 @@ public class PullSubscriber implements Flow.Subscriber<Integer> {
     @Override
     public void onNext(Integer item) {
         Delay.delay();
-        logger.info("subscriber.next: {}", item);
+        logger.info("{} subscriber.next: {}", idx, item);
         this.subscription.request(1);
     }
 
     @Override
     public void onError(Throwable throwable) {
-        logger.error("subscriber.error", throwable);
+        logger.error("{} subscriber.error", idx, throwable);
     }
 
     @Override
     public void onComplete() {
-        logger.info("subscriber.complete");
+        logger.info("{} subscriber.complete", idx);
         countDownLatch.countDown();
     }
 }
