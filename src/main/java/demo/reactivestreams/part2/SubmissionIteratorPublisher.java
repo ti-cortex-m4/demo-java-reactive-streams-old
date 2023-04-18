@@ -13,8 +13,8 @@ public class SubmissionIteratorPublisher extends SubmissionPublisher<Integer> {
 
     private final Iterator<Integer> iterator;
 
-    public SubmissionIteratorPublisher(int count) {
-        this.iterator = IntStream.rangeClosed(1, count).iterator();
+    public SubmissionIteratorPublisher(Iterator<Integer> iterator) {
+        this.iterator = iterator;
     }
 
     public Iterator<Integer> getIterator() {

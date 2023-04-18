@@ -3,18 +3,20 @@ package demo.reactivestreams.part2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.IntStream;
 
 public class Runner {
 
     private static final Logger logger = LoggerFactory.getLogger(Runner.class);
 
     public static void main(String[] args) throws InterruptedException {
-        CountDownLatch countDownLatch = new CountDownLatch(1);
+        Iterator<Integer> iterator = IntStream.rangeClosed(0, 9).iterator();
+        SubmissionIteratorPublisher publisher = new SubmissionIteratorPublisher(iterator);
 
-        SubmissionIteratorPublisher publisher = new SubmissionIteratorPublisher(10);
-        PullSubscriber subscriber = new PullSubscriber(countDownLatch);
-
+        CountDownLatch completeLatch = new CountDownLatch(1);
+        PullSubscriber subscriber = new PullSubscriber(completeLatch);
         publisher.subscribe(subscriber);
 
         publisher.getIterator().forEachRemaining(item -> {
@@ -25,6 +27,6 @@ public class Runner {
         logger.info("publisher.close");
         publisher.close();
 
-        countDownLatch.await();
+        completeLatch.await();
     }
 }
