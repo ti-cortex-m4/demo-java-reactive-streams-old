@@ -59,13 +59,11 @@ public class IteratorPublisher<T> implements Flow.Publisher<T> {
 
             for (; ; ) {
                 long currentDemand = demand.getAcquire();
-
                 if (currentDemand == Long.MAX_VALUE) {
                     return;
                 }
 
                 long adjustedDemand = currentDemand + n;
-
                 if (adjustedDemand < 0L) {
                     adjustedDemand = Long.MAX_VALUE;
                 }
