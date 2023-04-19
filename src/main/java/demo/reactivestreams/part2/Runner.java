@@ -17,11 +17,11 @@ public class Runner {
         SubmissionPublisher<Integer> publisher = new SubmissionPublisher<Integer>();
 
         CountDownLatch completeLatch1 = new CountDownLatch(1);
-        PullSubscriber subscriber1 = new PullSubscriber(0, completeLatch1);
+        PullSubscriber subscriber1 = new PullSubscriber(0, completeLatch1, 1, 1);
         publisher.subscribe(subscriber1);
 
         CountDownLatch completeLatch2 = new CountDownLatch(1);
-        PullSubscriber subscriber2 = new PullSubscriber(1, completeLatch2);
+        PullSubscriber subscriber2 = new PullSubscriber(1, completeLatch2, 1, 1);
         publisher.subscribe(subscriber2);
 
         iterator.forEachRemaining(item -> {

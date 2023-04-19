@@ -13,26 +13,30 @@ public class PullSubscriber implements Flow.Subscriber<Integer> {
 
     private final int id;
     private final CountDownLatch countDownLatch;
+    private final long onSubscribeRequestCount;
+    private final long onNextRequestCount;
 
     private Flow.Subscription subscription;
 
-    public PullSubscriber(int id, CountDownLatch countDownLatch) {
+    public PullSubscriber(int id, CountDownLatch countDownLatch, long onSubscribeRequestCount, long onNextRequestCount) {
         this.id = id;
         this.countDownLatch = countDownLatch;
+        this.onSubscribeRequestCount = onSubscribeRequestCount;
+        this.onNextRequestCount = onNextRequestCount;
     }
 
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
         logger.info("({}) subscriber.subscribe: {}", id, subscription);
         this.subscription = subscription;
-        this.subscription.request(1);
+        this.subscription.request(onSubscribeRequestCount);
     }
 
     @Override
     public void onNext(Integer item) {
         Delay.delay();
         logger.info("({}) subscriber.next: {}", id, item);
-        this.subscription.request(1);
+        this.subscription.request(onNextRequestCount);
     }
 
     @Override

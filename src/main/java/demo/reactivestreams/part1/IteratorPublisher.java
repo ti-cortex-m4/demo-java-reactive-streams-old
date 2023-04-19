@@ -24,15 +24,15 @@ public class IteratorPublisher<T> implements Flow.Publisher<T> {
     public void subscribe(Flow.Subscriber<? super T> subscriber) {
         IteratorSubscription subscription = new IteratorSubscription(subscriber);
         subscriber.onSubscribe(subscription);
-        subscription.doOnSubscribed();
+        subscription.onSubscribed();
     }
 
     private class IteratorSubscription implements Flow.Subscription {
 
         private final Flow.Subscriber<? super T> subscriber;
         private final Iterator<? extends T> iterator;
-        private final AtomicBoolean isTerminated = new AtomicBoolean(false);
         private final AtomicLong demand = new AtomicLong();
+        private final AtomicBoolean terminated = new AtomicBoolean(false);
         private final AtomicReference<Throwable> error = new AtomicReference<>();
 
         IteratorSubscription(Flow.Subscriber<? super T> subscriber) {
@@ -53,8 +53,8 @@ public class IteratorPublisher<T> implements Flow.Publisher<T> {
             logger.info("subscription.request: {}", n);
 
             if (n <= 0) {
-                if (!isTerminated.getAndSet(true)) {
-                    subscriber.onError(new IllegalArgumentException("negative subscription request"));
+                if (!terminated.getAndSet(true)) {
+                    subscriber.onError(new IllegalArgumentException());
                     return;
                 }
             }
@@ -79,18 +79,18 @@ public class IteratorPublisher<T> implements Flow.Publisher<T> {
                 }
             }
 
-            for (; demand.get() > 0 && iterator.hasNext() && !isTerminated.get(); demand.decrementAndGet()) {
+            for (; demand.get() > 0 && iterator.hasNext() && !terminated.get(); demand.decrementAndGet()) {
                 try {
                     subscriber.onNext(iterator.next());
                 } catch (Throwable e) {
-                    if (!isTerminated.getAndSet(true)) {
+                    if (!terminated.getAndSet(true)) {
                         subscriber.onError(e);
                     }
                 }
             }
 
             if (!iterator.hasNext()) {
-                if (!isTerminated.getAndSet(true)) {
+                if (!terminated.getAndSet(true)) {
                     subscriber.onComplete();
                 }
             }
@@ -99,17 +99,16 @@ public class IteratorPublisher<T> implements Flow.Publisher<T> {
         @Override
         public void cancel() {
             logger.info("subscription.cancel");
-            isTerminated.getAndSet(true);
+            terminated.getAndSet(true);
         }
 
-        void doOnSubscribed() {
+        void onSubscribed() {
             Throwable throwable = error.get();
             if (throwable != null) {
-                if (!isTerminated.getAndSet(true)) {
+                if (!terminated.getAndSet(true)) {
                     subscriber.onError(throwable);
                 }
             }
         }
-
     }
 }

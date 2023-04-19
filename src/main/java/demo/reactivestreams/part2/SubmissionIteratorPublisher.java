@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.concurrent.SubmissionPublisher;
-import java.util.stream.IntStream;
 
 public class SubmissionIteratorPublisher extends SubmissionPublisher<Integer> {
 
