@@ -1,4 +1,4 @@
-package demo.reactivestreams.part11;
+package demo.reactivestreams.part1.part11;
 
 public class Subscriber1 extends SyncSubscriber<Integer> {
 

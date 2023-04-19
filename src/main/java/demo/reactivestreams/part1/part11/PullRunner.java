@@ -1,8 +1,7 @@
-package demo.reactivestreams.part11;
+package demo.reactivestreams.part1.part11;
 
 import demo.reactivestreams.Delay;
 import demo.reactivestreams.part0.IteratorPublisher;
-import org.reactivestreams.FlowAdapters;
 
 import java.util.List;
 import java.util.concurrent.Flow;

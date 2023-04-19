@@ -2,11 +2,8 @@
  * Licensed under MIT No Attribution (SPDX: MIT-0) *
  ***************************************************/
 
-package demo.reactivestreams.part11;
+package demo.reactivestreams.part1.part11;
 
-import demo.reactivestreams.part1.SimpleSubscriber;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
