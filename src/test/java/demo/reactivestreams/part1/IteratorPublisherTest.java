@@ -21,7 +21,6 @@ public class IteratorPublisherTest extends FlowPublisherVerification<Integer> {
         Iterator<Integer> iterator = Stream
             .iterate(0, UnaryOperator.identity())
             .limit(elements)
-            .toList()
             .iterator();
         return new IteratorPublisher<>(() -> iterator);
     }
