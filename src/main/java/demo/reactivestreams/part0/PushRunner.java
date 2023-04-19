@@ -1,4 +1,6 @@
-package demo.reactivestreams.part1;
+package demo.reactivestreams.part0;
+
+import demo.reactivestreams.part1.IteratorPublisher;
 
 import java.util.Iterator;
 import java.util.List;

@@ -11,17 +11,19 @@ public class PushSubscriber<T> implements Flow.Subscriber<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(PushSubscriber.class);
 
+    private final int id;
     private final CountDownLatch completeLatch;
 
     private Flow.Subscription subscription;
 
-    public PushSubscriber(CountDownLatch completeLatch) {
+    public PushSubscriber(int id, CountDownLatch completeLatch) {
+        this.id = id;
         this.completeLatch = completeLatch;
     }
 
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
-        logger.info("subscriber.subscribe: {}", subscription);
+        logger.info("({}) subscriber.subscribe: {}", id, subscription);
         this.subscription = subscription;
         this.subscription.request(Long.MAX_VALUE);
     }
@@ -29,17 +31,17 @@ public class PushSubscriber<T> implements Flow.Subscriber<T> {
     @Override
     public void onNext(T item) {
         Delay.delay();
-        logger.info("subscriber.next: {}", item);
+        logger.info("({}) subscriber.next: {}", id, item);
     }
 
     @Override
     public void onError(Throwable throwable) {
-        logger.error("subscriber.error", throwable);
+        logger.error("({}) subscriber.error", id, throwable);
     }
 
     @Override
     public void onComplete() {
-        logger.info("subscriber.complete");
+        logger.info("({}) subscriber.complete", id);
         completeLatch.countDown();
     }
 }

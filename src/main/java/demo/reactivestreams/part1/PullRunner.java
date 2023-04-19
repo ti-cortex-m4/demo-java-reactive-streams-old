@@ -12,11 +12,11 @@ public class PullRunner {
         IteratorPublisher<Integer> publisher = new IteratorPublisher<>(() -> iterator);
 
         CountDownLatch completeLatch1 = new CountDownLatch(1);
-        Flow.Subscriber<Integer> subscriber1 = new PullSubscriber<>(completeLatch1);
+        Flow.Subscriber<Integer> subscriber1 = new PullSubscriber<>(1,completeLatch1);
         publisher.subscribe(subscriber1);
 
         CountDownLatch completeLatch2 = new CountDownLatch(1);
-        Flow.Subscriber<Integer> subscriber2 = new PullSubscriber<>(completeLatch2);
+        Flow.Subscriber<Integer> subscriber2 = new PullSubscriber<>(2,completeLatch2);
         publisher.subscribe(subscriber2);
 
         completeLatch1.await();
