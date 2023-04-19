@@ -1,5 +1,7 @@
 package demo.reactivestreams.part0;
 
+import demo.reactivestreams.part1.SimpleSubscriber;
+
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
@@ -11,11 +13,11 @@ public class PushRunner {
         IteratorPublisher<Integer> publisher = new IteratorPublisher<>(() -> List.copyOf(list).iterator());
 
         CountDownLatch completeLatch1 = new CountDownLatch(1);
-        Flow.Subscriber<Integer> subscriber1 = new PushSubscriber<>(1,completeLatch1);
+        Flow.Subscriber<Integer> subscriber1 = new SimpleSubscriber<>(1, completeLatch1,Long.MAX_VALUE,0);
         publisher.subscribe(subscriber1);
 
         CountDownLatch completeLatch2 = new CountDownLatch(1);
-        Flow.Subscriber<Integer> subscriber2 = new PushSubscriber<>(2,completeLatch2);
+        Flow.Subscriber<Integer> subscriber2 = new SimpleSubscriber<>(2, completeLatch2,Long.MAX_VALUE,0);
         publisher.subscribe(subscriber2);
 
         completeLatch1.await();

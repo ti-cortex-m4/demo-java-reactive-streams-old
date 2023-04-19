@@ -7,13 +7,13 @@ import java.util.Iterator;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class SimpleIteratorPublisher0 implements Flow.Publisher<Integer> {
+public class _SimpleIteratorPublisher0 implements Flow.Publisher<Integer> {
 
-    private static final Logger logger = LoggerFactory.getLogger(SimpleIteratorPublisher0.class);
+    private static final Logger logger = LoggerFactory.getLogger(_SimpleIteratorPublisher0.class);
 
     private final Iterator<Integer> iterator;
 
-    public SimpleIteratorPublisher0(Iterator<Integer> iterator) {
+    public _SimpleIteratorPublisher0(Iterator<Integer> iterator) {
         this.iterator = iterator;
     }
 
