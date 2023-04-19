@@ -20,9 +20,11 @@ public abstract class AbstractSyncSubscriber<T> implements Flow.Subscriber<T> {
     private boolean done = false;
 
     @Override
-    public void onSubscribe(final Flow.Subscription s) {
+    public void onSubscribe(Flow.Subscription s) {
         logger.info("subscriber.subscribe: {}", s);
-        if (s == null) throw new NullPointerException();
+        if (s == null) {
+          throw new NullPointerException();
+        }
 
         if (this.subscription != null) { // If someone has made a mistake and added this Subscriber multiple times, let's handle it gracefully
             s.cancel(); // Cancel the additional subscription
@@ -36,26 +38,18 @@ public abstract class AbstractSyncSubscriber<T> implements Flow.Subscriber<T> {
     }
 
     @Override
-    public void onNext(final T element) {
+    public void onNext(T element) {
         logger.info("subscriber.next: {}", element);
-        if (element == null) throw new NullPointerException();
+        if (element == null) {
+          throw new NullPointerException();
+        }
 
-        if (!done) { // If we aren't already done
-            try {
+        if (!done) {
                 if (whenNext(element)) {
                     this.subscription.request(1); // Our Subscriber is unbuffered and modest, it requests one element at a time
                 } else {
                     done();
                 }
-            } catch (final Throwable t) {
-                done();
-                try {
-                    onError(t);
-                } catch (final Throwable t2) {
-                    //Subscriber.onError is not allowed to throw an exception, according to rule 2.13
-                    (new IllegalStateException(this + " violated the Reactive Streams rule 2.13 by throwing an exception from onError.", t2)).printStackTrace(System.err);
-                }
-            }
         }
     }
 
@@ -73,9 +67,11 @@ public abstract class AbstractSyncSubscriber<T> implements Flow.Subscriber<T> {
     protected abstract boolean whenNext(final T element);
 
     @Override
-    public void onError(final Throwable t) {
-        logger.error("subscriber.error", t);
-        if (t == null) throw new NullPointerException();
+    public void onError(Throwable throwable) {
+        logger.error("subscriber.error", throwable);
+        if (throwable == null) {
+          throw new NullPointerException();
+        }
     }
 
     @Override

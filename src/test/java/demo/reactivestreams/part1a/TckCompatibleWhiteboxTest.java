@@ -44,9 +44,9 @@ public class TckCompatibleWhiteboxTest extends FlowSubscriberWhiteboxVerificatio
       }
 
       @Override
-      public void onError(Throwable cause) {
-        super.onError(cause);
-        probe.registerOnError(cause);
+      public void onError(Throwable throwable) {
+        super.onError(throwable);
+        probe.registerOnError(throwable);
       }
 
       @Override
