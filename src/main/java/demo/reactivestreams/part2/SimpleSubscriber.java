@@ -1,15 +1,14 @@
 package demo.reactivestreams.part2;
 
-import demo.reactivestreams.Delay;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
 
-public class Subscriber implements Flow.Subscriber<Integer> {
+public class SimpleSubscriber implements Flow.Subscriber<Integer> {
 
-    private static final Logger logger = LoggerFactory.getLogger(Subscriber.class);
+    private static final Logger logger = LoggerFactory.getLogger(SimpleSubscriber.class);
 
     private final int id;
     private final CountDownLatch countDownLatch;
@@ -18,7 +17,7 @@ public class Subscriber implements Flow.Subscriber<Integer> {
 
     private Flow.Subscription subscription;
 
-    public Subscriber(int id, CountDownLatch countDownLatch, long onSubscribeRequestCount, long onNextRequestCount) {
+    public SimpleSubscriber(int id, CountDownLatch countDownLatch, long onSubscribeRequestCount, long onNextRequestCount) {
         this.id = id;
         this.countDownLatch = countDownLatch;
         this.onSubscribeRequestCount = onSubscribeRequestCount;
@@ -34,7 +33,7 @@ public class Subscriber implements Flow.Subscriber<Integer> {
 
     @Override
     public void onNext(Integer item) {
-        Delay.delay();
+        //Delay.delay();
         logger.info("({}) subscriber.next: {}", id, item);
         this.subscription.request(onNextRequestCount);
     }

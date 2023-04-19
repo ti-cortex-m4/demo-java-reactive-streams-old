@@ -34,7 +34,7 @@ public class SimpleSubscriber<T> implements Flow.Subscriber<T> {
 
     @Override
     public void onNext(T item) {
-        Delay.delay();
+        //Delay.delay();
         logger.info("({}) subscriber.next: {}", id, item);
         if (onNextRequestCount > 0) {
             this.subscription.request(onNextRequestCount);

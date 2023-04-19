@@ -18,11 +18,11 @@ public class Runner {
         SubmissionPublisher<Integer> publisher = new SubmissionPublisher<>();
 
         CountDownLatch completeLatch1 = new CountDownLatch(1);
-        Flow.Subscriber<Integer> subscriber1 = new Subscriber(1, completeLatch1, 1, 1);
+        Flow.Subscriber<Integer> subscriber1 = new SimpleSubscriber(1, completeLatch1, 1, 1);
         publisher.subscribe(subscriber1);
 
         CountDownLatch completeLatch2 = new CountDownLatch(1);
-        Flow.Subscriber<Integer> subscriber2 = new Subscriber(2, completeLatch2, 1, 1);
+        Flow.Subscriber<Integer> subscriber2 = new SimpleSubscriber(2, completeLatch2, 1, 1);
         publisher.subscribe(subscriber2);
 
         iterator.forEachRemaining(item -> {
