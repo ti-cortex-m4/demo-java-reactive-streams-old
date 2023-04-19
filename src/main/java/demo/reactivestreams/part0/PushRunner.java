@@ -11,7 +11,7 @@ public class PushRunner {
 
     public static void main(String[] args) throws InterruptedException {
         Iterator<Integer> iterator = List.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9).iterator();
-        IteratorPublisher<Integer> publisher = new IteratorPublisher<>(() -> iterator);
+        SimpleIteratorPublisher publisher = new SimpleIteratorPublisher(iterator);
 
         CountDownLatch completeLatch1 = new CountDownLatch(1);
         Flow.Subscriber<Integer> subscriber1 = new PushSubscriber<>(1,completeLatch1);
