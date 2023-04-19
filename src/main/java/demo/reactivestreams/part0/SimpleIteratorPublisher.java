@@ -6,43 +6,46 @@ import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
-public class SimpleIteratorPublisher implements Flow.Publisher<Integer> {
+public class SimpleIteratorPublisher<T> implements Flow.Publisher<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(SimpleIteratorPublisher.class);
 
-    private final Iterator<Integer> iterator;
+    private final Supplier<Iterator<? extends T>> iteratorSupplier;
 
-    public SimpleIteratorPublisher(Iterator<Integer> iterator) {
-        this.iterator = iterator;
+    public SimpleIteratorPublisher(Supplier<Iterator<? extends T>> iteratorSupplier) {
+        this.iteratorSupplier = iteratorSupplier;
     }
 
     @Override
-    public void subscribe(Flow.Subscriber<? super Integer> subscriber) {
-        logger.info("publisher.subscribe");
-        subscriber.onSubscribe(new SimpleSubscription(subscriber));
-
-        try {
-            iterator.forEachRemaining(item -> {
-                logger.info("publisher.next: {}", item);
-                subscriber.onNext(item);
-            });
-
-            logger.info("publisher.complete");
-            subscriber.onComplete();
-        } catch (Throwable t) {
-            logger.info("publisher.error");
-            subscriber.onError(t);
-        }
+    public void subscribe(Flow.Subscriber<? super T> subscriber) {
+        IteratorSubscription subscription = new IteratorSubscription(subscriber);
+        subscriber.onSubscribe(subscription);
+        subscription.onSubscribed();
     }
 
-    private class SimpleSubscription implements Flow.Subscription {
+    private class IteratorSubscription implements Flow.Subscription {
 
-        private final Flow.Subscriber<? super Integer> subscriber;
+        private final Flow.Subscriber<? super T> subscriber;
+        private final Iterator<? extends T> iterator;
+        private final AtomicLong demand = new AtomicLong();
         private final AtomicBoolean terminated = new AtomicBoolean(false);
+        private final AtomicReference<Throwable> error = new AtomicReference<>();
 
-        public SimpleSubscription(Flow.Subscriber<? super Integer> subscriber) {
+        IteratorSubscription(Flow.Subscriber<? super T> subscriber) {
             this.subscriber = subscriber;
+            Iterator<? extends T> iterator = null;
+
+            try {
+                iterator = iteratorSupplier.get();
+            } catch (Throwable e) {
+                error.set(e);
+            }
+
+            this.iterator = iterator;
         }
 
         @Override
@@ -50,23 +53,63 @@ public class SimpleIteratorPublisher implements Flow.Publisher<Integer> {
             logger.info("subscription.request: {}", n);
 
             if (n <= 0) {
-                subscriber.onError(new IllegalArgumentException());
+                if (!terminated.getAndSet(true)) {
+                    subscriber.onError(new IllegalArgumentException());
+                    return;
+                }
             }
 
-            for (long i = n; i > 0 && iterator.hasNext() && !terminated.get(); i--) {
-                subscriber.onNext(iterator.next());
+//            for (; ; ) {
+//                long currentDemand = demand.getAcquire();
+//                if (currentDemand == Long.MAX_VALUE) {
+//                    return;
+//                }
+//
+//                long adjustedDemand = currentDemand + n;
+//                if (adjustedDemand < 0L) {
+//                    adjustedDemand = Long.MAX_VALUE;
+//                }
+//
+//                if (demand.compareAndSet(currentDemand, adjustedDemand)) {
+//                    if (currentDemand > 0) {
+//                        return;
+//                    }
+//
+//                    break;
+//                }
+//            }
+
+            for (long l = n; l > 0 && iterator.hasNext() && !terminated.get(); l--) {
+            //for (; demand.get() > 0 && iterator.hasNext() && !terminated.get(); demand.decrementAndGet()) {
+                try {
+                    subscriber.onNext(iterator.next());
+                } catch (Throwable e) {
+                    if (!terminated.getAndSet(true)) {
+                        subscriber.onError(e);
+                    }
+                }
             }
 
-            if (!iterator.hasNext() && !terminated.getAndSet(true)) {
-                subscriber.onComplete();
+            if (!iterator.hasNext()) {
+                if (!terminated.getAndSet(true)) {
+                    subscriber.onComplete();
+                }
             }
         }
 
         @Override
         public void cancel() {
             logger.info("subscription.cancel");
-            terminated.set(true);
+            terminated.getAndSet(true);
+        }
+
+        void onSubscribed() {
+            Throwable throwable = error.get();
+            if (throwable != null) {
+                if (!terminated.getAndSet(true)) {
+                    subscriber.onError(throwable);
+                }
+            }
         }
     }
-
 }

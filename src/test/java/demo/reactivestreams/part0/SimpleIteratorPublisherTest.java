@@ -23,11 +23,13 @@ public class SimpleIteratorPublisherTest extends FlowPublisherVerification<Integ
             .limit(elements)
             .toList()
             .iterator();
-        return new SimpleIteratorPublisher(iterator);
+        return new SimpleIteratorPublisher<>(() -> iterator);
     }
 
     @Override
     public Flow.Publisher<Integer> createFailedFlowPublisher() {
-        return new SimpleIteratorPublisher(null);
+        return new SimpleIteratorPublisher<>(() -> {
+            throw new RuntimeException();
+        });
     }
 }
