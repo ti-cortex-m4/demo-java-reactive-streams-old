@@ -10,9 +10,9 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 @Test
-public class SimpleIteratorPublisherTest extends FlowPublisherVerification<Integer> {
+public class IteratorPublisherTest extends FlowPublisherVerification<Integer> {
 
-    public SimpleIteratorPublisherTest() {
+    public IteratorPublisherTest() {
         super(new TestEnvironment());
     }
 
