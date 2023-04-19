@@ -2,9 +2,9 @@
  * Licensed under MIT No Attribution (SPDX: MIT-0) *
  ***************************************************/
 
-package demo.reactivestreams.part1;
+package demo.reactivestreams.part1a;
 
-import demo.reactivestreams.part1.part11.Subscriber1;
+import demo.reactivestreams.part1a.PullSubscriber;
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowSubscriberWhiteboxVerification;
 import org.testng.annotations.Test;
@@ -24,7 +24,7 @@ public class SimpleSubscriber1WhiteboxTest extends FlowSubscriberWhiteboxVerific
 
   @Override
   public Flow.Subscriber<Integer> createFlowSubscriber(WhiteboxSubscriberProbe<Integer> probe) {
-    return new Subscriber1() {
+    return new PullSubscriber<Integer>() {
       @Override
       public void onSubscribe( Flow.Subscription s) {
         super.onSubscribe(s);

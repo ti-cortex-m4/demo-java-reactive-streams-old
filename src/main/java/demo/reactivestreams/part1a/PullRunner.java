@@ -1,4 +1,4 @@
-package demo.reactivestreams.part1.part11;
+package demo.reactivestreams.part1a;
 
 import demo.reactivestreams.Delay;
 import demo.reactivestreams.part0.IteratorPublisher;
@@ -13,7 +13,7 @@ public class PullRunner {
         IteratorPublisher<Integer> publisher = new IteratorPublisher<>(() -> List.copyOf(list).iterator());
 
 //        CountDownLatch completeLatch1 = new CountDownLatch(1);
-        Flow.Subscriber<Integer> subscriber1 = new Subscriber1(); //new SimpleSubscriber<>(1, completeLatch1,1,1);
+        Flow.Subscriber<Integer> subscriber1 = new PullSubscriber<Integer>(); //new SimpleSubscriber<>(1, completeLatch1,1,1);
         publisher.subscribe(subscriber1);
 
 //        CountDownLatch completeLatch2 = new CountDownLatch(1);

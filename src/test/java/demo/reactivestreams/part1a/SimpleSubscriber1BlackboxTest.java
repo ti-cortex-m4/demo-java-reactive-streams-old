@@ -2,9 +2,9 @@
  * Licensed under MIT No Attribution (SPDX: MIT-0) *
  ***************************************************/
 
-package demo.reactivestreams.part1;
+package demo.reactivestreams.part1a;
 
-import demo.reactivestreams.part1.part11.Subscriber1;
+import demo.reactivestreams.part1a.PullSubscriber;
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowSubscriberBlackboxVerification;
 import org.testng.annotations.Test;
@@ -20,7 +20,7 @@ public class SimpleSubscriber1BlackboxTest extends FlowSubscriberBlackboxVerific
 
     @Override
     public Flow.Subscriber<Integer> createFlowSubscriber() {
-        return new Subscriber1();
+        return new PullSubscriber<Integer>();
     }
 
     @Override

@@ -2,7 +2,7 @@
  * Licensed under MIT No Attribution (SPDX: MIT-0) *
  ***************************************************/
 
-package demo.reactivestreams.part1.part11;
+package demo.reactivestreams.part1a;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +16,9 @@ import java.util.concurrent.Flow;
  *
  * NOTE: The code below uses a lot of try-catches to show the reader where exceptions can be expected, and where they are forbidden.
  */
-public abstract class SyncSubscriber<T> implements Flow.Subscriber<T> {
+public abstract class AbstractSyncSubscriber<T> implements Flow.Subscriber<T> {
 
-  private static final Logger logger = LoggerFactory.getLogger(SyncSubscriber.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractSyncSubscriber.class);
 
   private Flow.Subscription subscription; // Obeying rule 3.1, we make this private!
   private boolean done = false;
