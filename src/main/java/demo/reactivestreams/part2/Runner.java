@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.IntStream;
 
@@ -14,14 +15,14 @@ public class Runner {
 
     public static void main(String[] args) throws InterruptedException {
         Iterator<Integer> iterator = IntStream.rangeClosed(0, 9).iterator();
-        SubmissionPublisher<Integer> publisher = new SubmissionPublisher<Integer>();
+        SubmissionPublisher<Integer> publisher = new SubmissionPublisher<>();
 
         CountDownLatch completeLatch1 = new CountDownLatch(1);
-        PullSubscriber subscriber1 = new PullSubscriber(0, completeLatch1, 1, 1);
+        Flow.Subscriber<Integer> subscriber1 = new Subscriber(1, completeLatch1, 1, 1);
         publisher.subscribe(subscriber1);
 
         CountDownLatch completeLatch2 = new CountDownLatch(1);
-        PullSubscriber subscriber2 = new PullSubscriber(1, completeLatch2, 1, 1);
+        Flow.Subscriber<Integer> subscriber2 = new Subscriber(2, completeLatch2, 1, 1);
         publisher.subscribe(subscriber2);
 
         iterator.forEachRemaining(item -> {

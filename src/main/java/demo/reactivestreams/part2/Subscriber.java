@@ -7,9 +7,9 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
 
-public class PullSubscriber implements Flow.Subscriber<Integer> {
+public class Subscriber implements Flow.Subscriber<Integer> {
 
-    private static final Logger logger = LoggerFactory.getLogger(PullSubscriber.class);
+    private static final Logger logger = LoggerFactory.getLogger(Subscriber.class);
 
     private final int id;
     private final CountDownLatch countDownLatch;
@@ -18,7 +18,7 @@ public class PullSubscriber implements Flow.Subscriber<Integer> {
 
     private Flow.Subscription subscription;
 
-    public PullSubscriber(int id, CountDownLatch countDownLatch, long onSubscribeRequestCount, long onNextRequestCount) {
+    public Subscriber(int id, CountDownLatch countDownLatch, long onSubscribeRequestCount, long onNextRequestCount) {
         this.id = id;
         this.countDownLatch = countDownLatch;
         this.onSubscribeRequestCount = onSubscribeRequestCount;

@@ -22,4 +22,5 @@ dependencies {
 
 tasks.named('test') {
 	useTestNG()
+	maxHeapSize = "16g"
 }
