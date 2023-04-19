@@ -21,18 +21,18 @@ public class TckCompatibleWhiteboxTest extends FlowSubscriberWhiteboxVerificatio
   public Flow.Subscriber<Integer> createFlowSubscriber(WhiteboxSubscriberProbe<Integer> probe) {
     return new TckCompatiblePullSubscriber<Integer>() {
       @Override
-      public void onSubscribe( Flow.Subscription s) {
-        super.onSubscribe(s);
+      public void onSubscribe( Flow.Subscription subscription) {
+        super.onSubscribe(subscription);
 
         probe.registerOnSubscribe(new SubscriberPuppet() {
           @Override
           public void triggerRequest(long elements) {
-            s.request(elements);
+            subscription.request(elements);
           }
 
           @Override
           public void signalCancel() {
-            s.cancel();
+            subscription.cancel();
           }
         });
       }

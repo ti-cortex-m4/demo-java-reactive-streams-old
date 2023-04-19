@@ -13,17 +13,17 @@ public abstract class AbstractSyncSubscriber<T> implements Flow.Subscriber<T> {
     private boolean done = false;
 
     @Override
-    public void onSubscribe(Flow.Subscription s) {
-        logger.info("subscriber.subscribe: {}", s);
-        if (s == null) {
+    public void onSubscribe(Flow.Subscription subscription) {
+        logger.info("subscriber.subscribe: {}", subscription);
+        if (subscription == null) {
             throw new NullPointerException();
         }
 
         if (this.subscription != null) {
-            s.cancel();
+            subscription.cancel();
         } else {
-            this.subscription = s;
-            s.request(1);
+            this.subscription = subscription;
+            subscription.request(1);
         }
     }
 
