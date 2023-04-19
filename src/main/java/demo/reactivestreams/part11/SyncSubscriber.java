@@ -4,8 +4,13 @@
 
 package demo.reactivestreams.part11;
 
+import demo.reactivestreams.part1.SimpleSubscriber;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.Flow;
 
 /**
  * SyncSubscriber is an implementation of Reactive Streams `Subscriber`,
@@ -14,11 +19,15 @@ import org.reactivestreams.Subscription;
  *
  * NOTE: The code below uses a lot of try-catches to show the reader where exceptions can be expected, and where they are forbidden.
  */
-public abstract class SyncSubscriber<T> implements Subscriber<T> {
-  private Subscription subscription; // Obeying rule 3.1, we make this private!
+public abstract class SyncSubscriber<T> implements Flow.Subscriber<T> {
+
+  private static final Logger logger = LoggerFactory.getLogger(SyncSubscriber.class);
+
+  private Flow.Subscription subscription; // Obeying rule 3.1, we make this private!
   private boolean done = false;
 
-  @Override public void onSubscribe(final Subscription s) {
+  @Override public void onSubscribe(final Flow.Subscription s) {
+    logger.info("subscriber.subscribe: {}",  s);
     // As per rule 2.13, we need to throw a `java.lang.NullPointerException` if the `Subscription` is `null`
     if (s == null) throw null;
 
@@ -45,6 +54,7 @@ public abstract class SyncSubscriber<T> implements Subscriber<T> {
   }
 
   @Override public void onNext(final T element) {
+    logger.info("subscriber.next: {}", element);
     if (subscription == null) { // Technically this check is not needed, since we are expecting Publishers to conform to the spec
       (new IllegalStateException("Publisher violated the Reactive Streams rule 1.09 signalling onNext prior to onSubscribe.")).printStackTrace(System.err);
     } else {
@@ -94,6 +104,7 @@ public abstract class SyncSubscriber<T> implements Subscriber<T> {
   protected abstract boolean whenNext(final T element);
 
   @Override public void onError(final Throwable t) {
+    logger.error("subscriber.error",  t);
     if (subscription == null) { // Technically this check is not needed, since we are expecting Publishers to conform to the spec
       (new IllegalStateException("Publisher violated the Reactive Streams rule 1.09 signalling onError prior to onSubscribe.")).printStackTrace(System.err);
     } else {
@@ -105,6 +116,7 @@ public abstract class SyncSubscriber<T> implements Subscriber<T> {
   }
 
   @Override public void onComplete() {
+    logger.info("subscriber.complete");
     if (subscription == null) { // Technically this check is not needed, since we are expecting Publishers to conform to the spec
       (new IllegalStateException("Publisher violated the Reactive Streams rule 1.09 signalling onComplete prior to onSubscribe.")).printStackTrace(System.err);
     } else {
