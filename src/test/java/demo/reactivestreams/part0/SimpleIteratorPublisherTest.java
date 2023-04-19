@@ -22,12 +22,12 @@ public class SimpleIteratorPublisherTest extends FlowPublisherVerification<Integ
             .iterate(0, UnaryOperator.identity())
             .limit(elements)
             .iterator();
-        return new SimpleIteratorPublisher<>(() -> iterator);
+        return new IteratorPublisher<>(() -> iterator);
     }
 
     @Override
     public Flow.Publisher<Integer> createFailedFlowPublisher() {
-        return new SimpleIteratorPublisher<>(() -> {
+        return new IteratorPublisher<>(() -> {
             throw new RuntimeException();
         });
     }

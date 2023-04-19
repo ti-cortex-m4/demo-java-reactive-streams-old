@@ -6,20 +6,20 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
 
-public class SimpleSubscriber implements Flow.Subscriber<Integer> {
+public class SimpleSubscriber<T> implements Flow.Subscriber<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(SimpleSubscriber.class);
 
     private final int id;
-    private final CountDownLatch countDownLatch;
+    private final CountDownLatch completeLatch;
     private final long onSubscribeRequestCount;
     private final long onNextRequestCount;
 
     private Flow.Subscription subscription;
 
-    public SimpleSubscriber(int id, CountDownLatch countDownLatch, long onSubscribeRequestCount, long onNextRequestCount) {
+    public SimpleSubscriber(int id, CountDownLatch completeLatch, long onSubscribeRequestCount, long onNextRequestCount) {
         this.id = id;
-        this.countDownLatch = countDownLatch;
+        this.completeLatch = completeLatch;
         this.onSubscribeRequestCount = onSubscribeRequestCount;
         this.onNextRequestCount = onNextRequestCount;
     }
@@ -32,10 +32,12 @@ public class SimpleSubscriber implements Flow.Subscriber<Integer> {
     }
 
     @Override
-    public void onNext(Integer item) {
+    public void onNext(T item) {
         //Delay.delay();
         logger.info("({}) subscriber.next: {}", id, item);
-        this.subscription.request(onNextRequestCount);
+        if (onNextRequestCount > 0) {
+            this.subscription.request(onNextRequestCount);
+        }
     }
 
     @Override
@@ -46,6 +48,6 @@ public class SimpleSubscriber implements Flow.Subscriber<Integer> {
     @Override
     public void onComplete() {
         logger.info("({}) subscriber.complete", id);
-        countDownLatch.countDown();
+        completeLatch.countDown();
     }
 }

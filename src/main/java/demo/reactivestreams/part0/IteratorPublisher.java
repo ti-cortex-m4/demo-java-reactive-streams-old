@@ -6,17 +6,16 @@ import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-public class SimpleIteratorPublisher<T> implements Flow.Publisher<T> {
+public class IteratorPublisher<T> implements Flow.Publisher<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(SimpleIteratorPublisher.class);
+    private static final Logger logger = LoggerFactory.getLogger(IteratorPublisher.class);
 
     private final Supplier<Iterator<? extends T>> iteratorSupplier;
 
-    public SimpleIteratorPublisher(Supplier<Iterator<? extends T>> iteratorSupplier) {
+    public IteratorPublisher(Supplier<Iterator<? extends T>> iteratorSupplier) {
         this.iteratorSupplier = iteratorSupplier;
     }
 
@@ -31,7 +30,6 @@ public class SimpleIteratorPublisher<T> implements Flow.Publisher<T> {
 
         private final Flow.Subscriber<? super T> subscriber;
         private final Iterator<? extends T> iterator;
-        private final AtomicLong demand = new AtomicLong();
         private final AtomicBoolean terminated = new AtomicBoolean(false);
         private final AtomicReference<Throwable> error = new AtomicReference<>();
 
@@ -79,7 +77,7 @@ public class SimpleIteratorPublisher<T> implements Flow.Publisher<T> {
 //                }
 //            }
 
-            for (long l = n; l > 0 && iterator.hasNext() && !terminated.get(); l--) {
+            for (long demand = n; demand > 0 && iterator.hasNext() && !terminated.get(); demand--) {
             //for (; demand.get() > 0 && iterator.hasNext() && !terminated.get(); demand.decrementAndGet()) {
                 try {
                     subscriber.onNext(iterator.next());
