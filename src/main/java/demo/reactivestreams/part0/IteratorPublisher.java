@@ -57,28 +57,7 @@ public class IteratorPublisher<T> implements Flow.Publisher<T> {
                 }
             }
 
-//            for (; ; ) {
-//                long currentDemand = demand.getAcquire();
-//                if (currentDemand == Long.MAX_VALUE) {
-//                    return;
-//                }
-//
-//                long adjustedDemand = currentDemand + n;
-//                if (adjustedDemand < 0L) {
-//                    adjustedDemand = Long.MAX_VALUE;
-//                }
-//
-//                if (demand.compareAndSet(currentDemand, adjustedDemand)) {
-//                    if (currentDemand > 0) {
-//                        return;
-//                    }
-//
-//                    break;
-//                }
-//            }
-
             for (long demand = n; demand > 0 && iterator.hasNext() && !terminated.get(); demand--) {
-            //for (; demand.get() > 0 && iterator.hasNext() && !terminated.get(); demand.decrementAndGet()) {
                 try {
                     subscriber.onNext(iterator.next());
                 } catch (Throwable e) {
