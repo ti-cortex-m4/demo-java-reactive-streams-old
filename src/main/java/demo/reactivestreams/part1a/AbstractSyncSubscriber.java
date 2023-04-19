@@ -20,21 +20,15 @@ public abstract class AbstractSyncSubscriber<T> implements Flow.Subscriber<T> {
 
   private static final Logger logger = LoggerFactory.getLogger(AbstractSyncSubscriber.class);
 
-  private Flow.Subscription subscription; // Obeying rule 3.1, we make this private!
+  private Flow.Subscription subscription;
   private boolean done = false;
 
   @Override public void onSubscribe(final Flow.Subscription s) {
     logger.info("subscriber.subscribe: {}",  s);
-    // As per rule 2.13, we need to throw a `java.lang.NullPointerException` if the `Subscription` is `null`
     if (s == null) throw new NullPointerException();
 
     if (this.subscription != null) { // If someone has made a mistake and added this Subscriber multiple times, let's handle it gracefully
-      try {
         s.cancel(); // Cancel the additional subscription
-      } catch(final Throwable t) {
-        //Subscription.cancel is not allowed to throw an exception, according to rule 3.15
-        (new IllegalStateException(s + " violated the Reactive Streams rule 3.15 by throwing an exception from cancel.", t)).printStackTrace(System.err);
-      }
     } else {
       // We have to assign it locally before we use it, if we want to be a synchronous `Subscriber`
       // Because according to rule 3.10, the Subscription is allowed to call `onNext` synchronously from within `request`
