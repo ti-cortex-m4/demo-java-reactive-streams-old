@@ -10,9 +10,9 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 @Test
-public class IteratorPublisherTest extends FlowPublisherVerification<Integer> {
+public class TckCompatibleIteratorPublisherTest extends FlowPublisherVerification<Integer> {
 
-    public IteratorPublisherTest() {
+    public TckCompatibleIteratorPublisherTest() {
         super(new TestEnvironment());
     }
 
@@ -22,12 +22,12 @@ public class IteratorPublisherTest extends FlowPublisherVerification<Integer> {
             .iterate(0, UnaryOperator.identity())
             .limit(elements)
             .iterator();
-        return new IteratorPublisher<>(() -> iterator);
+        return new TckCompatibleIteratorPublisher<>(() -> iterator);
     }
 
     @Override
     public Flow.Publisher<Integer> createFailedFlowPublisher() {
-        return new IteratorPublisher<>(() -> {
+        return new TckCompatibleIteratorPublisher<>(() -> {
             throw new RuntimeException();
         });
     }

@@ -10,13 +10,13 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-public class IteratorPublisher<T> implements Flow.Publisher<T> {
+public class TckCompatibleIteratorPublisher<T> implements Flow.Publisher<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(IteratorPublisher.class);
+    private static final Logger logger = LoggerFactory.getLogger(TckCompatibleIteratorPublisher.class);
 
     private final Supplier<Iterator<? extends T>> iteratorSupplier;
 
-    public IteratorPublisher(Supplier<Iterator<? extends T>> iteratorSupplier) {
+    public TckCompatibleIteratorPublisher(Supplier<Iterator<? extends T>> iteratorSupplier) {
         this.iteratorSupplier = iteratorSupplier;
     }
 

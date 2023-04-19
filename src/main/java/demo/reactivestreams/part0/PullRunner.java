@@ -1,8 +1,5 @@
 package demo.reactivestreams.part0;
 
-import demo.reactivestreams.part1.IteratorPublisher;
-
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
