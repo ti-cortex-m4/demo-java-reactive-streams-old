@@ -9,29 +9,32 @@ import org.reactivestreams.Subscription;
 import org.reactivestreams.example.unicast.subscriber.SyncSubscriber;
 import org.reactivestreams.tck.SubscriberWhiteboxVerification;
 import org.reactivestreams.tck.TestEnvironment;
+import org.reactivestreams.tck.flow.FlowSubscriberWhiteboxVerification;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Flow;
 
 @Test // Must be here for TestNG to find and run this, do not remove
-public class SimpleSubscriberWhiteboxTest extends SubscriberWhiteboxVerification<Integer> {
+public class SimpleSubscriberWhiteboxTest extends FlowSubscriberWhiteboxVerification<Integer> {
 
-  private ExecutorService e;
-  @BeforeClass void before() { e = Executors.newFixedThreadPool(4); }
-  @AfterClass void after() { if (e != null) e.shutdown(); }
+//  private ExecutorService e;
+//  @BeforeClass void before() { e = Executors.newFixedThreadPool(4); }
+//  @AfterClass void after() { if (e != null) e.shutdown(); }
 
   public SimpleSubscriberWhiteboxTest() {
     super(new TestEnvironment());
   }
 
   @Override
-  public Subscriber<Integer> createSubscriber(final WhiteboxSubscriberProbe<Integer> probe) {
-    return new SyncSubscriber<Integer>() {
+  public Flow.Subscriber<Integer> createFlowSubscriber(WhiteboxSubscriberProbe<Integer> probe) {
+    return new SimpleSubscriber<Integer>(1, new CountDownLatch(1), 1, 1) {
       @Override
-      public void onSubscribe(final Subscription s) {
+      public void onSubscribe( Flow.Subscription s) {
         super.onSubscribe(s);
 
         probe.registerOnSubscribe(new SubscriberPuppet() {
@@ -65,10 +68,10 @@ public class SimpleSubscriberWhiteboxTest extends SubscriberWhiteboxVerification
         probe.registerOnComplete();
       }
 
-      @Override
-      protected boolean whenNext(Integer element) {
-        return true;
-      }
+//      @Override
+//      protected boolean whenNext(Integer element) {
+//        return true;
+//      }
     };
   }
 
