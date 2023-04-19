@@ -1,10 +1,5 @@
-/***************************************************
- * Licensed under MIT No Attribution (SPDX: MIT-0) *
- ***************************************************/
-
 package demo.reactivestreams.part1a;
 
-import demo.reactivestreams.part1a.PullSubscriber;
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowSubscriberWhiteboxVerification;
 import org.testng.annotations.Test;
@@ -12,19 +7,19 @@ import org.testng.annotations.Test;
 import java.util.concurrent.Flow;
 
 @Test // Must be here for TestNG to find and run this, do not remove
-public class SimpleSubscriber1WhiteboxTest extends FlowSubscriberWhiteboxVerification<Integer> {
+public class TckCompatibleWhiteboxTest extends FlowSubscriberWhiteboxVerification<Integer> {
 
 //  private ExecutorService e;
 //  @BeforeClass void before() { e = Executors.newFixedThreadPool(4); }
 //  @AfterClass void after() { if (e != null) e.shutdown(); }
 
-  public SimpleSubscriber1WhiteboxTest() {
+  public TckCompatibleWhiteboxTest() {
     super(new TestEnvironment());
   }
 
   @Override
   public Flow.Subscriber<Integer> createFlowSubscriber(WhiteboxSubscriberProbe<Integer> probe) {
-    return new PullSubscriber<Integer>() {
+    return new TckCompatiblePullSubscriber<Integer>() {
       @Override
       public void onSubscribe( Flow.Subscription s) {
         super.onSubscribe(s);
