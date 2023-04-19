@@ -28,7 +28,7 @@ public abstract class AbstractSyncSubscriber<T> implements Flow.Subscriber<T> {
     // As per rule 2.13, we need to throw a `java.lang.NullPointerException` if the `Subscription` is `null`
     if (s == null) throw null;
 
-    if (subscription != null) { // If someone has made a mistake and added this Subscriber multiple times, let's handle it gracefully
+    if (this.subscription != null) { // If someone has made a mistake and added this Subscriber multiple times, let's handle it gracefully
       try {
         s.cancel(); // Cancel the additional subscription
       } catch(final Throwable t) {
@@ -38,7 +38,7 @@ public abstract class AbstractSyncSubscriber<T> implements Flow.Subscriber<T> {
     } else {
       // We have to assign it locally before we use it, if we want to be a synchronous `Subscriber`
       // Because according to rule 3.10, the Subscription is allowed to call `onNext` synchronously from within `request`
-      subscription = s;
+      this.subscription = s;
       try {
         // If we want elements, according to rule 2.1 we need to call `request`
         // And, according to rule 3.2 we are allowed to call this synchronously from within the `onSubscribe` method
@@ -52,7 +52,7 @@ public abstract class AbstractSyncSubscriber<T> implements Flow.Subscriber<T> {
 
   @Override public void onNext(final T element) {
     logger.info("subscriber.next: {}", element);
-    if (subscription == null) { // Technically this check is not needed, since we are expecting Publishers to conform to the spec
+    if (this.subscription == null) { // Technically this check is not needed, since we are expecting Publishers to conform to the spec
       (new IllegalStateException("Publisher violated the Reactive Streams rule 1.09 signalling onNext prior to onSubscribe.")).printStackTrace(System.err);
     } else {
       // As per rule 2.13, we need to throw a `java.lang.NullPointerException` if the `element` is `null`
@@ -62,7 +62,7 @@ public abstract class AbstractSyncSubscriber<T> implements Flow.Subscriber<T> {
         try {
           if (whenNext(element)) {
             try {
-              subscription.request(1); // Our Subscriber is unbuffered and modest, it requests one element at a time
+              this.subscription.request(1); // Our Subscriber is unbuffered and modest, it requests one element at a time
             } catch (final Throwable t) {
               // Subscription.request is not allowed to throw according to rule 3.16
               (new IllegalStateException(subscription + " violated the Reactive Streams rule 3.16 by throwing an exception from request.", t)).printStackTrace(System.err);
@@ -89,7 +89,7 @@ public abstract class AbstractSyncSubscriber<T> implements Flow.Subscriber<T> {
     //On this line we could add a guard against `!done`, but since rule 3.7 says that `Subscription.cancel()` is idempotent, we don't need to.
     done = true; // If we `whenNext` throws an exception, let's consider ourselves done (not accepting more elements)
     try {
-      subscription.cancel(); // Cancel the subscription
+      this.subscription.cancel(); // Cancel the subscription
     } catch(final Throwable t) {
       //Subscription.cancel is not allowed to throw an exception, according to rule 3.15
       (new IllegalStateException(subscription + " violated the Reactive Streams rule 3.15 by throwing an exception from cancel.", t)).printStackTrace(System.err);
@@ -102,7 +102,7 @@ public abstract class AbstractSyncSubscriber<T> implements Flow.Subscriber<T> {
 
   @Override public void onError(final Throwable t) {
     logger.error("subscriber.error",  t);
-    if (subscription == null) { // Technically this check is not needed, since we are expecting Publishers to conform to the spec
+    if (this.subscription == null) { // Technically this check is not needed, since we are expecting Publishers to conform to the spec
       (new IllegalStateException("Publisher violated the Reactive Streams rule 1.09 signalling onError prior to onSubscribe.")).printStackTrace(System.err);
     } else {
       // As per rule 2.13, we need to throw a `java.lang.NullPointerException` if the `Throwable` is `null`
@@ -114,7 +114,7 @@ public abstract class AbstractSyncSubscriber<T> implements Flow.Subscriber<T> {
 
   @Override public void onComplete() {
     logger.info("subscriber.complete");
-    if (subscription == null) { // Technically this check is not needed, since we are expecting Publishers to conform to the spec
+    if (this.subscription == null) { // Technically this check is not needed, since we are expecting Publishers to conform to the spec
       (new IllegalStateException("Publisher violated the Reactive Streams rule 1.09 signalling onComplete prior to onSubscribe.")).printStackTrace(System.err);
     } else {
       // Here we are not allowed to call any methods on the `Subscription` or the `Publisher`, as per rule 2.3
