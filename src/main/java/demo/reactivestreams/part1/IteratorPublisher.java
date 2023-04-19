@@ -52,9 +52,11 @@ public class IteratorPublisher<T> implements Flow.Publisher<T> {
         public void request(long n) {
             logger.info("subscription.request: {}", n);
 
-            if (n <= 0 && !terminate()) {
-                subscriber.onError(new IllegalArgumentException("negative subscription request"));
-                return;
+            if (n <= 0) {
+                if (!isTerminated.getAndSet(true)) {
+                    subscriber.onError(new IllegalArgumentException("negative subscription request"));
+                    return;
+                }
             }
 
             for (; ; ) {
@@ -77,40 +79,37 @@ public class IteratorPublisher<T> implements Flow.Publisher<T> {
                 }
             }
 
-            for (; demand.get() > 0 && iterator.hasNext() && !isTerminated(); demand.decrementAndGet()) {
+            for (; demand.get() > 0 && iterator.hasNext() && !isTerminated.get(); demand.decrementAndGet()) {
                 try {
                     subscriber.onNext(iterator.next());
                 } catch (Throwable e) {
-                    if (!terminate()) {
+                    if (!isTerminated.getAndSet(true)) {
                         subscriber.onError(e);
                     }
                 }
             }
 
-            if (!iterator.hasNext() && !terminate()) {
-                subscriber.onComplete();
+            if (!iterator.hasNext()) {
+                if (!isTerminated.getAndSet(true)) {
+                    subscriber.onComplete();
+                }
             }
         }
 
         @Override
         public void cancel() {
             logger.info("subscription.cancel");
-            terminate();
+            isTerminated.getAndSet(true);
         }
 
         void doOnSubscribed() {
             Throwable throwable = error.get();
-            if (throwable != null && !terminate()) {
-                subscriber.onError(throwable);
+            if (throwable != null) {
+                if (!isTerminated.getAndSet(true)) {
+                    subscriber.onError(throwable);
+                }
             }
         }
 
-        private boolean terminate() {
-            return isTerminated.getAndSet(true);
-        }
-
-        private boolean isTerminated() {
-            return isTerminated.get();
-        }
     }
 }
