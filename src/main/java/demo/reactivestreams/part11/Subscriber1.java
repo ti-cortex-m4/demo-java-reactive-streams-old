@@ -1,4 +1,4 @@
-package demo.reactivestreams.part9;
+package demo.reactivestreams.part11;
 
 import org.reactivestreams.example.unicast.subscriber.SyncSubscriber;
 
