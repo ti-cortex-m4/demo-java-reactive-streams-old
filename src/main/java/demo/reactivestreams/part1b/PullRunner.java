@@ -5,6 +5,7 @@ import demo.reactivestreams.part0.IteratorPublisher;
 import demo.reactivestreams.part1a.TckCompatiblePullSubscriber;
 
 import java.util.List;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
 
 public class PullRunner {
@@ -14,7 +15,7 @@ public class PullRunner {
         IteratorPublisher<Integer> publisher = new IteratorPublisher<>(() -> List.copyOf(list).iterator());
 
 //        CountDownLatch completeLatch1 = new CountDownLatch(1);
-        Flow.Subscriber<Integer> subscriber1 = new TckCompatiblePullSubscriber<Integer>(); //new SimpleSubscriber<>(1, completeLatch1,1,1);
+        Flow.Subscriber<Integer> subscriber1 = new PullSubscriber1<Integer>(Executors.newSingleThreadExecutor()); //new SimpleSubscriber<>(1, completeLatch1,1,1);
         publisher.subscribe(subscriber1);
 
 //        CountDownLatch completeLatch2 = new CountDownLatch(1);

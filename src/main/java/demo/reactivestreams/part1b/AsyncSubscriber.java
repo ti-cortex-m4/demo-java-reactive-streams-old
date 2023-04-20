@@ -4,11 +4,15 @@
 
 package demo.reactivestreams.part1b;
 
+import demo.reactivestreams.part1a.AbstractSyncSubscriber;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -18,7 +22,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * NOTE: The code below uses a lot of try-catches to show the reader where exceptions can be expected, and where they are forbidden.
  */
-public abstract class AsyncSubscriber<T> implements Subscriber<T>, Runnable {
+public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
+
+  private static final Logger logger = LoggerFactory.getLogger(AsyncSubscriber.class);
 
   // Signal represents the asynchronous protocol between the Publisher and Subscriber
   private static interface Signal {}
@@ -36,11 +42,11 @@ public abstract class AsyncSubscriber<T> implements Subscriber<T>, Runnable {
   }
 
   private static class OnSubscribe implements Signal {
-    public final Subscription subscription;
-    public OnSubscribe(final Subscription subscription) { this.subscription = subscription; }
+    public final Flow.Subscription subscription;
+    public OnSubscribe(final Flow.Subscription subscription) { this.subscription = subscription; }
   }
 
-  private Subscription subscription; // Obeying rule 3.1, we make this private!
+  private Flow.Subscription subscription; // Obeying rule 3.1, we make this private!
   private boolean done; // It's useful to keep track of whether this Subscriber is done or not
   private final Executor executor; // This is the Executor we'll use to be asynchronous, obeying rule 2.2
 
@@ -78,7 +84,7 @@ public abstract class AsyncSubscriber<T> implements Subscriber<T>, Runnable {
   // override this method to implement your own custom onError logic.
   protected void whenError(Throwable error) { }
 
-  private final void handleOnSubscribe(final Subscription s) {
+  private final void handleOnSubscribe(final Flow.Subscription s) {
     if (s == null) {
       // Getting a null `Subscription` here is not valid so lets just ignore it.
     } else if (subscription != null) { // If someone has made a mistake and added this Subscriber multiple times, let's handle it gracefully
@@ -157,7 +163,7 @@ public abstract class AsyncSubscriber<T> implements Subscriber<T>, Runnable {
 
   // We implement the OnX methods on `Subscriber` to send Signals that we will process asycnhronously, but only one at a time
 
-  @Override public final void onSubscribe(final Subscription s) {
+  @Override public final void onSubscribe(final Flow.Subscription s) {
     // As per rule 2.13, we need to throw a `java.lang.NullPointerException` if the `Subscription` is `null`
     if (s == null) throw null;
 
