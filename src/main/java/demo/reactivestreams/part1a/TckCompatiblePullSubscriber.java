@@ -1,6 +1,6 @@
 package demo.reactivestreams.part1a;
 
-public class TckCompatiblePullSubscriber<T> extends AbstractSyncSubscriber<T> {
+public class TckCompatiblePullSubscriber<T> extends SyncSubscriber<T> {
 
     private int i = 0;
 

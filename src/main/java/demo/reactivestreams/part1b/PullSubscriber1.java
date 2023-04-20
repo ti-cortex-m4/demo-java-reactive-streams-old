@@ -1,7 +1,5 @@
 package demo.reactivestreams.part1b;
 
-import demo.reactivestreams.part1a.AbstractSyncSubscriber;
-
 import java.util.concurrent.Executor;
 
 public class PullSubscriber1<T> extends AsyncSubscriber<T> {

@@ -5,9 +5,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Flow;
 
-public abstract class AbstractSyncSubscriber<T> implements Flow.Subscriber<T> {
+public abstract class SyncSubscriber<T> implements Flow.Subscriber<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractSyncSubscriber.class);
+    private static final Logger logger = LoggerFactory.getLogger(SyncSubscriber.class);
 
     private Flow.Subscription subscription;
     private boolean done = false;

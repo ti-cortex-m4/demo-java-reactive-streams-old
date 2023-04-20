@@ -4,9 +4,6 @@
 
 package demo.reactivestreams.part1b;
 
-import demo.reactivestreams.part1a.AbstractSyncSubscriber;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,6 +161,7 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
   // We implement the OnX methods on `Subscriber` to send Signals that we will process asycnhronously, but only one at a time
 
   @Override public final void onSubscribe(final Flow.Subscription s) {
+    logger.info("subscriber.subscribe: {}", s);
     // As per rule 2.13, we need to throw a `java.lang.NullPointerException` if the `Subscription` is `null`
     if (s == null) throw null;
 
@@ -171,20 +169,23 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
   }
 
   @Override public final void onNext(final T element) {
+    logger.info("subscriber.next: {}", element);
     // As per rule 2.13, we need to throw a `java.lang.NullPointerException` if the `element` is `null`
     if (element == null) throw null;
 
     signal(new OnNext<T>(element));
   }
 
-  @Override public final void onError(final Throwable t) {
+  @Override public final void onError(final Throwable throwable) {
+    logger.error("subscriber.error", throwable);
     // As per rule 2.13, we need to throw a `java.lang.NullPointerException` if the `Throwable` is `null`
-    if (t == null) throw null;
+    if (throwable == null) throw null;
 
-    signal(new OnError(t));
+    signal(new OnError(throwable));
   }
 
   @Override public final void onComplete() {
+    logger.info("subscriber.complete");
      signal(OnComplete.Instance);
   }
 
