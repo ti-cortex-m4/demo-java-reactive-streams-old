@@ -29,7 +29,6 @@ public class PushSubscriber<T> implements Flow.Subscriber<T> {
 
     @Override
     public void onNext(T item) {
-        Delay.delay();
         logger.info("({}) subscriber.next: {}", id, item);
     }
 

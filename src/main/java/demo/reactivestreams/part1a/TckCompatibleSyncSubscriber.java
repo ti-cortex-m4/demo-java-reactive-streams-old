@@ -48,7 +48,7 @@ public class TckCompatibleSyncSubscriber<T> implements Flow.Subscriber<T> {
 
         if (!done) {
             if (whenNext(element)) {
-                this.subscription.request(1);
+                subscription.request(1);
             } else {
                 done();
             }

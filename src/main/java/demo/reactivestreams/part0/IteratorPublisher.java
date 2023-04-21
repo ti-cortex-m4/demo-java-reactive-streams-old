@@ -23,7 +23,6 @@ public class IteratorPublisher<T> implements Flow.Publisher<T> {
     public void subscribe(Flow.Subscriber<? super T> subscriber) {
         IteratorSubscription subscription = new IteratorSubscription(subscriber);
         subscriber.onSubscribe(subscription);
-        subscription.onSubscribed();
     }
 
     private class IteratorSubscription implements Flow.Subscription {
@@ -31,19 +30,10 @@ public class IteratorPublisher<T> implements Flow.Publisher<T> {
         private final Flow.Subscriber<? super T> subscriber;
         private final Iterator<? extends T> iterator;
         private final AtomicBoolean terminated = new AtomicBoolean(false);
-        private final AtomicReference<Throwable> error = new AtomicReference<>();
 
         IteratorSubscription(Flow.Subscriber<? super T> subscriber) {
             this.subscriber = subscriber;
-            Iterator<? extends T> iterator = null;
-
-            try {
-                iterator = iteratorSupplier.get();
-            } catch (Throwable e) {
-                error.set(e);
-            }
-
-            this.iterator = iterator;
+            this.iterator = iteratorSupplier.get();
         }
 
         @Override
@@ -74,13 +64,6 @@ public class IteratorPublisher<T> implements Flow.Publisher<T> {
         public void cancel() {
             logger.info("subscription.cancel");
             terminated.getAndSet(true);
-        }
-
-        void onSubscribed() {
-            Throwable throwable = error.get();
-            if ((throwable != null) && !terminated.getAndSet(true)) {
-                subscriber.onError(throwable);
-            }
         }
     }
 }

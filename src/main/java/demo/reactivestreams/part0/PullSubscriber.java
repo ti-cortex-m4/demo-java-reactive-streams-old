@@ -29,7 +29,7 @@ public class PullSubscriber<T> implements Flow.Subscriber<T> {
     @Override
     public void onNext(T item) {
         logger.info("({}) subscriber.next: {}", id, item);
-        this.subscription.request(1);
+        subscription.request(1);
     }
 
     @Override
