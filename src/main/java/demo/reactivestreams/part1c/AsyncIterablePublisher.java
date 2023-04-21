@@ -1,9 +1,5 @@
 package demo.reactivestreams.part1c;
 
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -61,6 +57,7 @@ public class AsyncIterablePublisher<T> implements Flow.Publisher<T> {
   // This is our implementation of the Reactive Streams `Subscription`,
   // which represents the association between a `Publisher` and a `Subscriber`.
   final class SubscriptionImpl implements Flow.Subscription, Runnable {
+
     final Flow.Subscriber<? super T> subscriber; // We need a reference to the `Subscriber` so we can talk to it
     private boolean cancelled = false; // This flag will track whether this `Subscription` is to be considered cancelled or not
     private long demand = 0; // Here we track the current demand, i.e. what has been requested but not yet delivered
@@ -77,7 +74,7 @@ public class AsyncIterablePublisher<T> implements Flow.Publisher<T> {
 
     // We are using this `AtomicBoolean` to make sure that this `Subscription` doesn't run concurrently with itself,
     // which would violate rule 1.3 among others (no concurrent notifications).
-    private final AtomicBoolean on = new AtomicBoolean(false);
+    private final AtomicBoolean mutex = new AtomicBoolean(false);
 
     // This method will register inbound demand from our `Subscriber` and validate it against rule 3.9 and rule 3.17
     private void doRequest(final long n) {
@@ -190,12 +187,12 @@ public class AsyncIterablePublisher<T> implements Flow.Publisher<T> {
     // What `signal` does is that it sends signals to the `Subscription` asynchronously
     private void signal(final Signal signal) {
       if (inboundSignals.offer(signal)) // No need to null-check here as ConcurrentLinkedQueue does this for us
-        tryScheduleToExecute(); // Then we try to schedule it for execution, if it isn't already
+        tryExecute(); // Then we try to schedule it for execution, if it isn't already
     }
 
     // This is the main "event loop" if you so will
     @Override public final void run() {
-      if(on.get()) { // establishes a happens-before relationship with the end of the previous run
+      if(mutex.get()) { // establishes a happens-before relationship with the end of the previous run
         try {
           final Signal s = inboundSignals.poll(); // We take a signal off the queue
           if (!cancelled) { // to make sure that we follow rule 1.8, 3.6 and 3.7
@@ -211,17 +208,17 @@ public class AsyncIterablePublisher<T> implements Flow.Publisher<T> {
               doSubscribe();
           }
         } finally {
-          on.set(false); // establishes a happens-before relationship with the beginning of the next run
+          mutex.set(false); // establishes a happens-before relationship with the beginning of the next run
           if(!inboundSignals.isEmpty()) // If we still have signals to process
-            tryScheduleToExecute(); // Then we try to schedule ourselves to execute again
+            tryExecute(); // Then we try to schedule ourselves to execute again
         }
       }
     }
 
     // This method makes sure that this `Subscription` is only running on one Thread at a time,
     // this is important to make sure that we follow rule 1.3
-    private final void tryScheduleToExecute() {
-      if(on.compareAndSet(false, true)) {
+    private final void tryExecute() {
+      if(mutex.compareAndSet(false, true)) {
         try {
           executor.execute(this);
         } catch(Throwable t) { // If we can't run on the `Executor`, we need to fail gracefully
@@ -233,7 +230,7 @@ public class AsyncIterablePublisher<T> implements Flow.Publisher<T> {
               inboundSignals.clear(); // We're not going to need these anymore
               // This subscription is cancelled by now, but letting it become schedulable again means
               // that we can drain the inboundSignals queue if anything arrives after clearing
-              on.set(false);
+              mutex.set(false);
             }
           }
         }
