@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * AsyncSubscriber is an implementation of Reactive Streams `Subscriber`,
  * it runs asynchronously (on an Executor), requests one element
  * at a time, and invokes a user-defined method to process each element.
- *
+ * <p>
  * NOTE: The code below uses a lot of try-catches to show the reader where exceptions can be expected, and where they are forbidden.
  */
 public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
@@ -148,60 +148,43 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
         signal(new OnComplete());
     }
 
-    // This `ConcurrentLinkedQueue` will track signals that are sent to this `Subscriber`, like `OnComplete` and `OnNext` ,
-    // and obeying rule 2.11
-    private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<Signal>();
+    private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<>();
+    private final AtomicBoolean mutex = new AtomicBoolean(false);
 
-    // We are using this `AtomicBoolean` to make sure that this `Subscriber` doesn't run concurrently with itself,
-    // obeying rule 2.7 and 2.11
-    private final AtomicBoolean on = new AtomicBoolean(false);
-
-//    @SuppressWarnings("unchecked")
     @Override
     public final void run() {
-        if (on.get()) { // establishes a happens-before relationship with the end of the previous run
+        if (mutex.get()) {
             try {
-                final Signal s = inboundSignals.poll(); // We take a signal off the queue
-                if (!done) { // If we're done, we shouldn't process any more signals, obeying rule 2.8
-                    s.run();
-//                    // Below we simply unpack the `Signal`s and invoke the corresponding methods
-//                    if (s instanceof OnNext<?>)
-//                        handleOnNext(((OnNext<T>) s).next);
-//                    else if (s instanceof OnSubscribe)
-//                        handleOnSubscribe(((OnSubscribe) s).subscription);
-//                    else if (s instanceof OnError) // We are always able to handle OnError, obeying rule 2.10
-//                        handleOnError(((OnError) s).error);
-//                    else if (s instanceof OnComplete) // We are always able to handle OnComplete, obeying rule 2.9
-//                        handleOnComplete();
+                Signal signal = inboundSignals.poll();
+                if (!done) {
+                    signal.run();
                 }
             } finally {
-                on.set(false); // establishes a happens-before relationship with the beginning of the next run
-                if (!inboundSignals.isEmpty()) // If we still have signals to process
-                    tryScheduleToExecute(); // Then we try to schedule ourselves to execute again
+                mutex.set(false);
+                if (!inboundSignals.isEmpty()) {
+                    tryExecute();
+                }
             }
         }
     }
 
-    // What `signal` does is that it sends signals to the `Subscription` asynchronously
-    private void signal(final Signal signal) {
-        if (inboundSignals.offer(signal)) // No need to null-check here as ConcurrentLinkedQueue does this for us
-            tryScheduleToExecute(); // Then we try to schedule it for execution, if it isn't already
+    private void signal(Signal signal) {
+        if (inboundSignals.offer(signal)) {
+            tryExecute();
+        }
     }
 
-    // This method makes sure that this `Subscriber` is only executing on one Thread at a time
-    private final void tryScheduleToExecute() {
-        if (on.compareAndSet(false, true)) {
+    private void tryExecute() {
+        if (mutex.compareAndSet(false, true)) {
             try {
                 executor.execute(this);
-            } catch (Throwable t) { // If we can't run on the `Executor`, we need to fail gracefully and not violate rule 2.13
+            } catch (Throwable throwable) {
                 if (!done) {
                     try {
-                        done(); // First of all, this failure is not recoverable, so we need to cancel our subscription
+                        done();
                     } finally {
-                        inboundSignals.clear(); // We're not going to need these anymore
-                        // This subscription is cancelled by now, but letting the Subscriber become schedulable again means
-                        // that we can drain the inboundSignals queue if anything arrives after clearing
-                        on.set(false);
+                        inboundSignals.clear();
+                        mutex.set(false);
                     }
                 }
             }
