@@ -90,7 +90,7 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
 
   // This method is invoked if the OnError signal arrives
   // override this method to implement your own custom onError logic.
-  protected void whenError(Throwable error) { }
+  protected void whenError(Throwable throwable) { }
 
   private final void handleOnSubscribe(final Flow.Subscription s) {
     if (s == null) {
@@ -147,15 +147,9 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
     }
   }
 
-  // Here it is important that we do not violate 2.2 and 2.3 by calling methods on the `Subscription` or `Publisher`
-  private void handleOnError(final Throwable error) {
-    if (subscription == null) { // Technically this check is not needed, since we are expecting Publishers to conform to the spec
-      // Publisher is not allowed to signal onError before onSubscribe according to rule 1.09
-      (new IllegalStateException("Publisher violated the Reactive Streams rule 1.09 signalling onError prior to onSubscribe.")).printStackTrace(System.err);
-    } else {
-      done = true; // Obey rule 2.4
-      whenError(error);
-    }
+  private void handleOnError( Throwable throwable) {
+      done = true;
+      whenError(throwable);
   }
 
   // Here it is important that we do not violate 2.2 and 2.3 by calling methods on the `Subscription` or `Publisher`
