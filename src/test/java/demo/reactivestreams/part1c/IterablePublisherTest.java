@@ -1,10 +1,9 @@
 package demo.reactivestreams.part1c;
 
 import org.reactivestreams.Publisher;
-import org.reactivestreams.example.unicast.publisher.AsyncIterablePublisher;
-import org.reactivestreams.example.unicast.publisher.NumberIterablePublisher;
 import org.reactivestreams.tck.PublisherVerification;
 import org.reactivestreams.tck.TestEnvironment;
+import org.reactivestreams.tck.flow.FlowPublisherVerification;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -12,9 +11,10 @@ import org.testng.annotations.Test;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Flow;
 
-@Test // Must be here for TestNG to find and run this, do not remove
-public class IterablePublisherTest extends PublisherVerification<Integer> {
+@Test
+public class IterablePublisherTest extends FlowPublisherVerification<Integer> {
 
   private ExecutorService e;
   @BeforeClass void before() { e = Executors.newFixedThreadPool(4); }
@@ -25,12 +25,12 @@ public class IterablePublisherTest extends PublisherVerification<Integer> {
   }
 
   @SuppressWarnings("unchecked")
-  @Override public Publisher<Integer> createPublisher(final long elements) {
+  @Override public Flow.Publisher<Integer> createFlowPublisher(final long elements) {
     assert(elements <= maxElementsFromPublisher());
     return new NumberIterablePublisher(0, (int)elements, e);
   }
 
-  @Override public Publisher<Integer> createFailedPublisher() {
+  @Override public Flow.Publisher<Integer> createFailedFlowPublisher() {
     return new AsyncIterablePublisher<Integer>(new Iterable<Integer>() {
       @Override public Iterator<Integer> iterator() {
         throw new RuntimeException("Error state signal!");
