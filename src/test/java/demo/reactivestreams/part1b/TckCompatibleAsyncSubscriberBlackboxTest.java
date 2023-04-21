@@ -17,19 +17,19 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.testng.Assert.assertEquals;
 
-@Test // Must be here for TestNG to find and run this, do not remove
-public class AsyncSubscriberTest extends FlowSubscriberBlackboxVerification<Integer> {
+@Test
+public class TckCompatibleAsyncSubscriberBlackboxTest extends FlowSubscriberBlackboxVerification<Integer> {
 
   private ExecutorService e;
   @BeforeClass void before() { e = Executors.newFixedThreadPool(4); }
   @AfterClass void after() { if (e != null) e.shutdown(); }
 
-  public AsyncSubscriberTest() {
+  public TckCompatibleAsyncSubscriberBlackboxTest() {
     super(new TestEnvironment());
   }
 
   @Override public Flow.Subscriber<Integer> createFlowSubscriber() {
-    return new AsyncSubscriber<Integer>(e) {
+    return new TckCompatibleAsyncSubscriber<Integer>(0, e) {
       @Override protected boolean whenNext(final Integer element) {
         return true;
       }
@@ -40,7 +40,7 @@ public class AsyncSubscriberTest extends FlowSubscriberBlackboxVerification<Inte
 
     final AtomicLong i = new AtomicLong(Long.MIN_VALUE);
     final CountDownLatch latch = new CountDownLatch(1);
-    final Flow.Subscriber<Integer> sub =  new AsyncSubscriber<Integer>(e) {
+    final Flow.Subscriber<Integer> sub =  new TckCompatibleAsyncSubscriber<Integer>(0, e) {
       private long acc;
       @Override protected boolean whenNext(final Integer element) {
         acc += element;

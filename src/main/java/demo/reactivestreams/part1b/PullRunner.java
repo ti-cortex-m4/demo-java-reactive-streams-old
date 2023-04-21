@@ -14,10 +14,10 @@ public class PullRunner {
         IteratorPublisher<Integer> publisher = new IteratorPublisher<>(() -> List.copyOf(list).iterator());
 
         ExecutorService executorService = Executors.newFixedThreadPool(2);
-        AsyncSubscriber<Integer> subscriber1 = new AsyncSubscriber<Integer>(1, executorService);
+        TckCompatibleAsyncSubscriber<Integer> subscriber1 = new TckCompatibleAsyncSubscriber<Integer>(1, executorService);
         publisher.subscribe(subscriber1);
 
-        AsyncSubscriber<Integer> subscriber2 = new AsyncSubscriber<Integer>(2, executorService);
+        TckCompatibleAsyncSubscriber<Integer> subscriber2 = new TckCompatibleAsyncSubscriber<Integer>(2, executorService);
         publisher.subscribe(subscriber2);
 
         subscriber1.awaitCompletion();

@@ -9,9 +9,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
+public class TckCompatibleAsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(AsyncSubscriber.class);
+    private static final Logger logger = LoggerFactory.getLogger(TckCompatibleAsyncSubscriber.class);
 
     private interface Signal extends Runnable {
     }
@@ -83,7 +83,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     private Flow.Subscription subscription;
     private boolean done;
 
-    public AsyncSubscriber(int id, Executor executor) {
+    public TckCompatibleAsyncSubscriber(int id, Executor executor) {
         this.id = id;
         this.executor = executor;
     }
