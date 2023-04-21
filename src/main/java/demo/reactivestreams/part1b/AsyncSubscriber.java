@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -16,7 +17,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     private class OnSubscribe implements Signal {
-        public final Flow.Subscription s;
+        private final Flow.Subscription s;
 
         public OnSubscribe(Flow.Subscription s) {
             this.s = s;
@@ -34,7 +35,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     private class OnNext implements Signal {
-        public final T element;
+        private final T element;
 
         public OnNext(T element) {
             this.element = element;
@@ -53,7 +54,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     private class OnError implements Signal {
-        public final Throwable throwable;
+        private final Throwable throwable;
 
         public OnError(Throwable throwable) {
             this.throwable = throwable;
@@ -76,12 +77,17 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     private final Executor executor;
+    private final CountDownLatch completed = new CountDownLatch(1);
 
     private Flow.Subscription subscription;
     private boolean done;
 
-    protected AsyncSubscriber(Executor executor) {
+    public AsyncSubscriber(Executor executor) {
         this.executor = executor;
+    }
+
+    public void getCompletedAwait() throws InterruptedException {
+        completed.await();
     }
 
     private void done() {
@@ -97,6 +103,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     protected void whenComplete() {
+        completed.countDown();
     }
 
     @Override
