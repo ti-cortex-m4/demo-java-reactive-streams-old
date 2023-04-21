@@ -16,10 +16,10 @@ public class Runner {
         SyncSubscriber<Integer> subscriber1 = new SyncSubscriber<>(1);
         publisher.subscribe(subscriber1);
 
-        SyncSubscriber<Integer> subscriber2 = new SyncSubscriber<>(2);
-        publisher.subscribe(subscriber2);
+//        SyncSubscriber<Integer> subscriber2 = new SyncSubscriber<>(2);
+//        publisher.subscribe(subscriber2);
 
         subscriber1.awaitCompletion();
-        subscriber2.awaitCompletion();
+//        subscriber2.awaitCompletion();
     }
 }

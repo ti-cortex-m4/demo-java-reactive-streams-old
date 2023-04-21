@@ -1,7 +1,3 @@
-/***************************************************
- * Licensed under MIT No Attribution (SPDX: MIT-0) *
- ***************************************************/
-
 package demo.reactivestreams.part1c;
 
 import org.reactivestreams.Publisher;
@@ -12,6 +8,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -21,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * NOTE: The code below uses a lot of try-catches to show the reader where exceptions can be expected, and where they are forbidden.
  */
-public class AsyncIterablePublisher<T> implements Publisher<T> {
+public class AsyncIterablePublisher<T> implements Flow.Publisher<T> {
   private final static int DEFAULT_BATCHSIZE = 1024;
 
   private final Iterable<T> elements; // This is our data source / generator
@@ -42,7 +39,7 @@ public class AsyncIterablePublisher<T> implements Publisher<T> {
   }
 
   @Override
-  public void subscribe(final Subscriber<? super T> s) {
+  public void subscribe(final Flow.Subscriber<? super T> s) {
     // As per rule 1.11, we have decided to support multiple subscribers in a unicast configuration
     // for this `Publisher` implementation.
     // As per 2.13, this method must return normally (i.e. not throw)
@@ -63,13 +60,13 @@ public class AsyncIterablePublisher<T> implements Publisher<T> {
 
   // This is our implementation of the Reactive Streams `Subscription`,
   // which represents the association between a `Publisher` and a `Subscriber`.
-  final class SubscriptionImpl implements Subscription, Runnable {
-    final Subscriber<? super T> subscriber; // We need a reference to the `Subscriber` so we can talk to it
+  final class SubscriptionImpl implements Flow.Subscription, Runnable {
+    final Flow.Subscriber<? super T> subscriber; // We need a reference to the `Subscriber` so we can talk to it
     private boolean cancelled = false; // This flag will track whether this `Subscription` is to be considered cancelled or not
     private long demand = 0; // Here we track the current demand, i.e. what has been requested but not yet delivered
     private Iterator<T> iterator; // This is our cursor into the data stream, which we will send to the `Subscriber`
 
-    SubscriptionImpl(final Subscriber<? super T> subscriber) {
+    SubscriptionImpl(final Flow.Subscriber<? super T> subscriber) {
       // As per rule 1.09, we need to throw a `java.lang.NullPointerException` if the `Subscriber` is `null`
       if (subscriber == null) throw null;
       this.subscriber = subscriber;
@@ -110,7 +107,7 @@ public class AsyncIterablePublisher<T> implements Publisher<T> {
         if (iterator == null)
           iterator = Collections.<T>emptyList().iterator(); // So we can assume that `iterator` is never null
       } catch(final Throwable t) {
-        subscriber.onSubscribe(new Subscription() { // We need to make sure we signal onSubscribe before onError, obeying rule 1.9
+        subscriber.onSubscribe(new Flow.Subscription() { // We need to make sure we signal onSubscribe before onError, obeying rule 1.9
           @Override public void cancel() {}
           @Override public void request(long n) {}
         });

@@ -1,7 +1,3 @@
-/***************************************************
- * Licensed under MIT No Attribution (SPDX: MIT-0) *
- ***************************************************/
-
 package demo.reactivestreams.part1c;
 
 import java.util.Collections;
