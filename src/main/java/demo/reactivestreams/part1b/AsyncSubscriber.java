@@ -79,18 +79,13 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
     }
   }
 
-  // This method is invoked when the OnNext signals arrive
-  // Returns whether more elements are desired or not, and if no more elements are desired,
-  // for convenience.
-  protected abstract boolean whenNext(final T element);
+  protected abstract boolean whenNext(T element);
 
-  // This method is invoked when the OnComplete signal arrives
-  // override this method to implement your own custom onComplete logic.
-  protected void whenComplete() { }
+  protected void whenComplete() {
+  }
 
-  // This method is invoked if the OnError signal arrives
-  // override this method to implement your own custom onError logic.
-  protected void whenError(Throwable throwable) { }
+  protected void whenError(Throwable throwable) {
+  }
 
   private final void handleOnSubscribe(final Flow.Subscription s) {
     if (s == null) {
@@ -117,54 +112,28 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
     }
   }
 
-  private final void handleOnNext(final T element) {
-    if (!done) { // If we aren't already done
-      if(subscription == null) { // Technically this check is not needed, since we are expecting Publishers to conform to the spec
-        // Check for spec violation of 2.1 and 1.09
-        (new IllegalStateException("Someone violated the Reactive Streams rule 1.09 and 2.1 by signalling OnNext before `Subscription.request`. (no Subscription)")).printStackTrace(System.err);
+  private void handleOnNext(T element) {
+    if (!done) {
+      if (whenNext(element)) {
+        subscription.request(1);
       } else {
-        try {
-          if (whenNext(element)) {
-            try {
-              subscription.request(1); // Our Subscriber is unbuffered and modest, it requests one element at a time
-            } catch(final Throwable t) {
-              // Subscription.request is not allowed to throw according to rule 3.16
-              (new IllegalStateException(subscription + " violated the Reactive Streams rule 3.16 by throwing an exception from request.", t)).printStackTrace(System.err);
-            }
-          } else {
-            done(); // This is legal according to rule 2.6
-          }
-        } catch(final Throwable t) {
-          done();
-          try {  
-            onError(t);
-          } catch(final Throwable t2) {
-            //Subscriber.onError is not allowed to throw an exception, according to rule 2.13
-            (new IllegalStateException(this + " violated the Reactive Streams rule 2.13 by throwing an exception from onError.", t2)).printStackTrace(System.err);
-          }
-        }
+        done();
       }
     }
   }
 
-  private void handleOnError( Throwable throwable) {
-      done = true;
-      whenError(throwable);
+  private void handleOnError(Throwable throwable) {
+    done = true;
+    whenError(throwable);
   }
 
-  // Here it is important that we do not violate 2.2 and 2.3 by calling methods on the `Subscription` or `Publisher`
   private void handleOnComplete() {
-    if (subscription == null) { // Technically this check is not needed, since we are expecting Publishers to conform to the spec
-      // Publisher is not allowed to signal onComplete before onSubscribe according to rule 1.09
-      (new IllegalStateException("Publisher violated the Reactive Streams rule 1.09 signalling onComplete prior to onSubscribe.")).printStackTrace(System.err);
-    } else {
-      done = true; // Obey rule 2.4
-      whenComplete();
-    }
+    done = true;
+    whenComplete();
   }
 
   @Override
-  public final void onSubscribe(final Flow.Subscription s) {
+  public  void onSubscribe(Flow.Subscription s) {
     logger.info("subscriber.subscribe: {}", s);
     if (s == null) {
       throw new NullPointerException();
@@ -174,7 +143,7 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
   }
 
   @Override
-  public final void onNext(final T element) {
+  public  void onNext( T element) {
     logger.info("subscriber.next: {}", element);
     if (element == null) {
       throw new NullPointerException();
@@ -184,7 +153,7 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
   }
 
   @Override
-  public final void onError(final Throwable throwable) {
+  public  void onError( Throwable throwable) {
     logger.error("subscriber.error", throwable);
     if (throwable == null) {
       throw new NullPointerException();
@@ -194,7 +163,7 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
   }
 
   @Override
-  public final void onComplete() {
+  public  void onComplete() {
     logger.info("subscriber.complete");
     signal(OnComplete.Instance);
   }
