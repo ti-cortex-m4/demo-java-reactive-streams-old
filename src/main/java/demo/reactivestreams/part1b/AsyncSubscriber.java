@@ -23,34 +23,55 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
 
     private static final Logger logger = LoggerFactory.getLogger(AsyncSubscriber.class);
 
-    private static interface Signal {
+    private interface Signal extends Runnable {
     }
 
-    private static class OnSubscribe implements Signal {
+    private class OnSubscribe implements Signal {
         public final Flow.Subscription subscription;
 
         public OnSubscribe(Flow.Subscription subscription) {
             this.subscription = subscription;
         }
+
+        @Override
+        public void run() {
+            handleOnSubscribe(subscription);
+        }
     }
 
-    private static class OnNext<T> implements Signal {
+    private class OnNext implements Signal {
         public final T next;
 
         public OnNext(T next) {
             this.next = next;
         }
-    }
 
-    private static class OnError implements Signal {
-        public final Throwable error;
-
-        public OnError(Throwable error) {
-            this.error = error;
+        @Override
+        public void run() {
+            handleOnNext(next);
         }
     }
 
-    private enum OnComplete implements Signal {Instance;}
+    private class OnError implements Signal {
+        public final Throwable throwable;
+
+        public OnError(Throwable throwable) {
+            this.throwable = throwable;
+        }
+
+        @Override
+        public void run() {
+            handleOnError(throwable);
+        }
+    }
+
+    private class OnComplete implements Signal {
+
+        @Override
+        public void run() {
+            handleOnComplete();
+        }
+    }
 
     private Flow.Subscription subscription; // Obeying rule 3.1, we make this private!
     private boolean done; // It's useful to keep track of whether this Subscriber is done or not
@@ -130,7 +151,7 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
             throw new NullPointerException();
         }
 
-        signal(new OnNext<T>(element));
+        signal(new OnNext(element));
     }
 
     @Override
@@ -146,7 +167,7 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
     @Override
     public void onComplete() {
         logger.info("subscriber.complete");
-        signal(OnComplete.Instance);
+        signal(new OnComplete());
     }
 
     // This `ConcurrentLinkedQueue` will track signals that are sent to this `Subscriber`, like `OnComplete` and `OnNext` ,
@@ -164,15 +185,16 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
             try {
                 final Signal s = inboundSignals.poll(); // We take a signal off the queue
                 if (!done) { // If we're done, we shouldn't process any more signals, obeying rule 2.8
-                    // Below we simply unpack the `Signal`s and invoke the corresponding methods
-                    if (s instanceof OnNext<?>)
-                        handleOnNext(((OnNext<T>) s).next);
-                    else if (s instanceof OnSubscribe)
-                        handleOnSubscribe(((OnSubscribe) s).subscription);
-                    else if (s instanceof OnError) // We are always able to handle OnError, obeying rule 2.10
-                        handleOnError(((OnError) s).error);
-                    else if (s == OnComplete.Instance) // We are always able to handle OnComplete, obeying rule 2.9
-                        handleOnComplete();
+                    s.run();
+//                    // Below we simply unpack the `Signal`s and invoke the corresponding methods
+//                    if (s instanceof OnNext<?>)
+//                        handleOnNext(((OnNext<T>) s).next);
+//                    else if (s instanceof OnSubscribe)
+//                        handleOnSubscribe(((OnSubscribe) s).subscription);
+//                    else if (s instanceof OnError) // We are always able to handle OnError, obeying rule 2.10
+//                        handleOnError(((OnError) s).error);
+//                    else if (s instanceof OnComplete) // We are always able to handle OnComplete, obeying rule 2.9
+//                        handleOnComplete();
                 }
             } finally {
                 on.set(false); // establishes a happens-before relationship with the beginning of the next run
