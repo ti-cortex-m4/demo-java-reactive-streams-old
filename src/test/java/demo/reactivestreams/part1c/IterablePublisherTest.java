@@ -1,7 +1,5 @@
 package demo.reactivestreams.part1c;
 
-import org.reactivestreams.Publisher;
-import org.reactivestreams.tck.PublisherVerification;
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowPublisherVerification;
 import org.testng.annotations.AfterClass;
@@ -12,33 +10,52 @@ import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
+import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 
 @Test
 public class IterablePublisherTest extends FlowPublisherVerification<Integer> {
 
-  private ExecutorService e;
-  @BeforeClass void before() { e = Executors.newFixedThreadPool(4); }
-  @AfterClass void after() { if (e != null) e.shutdown(); }
+    private ExecutorService executorService;
 
-  public IterablePublisherTest() {
-    super(new TestEnvironment());
-  }
+    @BeforeClass
+    void before() {
+        executorService = Executors.newFixedThreadPool(4);
+    }
 
-  @SuppressWarnings("unchecked")
-  @Override public Flow.Publisher<Integer> createFlowPublisher(final long elements) {
-    assert(elements <= maxElementsFromPublisher());
-    return new NumberIterablePublisher(0, (int)elements, e);
-  }
+    @AfterClass
+    void after() {
+        if (executorService != null) {
+            executorService.shutdown();
+        }
+    }
 
-  @Override public Flow.Publisher<Integer> createFailedFlowPublisher() {
-    return new AsyncIterablePublisher<Integer>(new Iterable<Integer>() {
-      @Override public Iterator<Integer> iterator() {
-        throw new RuntimeException("Error state signal!");
-      }
-    }, e);
-  }
+    public IterablePublisherTest() {
+        super(new TestEnvironment());
+    }
 
-  @Override public long maxElementsFromPublisher() {
-    return Integer.MAX_VALUE;
-  }
+    @Override
+    public Flow.Publisher<Integer> createFlowPublisher(final long elements) {
+        assert (elements <= maxElementsFromPublisher());
+        Iterator<Integer> iterator = Stream
+            .iterate(0, UnaryOperator.identity())
+            .limit(elements)
+            .iterator();
+        return new AsyncIterablePublisher<>(() -> iterator, executorService);
+    }
+
+    @Override
+    public Flow.Publisher<Integer> createFailedFlowPublisher() {
+        return new AsyncIterablePublisher<Integer>(new Iterable<Integer>() {
+            @Override
+            public Iterator<Integer> iterator() {
+                throw new RuntimeException("Error state signal!");
+            }
+        }, executorService);
+    }
+
+    @Override
+    public long maxElementsFromPublisher() {
+        return Integer.MAX_VALUE;
+    }
 }
