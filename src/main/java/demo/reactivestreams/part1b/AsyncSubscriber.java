@@ -93,6 +93,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     private void done() {
+        logger.info("({}) subscriber.done", id);
         done = true;
         subscription.cancel();
     }
@@ -148,10 +149,11 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     private final AtomicBoolean mutex = new AtomicBoolean(false);
 
     @Override
-    public final void run() {
+    public void run() {
         if (mutex.get()) {
             try {
                 Signal signal = inboundSignals.poll();
+                //logger.info("({}) subscriber.poll {}", id,signal);
                 if (!done) {
                     signal.run();
                 }
@@ -165,6 +167,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     private void signal(Signal signal) {
+        //logger.info("({}) subscriber.offer {}", id,signal);
         if (inboundSignals.offer(signal)) {
             tryExecute();
         }
