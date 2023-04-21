@@ -81,36 +81,26 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
         }
     }
 
-    private Flow.Subscription subscription; // Obeying rule 3.1, we make this private!
-    private boolean done; // It's useful to keep track of whether this Subscriber is done or not
-
     private final Executor executor;
+
+    private Flow.Subscription subscription;
+    private boolean done;
 
     protected AsyncSubscriber(Executor executor) {
         this.executor = executor;
     }
 
-    // Showcases a convenience method to idempotently marking the Subscriber as "done", so we don't want to process more elements
-    // herefor we also need to cancel our `Subscription`.
-    private final void done() {
-        //On this line we could add a guard against `!done`, but since rule 3.7 says that `Subscription.cancel()` is idempotent, we don't need to.
-        done = true; // If `whenNext` throws an exception, let's consider ourselves done (not accepting more elements)
-        if (subscription != null) { // If we are bailing out before we got a `Subscription` there's little need for cancelling it.
-            try {
-                subscription.cancel(); // Cancel the subscription
-            } catch (final Throwable t) {
-                //Subscription.cancel is not allowed to throw an exception, according to rule 3.15
-                (new IllegalStateException(subscription + " violated the Reactive Streams rule 3.15 by throwing an exception from cancel.", t)).printStackTrace(System.err);
-            }
-        }
+    private void done() {
+        done = true;
+        subscription.cancel();
+    }
+
+    protected void whenError(Throwable throwable) {
     }
 
     protected abstract boolean whenNext(T element);
 
     protected void whenComplete() {
-    }
-
-    protected void whenError(Throwable throwable) {
     }
 
     private void handleOnSubscribe(Flow.Subscription subscription) {
