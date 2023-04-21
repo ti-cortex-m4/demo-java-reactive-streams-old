@@ -88,7 +88,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
         this.executor = executor;
     }
 
-    public void getCompletedAwait() throws InterruptedException {
+    public void awaitCompletion() throws InterruptedException {
         completed.await();
     }
 
