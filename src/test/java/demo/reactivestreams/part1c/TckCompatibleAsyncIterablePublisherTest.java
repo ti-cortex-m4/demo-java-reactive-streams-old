@@ -14,7 +14,7 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
 @Test
-public class IterablePublisherTest extends FlowPublisherVerification<Integer> {
+public class TckCompatibleAsyncIterablePublisherTest extends FlowPublisherVerification<Integer> {
 
     private ExecutorService executorService;
 
@@ -30,7 +30,7 @@ public class IterablePublisherTest extends FlowPublisherVerification<Integer> {
         }
     }
 
-    public IterablePublisherTest() {
+    public TckCompatibleAsyncIterablePublisherTest() {
         super(new TestEnvironment());
     }
 
@@ -41,12 +41,12 @@ public class IterablePublisherTest extends FlowPublisherVerification<Integer> {
             .iterate(0, UnaryOperator.identity())
             .limit(elements)
             .iterator();
-        return new AsyncIterablePublisher<>(() -> iterator, executorService);
+        return new TckCompatibleAsyncIterablePublisher<>(() -> iterator, executorService);
     }
 
     @Override
     public Flow.Publisher<Integer> createFailedFlowPublisher() {
-        return new AsyncIterablePublisher<Integer>(new Iterable<Integer>() {
+        return new TckCompatibleAsyncIterablePublisher<Integer>(new Iterable<Integer>() {
             @Override
             public Iterator<Integer> iterator() {
                 throw new RuntimeException("Error state signal!");

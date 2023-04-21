@@ -1,7 +1,5 @@
 package demo.reactivestreams.part1c;
 
-import demo.reactivestreams.part1.TckCompatibleIteratorPublisher;
-
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -12,7 +10,7 @@ public class Runner {
     public static void main(String[] args) throws InterruptedException {
         List<Integer> list = List.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
         ExecutorService executorService = Executors.newFixedThreadPool(2);
-        AsyncIterablePublisher<Integer> publisher = new AsyncIterablePublisher<>(() -> list.iterator(),executorService);
+        TckCompatibleAsyncIterablePublisher<Integer> publisher = new TckCompatibleAsyncIterablePublisher<>(() -> list.iterator(),executorService);
 
         SyncSubscriber<Integer> subscriber1 = new SyncSubscriber<>(1);
         publisher.subscribe(subscriber1);

@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>
  * NOTE: The code below uses a lot of try-catches to show the reader where exceptions can be expected, and where they are forbidden.
  */
-public class AsyncIterablePublisher<T> implements Flow.Publisher<T> {
+public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T> {
 
     private final static int DEFAULT_BATCHSIZE = 1024;
 
@@ -22,11 +22,11 @@ public class AsyncIterablePublisher<T> implements Flow.Publisher<T> {
     private final Executor executor; // This is our thread pool, which will make sure that our Publisher runs asynchronously to its Subscribers
     private final int batchSize; // In general, if one uses an `Executor`, one should be nice nad not hog a thread for too long, this is the cap for that, in elements
 
-    public AsyncIterablePublisher(final Iterable<T> elements, final Executor executor) {
+    public TckCompatibleAsyncIterablePublisher(final Iterable<T> elements, final Executor executor) {
         this(elements, DEFAULT_BATCHSIZE, executor);
     }
 
-    public AsyncIterablePublisher(final Iterable<T> elements, final int batchSize, final Executor executor) {
+    public TckCompatibleAsyncIterablePublisher(final Iterable<T> elements, final int batchSize, final Executor executor) {
         if (elements == null) {
             throw new NullPointerException();
         }
@@ -47,23 +47,10 @@ public class AsyncIterablePublisher<T> implements Flow.Publisher<T> {
         new SubscriptionImpl(s).init();
     }
 
-    static interface Signal {
-    }
-
-    ;
-
+    static interface Signal {}
     enum Cancel implements Signal {Instance;}
-
-    ;
-
     enum Subscribe implements Signal {Instance;}
-
-    ;
-
     enum Send implements Signal {Instance;}
-
-    ;
-
     static final class Request implements Signal {
         final long n;
 
@@ -71,8 +58,6 @@ public class AsyncIterablePublisher<T> implements Flow.Publisher<T> {
             this.n = n;
         }
     }
-
-    ;
 
     // This is our implementation of the Reactive Streams `Subscription`,
     // which represents the association between a `Publisher` and a `Subscriber`.
@@ -196,12 +181,11 @@ public class AsyncIterablePublisher<T> implements Flow.Publisher<T> {
         }
 
         @Override
-        public final void run() {
+        public void run() {
             if (mutex.get()) {
                 try {
                     Signal signal = inboundSignals.poll();
                     if (!cancelled) {
-
                         if (signal instanceof Request)
                             doRequest(((Request) signal).n);
                         else if (signal == Send.Instance)
