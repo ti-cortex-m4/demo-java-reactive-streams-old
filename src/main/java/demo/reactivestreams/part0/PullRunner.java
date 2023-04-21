@@ -12,15 +12,13 @@ public class PullRunner {
         List<Integer> list = List.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
         IteratorPublisher<Integer> publisher = new IteratorPublisher<>(() -> List.copyOf(list).iterator());
 
-        CountDownLatch completeLatch1 = new CountDownLatch(1);
-        Flow.Subscriber<Integer> subscriber1 = new PullSubscriber<>(1, completeLatch1,1,1);
+        PullSubscriber<Integer> subscriber1 = new PullSubscriber<>(1);
         publisher.subscribe(subscriber1);
 
-        CountDownLatch completeLatch2 = new CountDownLatch(1);
-        Flow.Subscriber<Integer> subscriber2 = new PullSubscriber<>(2, completeLatch2,1,1);
+        PullSubscriber<Integer> subscriber2 = new PullSubscriber<>(2);
         publisher.subscribe(subscriber2);
 
-        completeLatch1.await();
-        completeLatch2.await();
+        subscriber1.awaitCompletion();
+        subscriber2.awaitCompletion();
     }
 }

@@ -1,6 +1,5 @@
 package demo.reactivestreams.part0;
 
-import demo.reactivestreams.Delay;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,13 +11,12 @@ public class PullSubscriber<T> implements Flow.Subscriber<T> {
     private static final Logger logger = LoggerFactory.getLogger(PullSubscriber.class);
 
     private final int id;
-    private final CountDownLatch completeLatch;
+    private final CountDownLatch completed = new CountDownLatch(1);
 
     private Flow.Subscription subscription;
 
-    public PullSubscriber(int id, CountDownLatch completeLatch) {
+    public PullSubscriber(int id) {
         this.id = id;
-        this.completeLatch = completeLatch;
     }
 
     @Override
@@ -42,6 +40,14 @@ public class PullSubscriber<T> implements Flow.Subscriber<T> {
     @Override
     public void onComplete() {
         logger.info("({}) subscriber.complete", id);
-        completeLatch.countDown();
+        whenComplete();
+    }
+
+    public void awaitCompletion() throws InterruptedException {
+        completed.await();
+    }
+
+    protected void whenComplete() {
+        completed.countDown();
     }
 }
