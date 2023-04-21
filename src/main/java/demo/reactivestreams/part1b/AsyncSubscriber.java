@@ -23,33 +23,44 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
 
   private static final Logger logger = LoggerFactory.getLogger(AsyncSubscriber.class);
 
-  // Signal represents the asynchronous protocol between the Publisher and Subscriber
-  private static interface Signal {}
-
-  private enum OnComplete implements Signal { Instance; }
-
-  private static class OnError implements Signal {
-    public final Throwable error;
-    public OnError(final Throwable error) { this.error = error; }
-  }
-
-  private static class OnNext<T> implements Signal {
-    public final T next;
-    public OnNext(final T next) { this.next = next; }
+  private static interface Signal {
   }
 
   private static class OnSubscribe implements Signal {
     public final Flow.Subscription subscription;
-    public OnSubscribe(final Flow.Subscription subscription) { this.subscription = subscription; }
+
+    public OnSubscribe(final Flow.Subscription subscription) {
+      this.subscription = subscription;
+    }
   }
+
+  private static class OnNext<T> implements Signal {
+    public final T next;
+
+    public OnNext(final T next) {
+      this.next = next;
+    }
+  }
+
+  private static class OnError implements Signal {
+    public final Throwable error;
+
+    public OnError(final Throwable error) {
+      this.error = error;
+    }
+  }
+
+  private enum OnComplete implements Signal {Instance;}
 
   private Flow.Subscription subscription; // Obeying rule 3.1, we make this private!
   private boolean done; // It's useful to keep track of whether this Subscriber is done or not
-  private final Executor executor; // This is the Executor we'll use to be asynchronous, obeying rule 2.2
 
-  // Only one constructor, and it's only accessible for the subclasses
+  private final Executor executor;
+
   protected AsyncSubscriber(Executor executor) {
-    if (executor == null) throw null;
+    if (executor == null) {
+      throw new NullPointerException();
+    }
     this.executor = executor;
   }
 
@@ -158,35 +169,40 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
     }
   }
 
-  // We implement the OnX methods on `Subscriber` to send Signals that we will process asycnhronously, but only one at a time
-
-  @Override public final void onSubscribe(final Flow.Subscription s) {
+  @Override
+  public final void onSubscribe(final Flow.Subscription s) {
     logger.info("subscriber.subscribe: {}", s);
-    // As per rule 2.13, we need to throw a `java.lang.NullPointerException` if the `Subscription` is `null`
-    if (s == null) throw null;
+    if (s == null) {
+      throw new NullPointerException();
+    }
 
     signal(new OnSubscribe(s));
   }
 
-  @Override public final void onNext(final T element) {
+  @Override
+  public final void onNext(final T element) {
     logger.info("subscriber.next: {}", element);
-    // As per rule 2.13, we need to throw a `java.lang.NullPointerException` if the `element` is `null`
-    if (element == null) throw null;
+    if (element == null) {
+      throw new NullPointerException();
+    }
 
     signal(new OnNext<T>(element));
   }
 
-  @Override public final void onError(final Throwable throwable) {
+  @Override
+  public final void onError(final Throwable throwable) {
     logger.error("subscriber.error", throwable);
-    // As per rule 2.13, we need to throw a `java.lang.NullPointerException` if the `Throwable` is `null`
-    if (throwable == null) throw null;
+    if (throwable == null) {
+      throw new NullPointerException();
+    }
 
     signal(new OnError(throwable));
   }
 
-  @Override public final void onComplete() {
+  @Override
+  public final void onComplete() {
     logger.info("subscriber.complete");
-     signal(OnComplete.Instance);
+    signal(OnComplete.Instance);
   }
 
   // This `ConcurrentLinkedQueue` will track signals that are sent to this `Subscriber`, like `OnComplete` and `OnNext` ,
