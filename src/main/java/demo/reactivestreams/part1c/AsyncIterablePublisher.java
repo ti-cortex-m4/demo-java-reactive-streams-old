@@ -26,8 +26,12 @@ public class AsyncIterablePublisher<T> implements Flow.Publisher<T> {
   }
 
   public AsyncIterablePublisher(final Iterable<T> elements, final int batchSize, final Executor executor) {
-    if (elements == null) throw null;
-    if (executor == null) throw null;
+    if (elements == null) {
+            throw new NullPointerException();
+        }
+    if (executor == null) {
+            throw new NullPointerException();
+        }
     if (batchSize < 1) throw new IllegalArgumentException("batchSize must be greater than zero!");
     this.elements = elements;
     this.executor = executor;
@@ -63,17 +67,14 @@ public class AsyncIterablePublisher<T> implements Flow.Publisher<T> {
     private long demand = 0; // Here we track the current demand, i.e. what has been requested but not yet delivered
     private Iterator<T> iterator; // This is our cursor into the data stream, which we will send to the `Subscriber`
 
-    SubscriptionImpl(final Flow.Subscriber<? super T> subscriber) {
-      // As per rule 1.09, we need to throw a `java.lang.NullPointerException` if the `Subscriber` is `null`
-      if (subscriber == null) throw null;
+    SubscriptionImpl( Flow.Subscriber<? super T> subscriber) {
+      if (subscriber == null) {
+            throw new NullPointerException();
+        }
       this.subscriber = subscriber;
     }
 
-    // This `ConcurrentLinkedQueue` will track signals that are sent to this `Subscription`, like `request` and `cancel`
     private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<Signal>();
-
-    // We are using this `AtomicBoolean` to make sure that this `Subscription` doesn't run concurrently with itself,
-    // which would violate rule 1.3 among others (no concurrent notifications).
     private final AtomicBoolean mutex = new AtomicBoolean(false);
 
     // This method will register inbound demand from our `Subscriber` and validate it against rule 3.9 and rule 3.17
