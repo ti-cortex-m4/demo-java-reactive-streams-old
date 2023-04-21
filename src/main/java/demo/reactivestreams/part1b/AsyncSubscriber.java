@@ -29,7 +29,7 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
     private static class OnSubscribe implements Signal {
         public final Flow.Subscription subscription;
 
-        public OnSubscribe(final Flow.Subscription subscription) {
+        public OnSubscribe(Flow.Subscription subscription) {
             this.subscription = subscription;
         }
     }
@@ -37,7 +37,7 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
     private static class OnNext<T> implements Signal {
         public final T next;
 
-        public OnNext(final T next) {
+        public OnNext(T next) {
             this.next = next;
         }
     }
@@ -45,7 +45,7 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
     private static class OnError implements Signal {
         public final Throwable error;
 
-        public OnError(final Throwable error) {
+        public OnError(Throwable error) {
             this.error = error;
         }
     }
@@ -58,9 +58,6 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
     private final Executor executor;
 
     protected AsyncSubscriber(Executor executor) {
-        if (executor == null) {
-            throw new NullPointerException();
-        }
         this.executor = executor;
     }
 
@@ -160,7 +157,7 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
     // obeying rule 2.7 and 2.11
     private final AtomicBoolean on = new AtomicBoolean(false);
 
-    @SuppressWarnings("unchecked")
+//    @SuppressWarnings("unchecked")
     @Override
     public final void run() {
         if (on.get()) { // establishes a happens-before relationship with the end of the previous run
