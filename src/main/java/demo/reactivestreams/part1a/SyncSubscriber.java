@@ -23,7 +23,7 @@ public abstract class SyncSubscriber<T> implements Flow.Subscriber<T> {
             subscription.cancel();
         } else {
             this.subscription = subscription;
-            subscription.request(1);
+            this.subscription.request(1);
         }
     }
 
