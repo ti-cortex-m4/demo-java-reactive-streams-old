@@ -40,14 +40,10 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     @Override
     public void onComplete() {
         logger.info("({}) subscriber.complete", id);
-        whenComplete();
+        completed.countDown();
     }
 
     public void awaitCompletion() throws InterruptedException {
         completed.await();
-    }
-
-    protected void whenComplete() {
-        completed.countDown();
     }
 }

@@ -20,10 +20,6 @@ public class TckCompatibleSyncSubscriber<T> implements Flow.Subscriber<T> {
         this.id = id;
     }
 
-    public void awaitCompletion() throws InterruptedException {
-        completed.await();
-    }
-
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
         logger.info("({}) subscriber.subscribe: {}", id, subscription);
@@ -69,13 +65,17 @@ public class TckCompatibleSyncSubscriber<T> implements Flow.Subscriber<T> {
         completed.countDown();
     }
 
-    private void done() {
-        logger.info("({}) subscriber.done", id);
-        done = true;
-        subscription.cancel();
+    public void awaitCompletion() throws InterruptedException {
+        completed.await();
     }
 
     protected boolean whenNext(T element) {
         return true;
+    }
+
+    private void done() {
+        logger.info("({}) subscriber.done", id);
+        done = true;
+        subscription.cancel();
     }
 }

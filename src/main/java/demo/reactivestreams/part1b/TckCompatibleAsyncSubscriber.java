@@ -81,7 +81,7 @@ public class TckCompatibleAsyncSubscriber<T> implements Flow.Subscriber<T>, Runn
     private final CountDownLatch completed = new CountDownLatch(1);
 
     private Flow.Subscription subscription;
-    private boolean done;
+    private boolean done = false;
 
     public TckCompatibleAsyncSubscriber(int id, Executor executor) {
         this.id = id;

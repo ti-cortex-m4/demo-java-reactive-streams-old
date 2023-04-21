@@ -1,7 +1,5 @@
 package demo.reactivestreams.part1;
 
-import demo.reactivestreams.part0.SyncSubscriber;
-
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
