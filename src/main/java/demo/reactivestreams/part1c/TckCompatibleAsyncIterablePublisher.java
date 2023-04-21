@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 /**
  * AsyncIterablePublisher is an implementation of Reactive Streams `Publisher`
@@ -18,23 +19,23 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
 
     private final static int DEFAULT_BATCHSIZE = 1024;
 
-    private final Iterable<T> elements; // This is our data source / generator
+    private final Supplier<Iterator<T>> iteratorSupplier; // This is our data source / generator
     private final Executor executor; // This is our thread pool, which will make sure that our Publisher runs asynchronously to its Subscribers
     private final int batchSize; // In general, if one uses an `Executor`, one should be nice nad not hog a thread for too long, this is the cap for that, in elements
 
-    public TckCompatibleAsyncIterablePublisher(final Iterable<T> elements, final Executor executor) {
-        this(elements, DEFAULT_BATCHSIZE, executor);
+    public TckCompatibleAsyncIterablePublisher(Supplier<Iterator<T>> iteratorSupplier, final Executor executor) {
+        this(iteratorSupplier, DEFAULT_BATCHSIZE, executor);
     }
 
-    public TckCompatibleAsyncIterablePublisher(final Iterable<T> elements, final int batchSize, final Executor executor) {
-        if (elements == null) {
+    public TckCompatibleAsyncIterablePublisher(Supplier<Iterator<T>> iteratorSupplier, final int batchSize, final Executor executor) {
+        if (iteratorSupplier == null) {
             throw new NullPointerException();
         }
         if (executor == null) {
             throw new NullPointerException();
         }
         if (batchSize < 1) throw new IllegalArgumentException("batchSize must be greater than zero!");
-        this.elements = elements;
+        this.iteratorSupplier = iteratorSupplier;
         this.executor = executor;
         this.batchSize = batchSize;
     }
@@ -47,17 +48,6 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
         new SubscriptionImpl(s).init();
     }
 
-    static interface Signal {}
-    enum Cancel implements Signal {Instance;}
-    enum Subscribe implements Signal {Instance;}
-    enum Send implements Signal {Instance;}
-    static final class Request implements Signal {
-        final long n;
-
-        Request(final long n) {
-            this.n = n;
-        }
-    }
 
     // This is our implementation of the Reactive Streams `Subscription`,
     // which represents the association between a `Publisher` and a `Subscriber`.
@@ -103,7 +93,7 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
         // It also makes it easier to follow rule 1.9
         private void doSubscribe() {
             try {
-                iterator = elements.iterator();
+                iterator = iteratorSupplier.get();
                 if (iterator == null)
                     iterator = Collections.<T>emptyList().iterator(); // So we can assume that `iterator` is never null
             } catch (final Throwable t) {
@@ -165,7 +155,7 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
                 && --demand > 0);    // This makes sure that rule 1.1 is upheld (sending more than was demanded)
 
             if (!cancelled && demand > 0) // If the `Subscription` is still alive and well, and we have demand to satisfy, we signal ourselves to send more data
-                signal(Send.Instance);
+                signal(new Send());
         }
 
         // This is a helper method to ensure that we always `cancel` when we signal `onError` as per rule 1.6
@@ -174,7 +164,7 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
             subscriber.onError(t); // Then we signal the error downstream, to the `Subscriber`
         }
 
-        private void signal(final Signal signal) {
+        private void signal(Signal signal) {
             if (inboundSignals.offer(signal)) {
                 tryExecute();
             }
@@ -186,19 +176,21 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
                 try {
                     Signal signal = inboundSignals.poll();
                     if (!cancelled) {
-                        if (signal instanceof Request)
-                            doRequest(((Request) signal).n);
-                        else if (signal == Send.Instance)
-                            doSend();
-                        else if (signal == Cancel.Instance)
-                            doCancel();
-                        else if (signal == Subscribe.Instance)
-                            doSubscribe();
+                        signal.run();
+//                        if (signal instanceof Request)
+//                            doRequest(((Request) signal).n);
+//                        else if (signal instanceof Send)
+//                            doSend();
+//                        else if (signal instanceof Cancel)
+//                            doCancel();
+//                        else if (signal instanceof Subscribe)
+//                            doSubscribe();
                     }
                 } finally {
                     mutex.set(false); // establishes a happens-before relationship with the beginning of the next run
-                    if (!inboundSignals.isEmpty()) // If we still have signals to process
-                        tryExecute(); // Then we try to schedule ourselves to execute again
+                    if (!inboundSignals.isEmpty()) {
+                        tryExecute();
+                    }
                 }
             }
         }
@@ -232,7 +224,7 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
 
         @Override
         public void cancel() {
-            signal(Cancel.Instance);
+            signal(new Cancel());
         }
 
         // The reason for the `init` method is that we want to ensure the `SubscriptionImpl`
@@ -240,9 +232,44 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
         // method is only intended to be invoked once, and immediately after the constructor has
         // finished.
         void init() {
-            signal(Subscribe.Instance);
+            signal(new Subscribe());
+        }
+
+        private interface Signal extends Runnable {
+        }
+
+        private class Cancel implements Signal {
+            @Override
+            public void run() {
+                doCancel();
+            }
+        }
+
+        private  class Subscribe implements Signal {
+            @Override
+            public void run() {
+                doSubscribe();
+            }
+        }
+
+        private  class Send implements Signal {
+            @Override
+            public void run() {
+                doSend();
+            }
+        }
+
+        private  class Request implements Signal {
+            final long n;
+
+            Request(final long n) {
+                this.n = n;
+            }
+
+            @Override
+            public void run() {
+                doRequest(n);
+            }
         }
     }
-
-    ;
 }

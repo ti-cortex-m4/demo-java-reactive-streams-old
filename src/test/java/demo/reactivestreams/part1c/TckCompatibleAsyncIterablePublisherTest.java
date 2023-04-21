@@ -46,11 +46,8 @@ public class TckCompatibleAsyncIterablePublisherTest extends FlowPublisherVerifi
 
     @Override
     public Flow.Publisher<Integer> createFailedFlowPublisher() {
-        return new TckCompatibleAsyncIterablePublisher<Integer>(new Iterable<Integer>() {
-            @Override
-            public Iterator<Integer> iterator() {
-                throw new RuntimeException("Error state signal!");
-            }
+        return new TckCompatibleAsyncIterablePublisher<Integer>(() -> {
+            throw new RuntimeException();
         }, executorService);
     }
 
