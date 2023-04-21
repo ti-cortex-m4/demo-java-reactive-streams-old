@@ -8,7 +8,6 @@ import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowSubscriberWhiteboxVerification;
 import org.testng.annotations.Test;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
 
 @Test // Must be here for TestNG to find and run this, do not remove
@@ -24,7 +23,7 @@ public class SimpleSubscriberWhiteboxTest extends FlowSubscriberWhiteboxVerifica
 
   @Override
   public Flow.Subscriber<Integer> createFlowSubscriber(WhiteboxSubscriberProbe<Integer> probe) {
-    return new PullSubscriber<Integer>(0) {
+    return new SyncSubscriber<Integer>(0) {
       @Override
       public void onSubscribe( Flow.Subscription s) {
         super.onSubscribe(s);

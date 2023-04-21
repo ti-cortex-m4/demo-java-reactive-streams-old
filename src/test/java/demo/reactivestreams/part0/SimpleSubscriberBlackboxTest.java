@@ -8,7 +8,6 @@ import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowSubscriberBlackboxVerification;
 import org.testng.annotations.Test;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
 
 @Test
@@ -20,7 +19,7 @@ public class SimpleSubscriberBlackboxTest extends FlowSubscriberBlackboxVerifica
 
     @Override
     public Flow.Subscriber<Integer> createFlowSubscriber() {
-        return new PullSubscriber<Integer>(0);
+        return new SyncSubscriber<Integer>(0);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package demo.reactivestreams.part0;
+package demo.reactivestreams.part1;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,16 +6,16 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
 
-public class PullSubscriber<T> implements Flow.Subscriber<T> {
+public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(PullSubscriber.class);
+    private static final Logger logger = LoggerFactory.getLogger(SyncSubscriber.class);
 
     private final int id;
     private final CountDownLatch completed = new CountDownLatch(1);
 
     private Flow.Subscription subscription;
 
-    public PullSubscriber(int id) {
+    public SyncSubscriber(int id) {
         this.id = id;
     }
 
