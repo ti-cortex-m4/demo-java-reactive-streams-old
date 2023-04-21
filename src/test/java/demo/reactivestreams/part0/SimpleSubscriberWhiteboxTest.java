@@ -4,19 +4,11 @@
 
 package demo.reactivestreams.part0;
 
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
-import org.reactivestreams.example.unicast.subscriber.SyncSubscriber;
-import org.reactivestreams.tck.SubscriberWhiteboxVerification;
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowSubscriberWhiteboxVerification;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
 
 @Test // Must be here for TestNG to find and run this, do not remove
@@ -32,7 +24,7 @@ public class SimpleSubscriberWhiteboxTest extends FlowSubscriberWhiteboxVerifica
 
   @Override
   public Flow.Subscriber<Integer> createFlowSubscriber(WhiteboxSubscriberProbe<Integer> probe) {
-    return new SimpleSubscriber<Integer>(1, new CountDownLatch(1), 1, 1) {
+    return new PullSubscriber<Integer>(1, new CountDownLatch(1), 1, 1) {
       @Override
       public void onSubscribe( Flow.Subscription s) {
         super.onSubscribe(s);
