@@ -131,7 +131,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     @Override
     public void onError(Throwable throwable) {
-        logger.error("({}) subscriber.error", id ,throwable);
+        logger.error("({}) subscriber.error", id, throwable);
         if (throwable == null) {
             throw new NullPointerException();
         }
@@ -153,7 +153,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
         if (mutex.get()) {
             try {
                 Signal signal = inboundSignals.poll();
-                //logger.info("({}) subscriber.poll {}", id,signal);
+                logger.debug("({}) subscriber.poll {}", id, signal);
                 if (!done) {
                     signal.run();
                 }
@@ -167,7 +167,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     private void signal(Signal signal) {
-        //logger.info("({}) subscriber.offer {}", id,signal);
+        logger.debug("({}) subscriber.offer {}", id, signal);
         if (inboundSignals.offer(signal)) {
             tryExecute();
         }
