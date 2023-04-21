@@ -1,7 +1,3 @@
-/***************************************************
- * Licensed under MIT No Attribution (SPDX: MIT-0) *
- ***************************************************/
-
 package demo.reactivestreams.part1b;
 
 import org.slf4j.Logger;
@@ -12,14 +8,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * AsyncSubscriber is an implementation of Reactive Streams `Subscriber`,
- * it runs asynchronously (on an Executor), requests one element
- * at a time, and invokes a user-defined method to process each element.
- * <p>
- * NOTE: The code below uses a lot of try-catches to show the reader where exceptions can be expected, and where they are forbidden.
- */
-public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
+public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(AsyncSubscriber.class);
 
@@ -27,15 +16,20 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
     }
 
     private class OnSubscribe implements Signal {
-        public final Flow.Subscription subscription;
+        public final Flow.Subscription s;
 
-        public OnSubscribe(Flow.Subscription subscription) {
-            this.subscription = subscription;
+        public OnSubscribe(Flow.Subscription s) {
+            this.s = s;
         }
 
         @Override
         public void run() {
-            handleOnSubscribe(subscription);
+            if (subscription != null) {
+                s.cancel();
+            } else {
+                subscription = s;
+                subscription.request(1);
+            }
         }
     }
 
@@ -95,31 +89,24 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
         subscription.cancel();
     }
 
-    protected void whenError(Throwable throwable) {
+    protected boolean whenNext(T element) {
+        return true;
     }
 
-    protected abstract boolean whenNext(T element);
+    protected void whenError(Throwable throwable) {
+    }
 
     protected void whenComplete() {
     }
 
-    private void handleOnSubscribe(Flow.Subscription subscription) {
-        if (this.subscription != null) {
-            subscription.cancel();
-        } else {
-            this.subscription = subscription;
-            this.subscription.request(1);
-        }
-    }
-
     @Override
-    public void onSubscribe(Flow.Subscription subscription) {
-        logger.info("subscriber.subscribe: {}", subscription);
-        if (subscription == null) {
+    public void onSubscribe(Flow.Subscription s) {
+        logger.info("subscriber.subscribe: {}", s);
+        if (s == null) {
             throw new NullPointerException();
         }
 
-        signal(new OnSubscribe(subscription));
+        signal(new OnSubscribe(s));
     }
 
     @Override
