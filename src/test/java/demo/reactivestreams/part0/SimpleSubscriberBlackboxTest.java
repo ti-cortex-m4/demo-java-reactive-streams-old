@@ -20,7 +20,7 @@ public class SimpleSubscriberBlackboxTest extends FlowSubscriberBlackboxVerifica
 
     @Override
     public Flow.Subscriber<Integer> createFlowSubscriber() {
-        return new PullSubscriber<Integer>(1, new CountDownLatch(1), 1, 1);
+        return new PullSubscriber<Integer>(0);
     }
 
     @Override

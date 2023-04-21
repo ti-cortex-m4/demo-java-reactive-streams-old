@@ -24,7 +24,7 @@ public class SimpleSubscriberWhiteboxTest extends FlowSubscriberWhiteboxVerifica
 
   @Override
   public Flow.Subscriber<Integer> createFlowSubscriber(WhiteboxSubscriberProbe<Integer> probe) {
-    return new PullSubscriber<Integer>(1, new CountDownLatch(1), 1, 1) {
+    return new PullSubscriber<Integer>(0) {
       @Override
       public void onSubscribe( Flow.Subscription s) {
         super.onSubscribe(s);

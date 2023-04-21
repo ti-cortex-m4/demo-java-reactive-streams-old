@@ -50,11 +50,9 @@ public class IteratorPublisher<T> implements Flow.Publisher<T> {
         public void request(long n) {
             logger.info("subscription.request: {}", n);
 
-            if (n <= 0) {
-                if (!terminated.getAndSet(true)) {
-                    subscriber.onError(new IllegalArgumentException());
-                    return;
-                }
+            if ((n <= 0) && !terminated.getAndSet(true)) {
+                subscriber.onError(new IllegalArgumentException());
+                return;
             }
 
             for (long demand = n; demand > 0 && iterator.hasNext() && !terminated.get(); demand--) {
@@ -67,10 +65,8 @@ public class IteratorPublisher<T> implements Flow.Publisher<T> {
                 }
             }
 
-            if (!iterator.hasNext()) {
-                if (!terminated.getAndSet(true)) {
-                    subscriber.onComplete();
-                }
+            if (!iterator.hasNext() && !terminated.getAndSet(true)) {
+                subscriber.onComplete();
             }
         }
 
@@ -82,10 +78,8 @@ public class IteratorPublisher<T> implements Flow.Publisher<T> {
 
         void onSubscribed() {
             Throwable throwable = error.get();
-            if (throwable != null) {
-                if (!terminated.getAndSet(true)) {
-                    subscriber.onError(throwable);
-                }
+            if ((throwable != null) && !terminated.getAndSet(true)) {
+                subscriber.onError(throwable);
             }
         }
     }

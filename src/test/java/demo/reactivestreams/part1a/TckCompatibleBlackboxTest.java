@@ -15,7 +15,7 @@ public class TckCompatibleBlackboxTest extends FlowSubscriberBlackboxVerificatio
 
     @Override
     public Flow.Subscriber<Integer> createFlowSubscriber() {
-        return new TckCompatiblePullSubscriber<Integer>();
+        return new TckCompatibleSyncSubscriber<Integer>(0);
     }
 
     @Override
