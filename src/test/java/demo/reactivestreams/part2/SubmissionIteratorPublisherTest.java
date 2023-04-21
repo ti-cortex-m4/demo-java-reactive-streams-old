@@ -6,6 +6,7 @@ import org.testng.annotations.Test;
 
 import java.util.Iterator;
 import java.util.concurrent.Flow;
+import java.util.concurrent.SubmissionPublisher;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
@@ -18,11 +19,7 @@ public class SubmissionIteratorPublisherTest extends FlowPublisherVerification<I
 
     @Override
     public Flow.Publisher<Integer> createFlowPublisher(long elements) {
-        Iterator<Integer> iterator = Stream
-            .iterate(0, UnaryOperator.identity())
-            .limit(elements)
-            .iterator();
-        return new SubmissionIteratorPublisher(iterator);
+        return new SubmissionPublisher<>();
     }
 
     @Override
