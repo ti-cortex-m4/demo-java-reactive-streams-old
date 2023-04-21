@@ -40,15 +40,21 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
     }
 
     private class OnNext implements Signal {
-        public final T next;
+        public final T element;
 
-        public OnNext(T next) {
-            this.next = next;
+        public OnNext(T element) {
+            this.element = element;
         }
 
         @Override
         public void run() {
-            handleOnNext(next);
+            if (!done) {
+                if (whenNext(element)) {
+                    subscription.request(1);
+                } else {
+                    done();
+                }
+            }
         }
     }
 
@@ -61,7 +67,8 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
 
         @Override
         public void run() {
-            handleOnError(throwable);
+            done = true;
+            whenError(throwable);
         }
     }
 
@@ -69,7 +76,8 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
 
         @Override
         public void run() {
-            handleOnComplete();
+            done = true;
+            whenComplete();
         }
     }
 
@@ -112,26 +120,6 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
             this.subscription = subscription;
             this.subscription.request(1);
         }
-    }
-
-    private void handleOnNext(T element) {
-        if (!done) {
-            if (whenNext(element)) {
-                subscription.request(1);
-            } else {
-                done();
-            }
-        }
-    }
-
-    private void handleOnError(Throwable throwable) {
-        done = true;
-        whenError(throwable);
-    }
-
-    private void handleOnComplete() {
-        done = true;
-        whenComplete();
     }
 
     @Override
