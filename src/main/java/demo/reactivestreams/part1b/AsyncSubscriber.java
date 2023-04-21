@@ -148,17 +148,6 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
   }
 
   // Here it is important that we do not violate 2.2 and 2.3 by calling methods on the `Subscription` or `Publisher`
-  private void handleOnComplete() {
-    if (subscription == null) { // Technically this check is not needed, since we are expecting Publishers to conform to the spec
-      // Publisher is not allowed to signal onComplete before onSubscribe according to rule 1.09
-      (new IllegalStateException("Publisher violated the Reactive Streams rule 1.09 signalling onComplete prior to onSubscribe.")).printStackTrace(System.err);
-    } else {
-      done = true; // Obey rule 2.4
-      whenComplete();
-    }
-  }
-
-  // Here it is important that we do not violate 2.2 and 2.3 by calling methods on the `Subscription` or `Publisher`
   private void handleOnError(final Throwable error) {
     if (subscription == null) { // Technically this check is not needed, since we are expecting Publishers to conform to the spec
       // Publisher is not allowed to signal onError before onSubscribe according to rule 1.09
@@ -166,6 +155,17 @@ public abstract class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable
     } else {
       done = true; // Obey rule 2.4
       whenError(error);
+    }
+  }
+
+  // Here it is important that we do not violate 2.2 and 2.3 by calling methods on the `Subscription` or `Publisher`
+  private void handleOnComplete() {
+    if (subscription == null) { // Technically this check is not needed, since we are expecting Publishers to conform to the spec
+      // Publisher is not allowed to signal onComplete before onSubscribe according to rule 1.09
+      (new IllegalStateException("Publisher violated the Reactive Streams rule 1.09 signalling onComplete prior to onSubscribe.")).printStackTrace(System.err);
+    } else {
+      done = true; // Obey rule 2.4
+      whenComplete();
     }
   }
 
