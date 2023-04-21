@@ -17,16 +17,17 @@ public class PullRunner {
         IteratorPublisher<Integer> publisher = new IteratorPublisher<>(() -> List.copyOf(list).iterator());
 
 //        CountDownLatch completeLatch1 = new CountDownLatch(1);
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        AsyncSubscriber<Integer> subscriber1 = new AsyncSubscriber<Integer>(executorService); //new SimpleSubscriber<>(1, completeLatch1,1,1);
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        AsyncSubscriber<Integer> subscriber1 = new AsyncSubscriber<Integer>(1,executorService); //new SimpleSubscriber<>(1, completeLatch1,1,1);
         publisher.subscribe(subscriber1);
 
 //        CountDownLatch completeLatch2 = new CountDownLatch(1);
-//        Flow.Subscriber<Integer> subscriber2 = new SimpleSubscriber<>(2, completeLatch2,1,1);
-//        publisher.subscribe(subscriber2);
+        AsyncSubscriber<Integer> subscriber2 = new AsyncSubscriber<Integer>(2,executorService);
+        publisher.subscribe(subscriber2);
 
 //        Delay.delay(5);
         subscriber1.getCompletedAwait();
+        subscriber2.getCompletedAwait();
 
         executorService.shutdown();
         executorService.awaitTermination(60, TimeUnit.SECONDS);

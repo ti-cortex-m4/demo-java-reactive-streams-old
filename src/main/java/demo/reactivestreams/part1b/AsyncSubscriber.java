@@ -76,13 +76,15 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
         }
     }
 
+    private final int id;
     private final Executor executor;
     private final CountDownLatch completed = new CountDownLatch(1);
 
     private Flow.Subscription subscription;
     private boolean done;
 
-    public AsyncSubscriber(Executor executor) {
+    public AsyncSubscriber(int id, Executor executor) {
+        this.id = id;
         this.executor = executor;
     }
 
@@ -108,7 +110,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     @Override
     public void onSubscribe(Flow.Subscription s) {
-        logger.info("subscriber.subscribe: {}", s);
+        logger.info("({}) subscriber.subscribe: {}", id, s);
         if (s == null) {
             throw new NullPointerException();
         }
@@ -118,7 +120,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     @Override
     public void onNext(T element) {
-        logger.info("subscriber.next: {}", element);
+        logger.info("({}) subscriber.next: {}", id, element);
         if (element == null) {
             throw new NullPointerException();
         }
@@ -128,7 +130,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     @Override
     public void onError(Throwable throwable) {
-        logger.error("subscriber.error", throwable);
+        logger.error("({}) subscriber.error", id ,throwable);
         if (throwable == null) {
             throw new NullPointerException();
         }
@@ -138,7 +140,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     @Override
     public void onComplete() {
-        logger.info("subscriber.complete");
+        logger.info("({}) subscriber.complete", id);
         signal(new OnComplete());
     }
 
