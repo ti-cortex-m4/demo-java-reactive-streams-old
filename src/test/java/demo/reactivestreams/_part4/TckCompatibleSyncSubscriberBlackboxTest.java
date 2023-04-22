@@ -15,7 +15,7 @@ public class TckCompatibleSyncSubscriberBlackboxTest extends FlowSubscriberBlack
 
     @Override
     public Flow.Subscriber<Integer> createFlowSubscriber() {
-        return new TckCompatibleSyncSubscriber<Integer>(0);
+        return new TckCompatibleSyncSubscriber<>(0);
     }
 
     @Override

@@ -37,7 +37,6 @@ public class TckCompatibleAsyncIteratorPublisherTest extends FlowPublisherVerifi
 
     @Override
     public Flow.Publisher<Integer> createFlowPublisher(long elements) {
-        assertTrue(elements <= maxElementsFromPublisher());
         return new TckCompatibleAsyncIteratorPublisher<>(
             () -> Stream
                 .iterate(0, UnaryOperator.identity())
@@ -55,10 +54,5 @@ public class TckCompatibleAsyncIteratorPublisherTest extends FlowPublisherVerifi
             },
             executorService
         );
-    }
-
-    @Override
-    public long maxElementsFromPublisher() {
-        return Integer.MAX_VALUE;
     }
 }

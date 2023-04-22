@@ -19,7 +19,7 @@ public class SyncSubscriberBlackboxTest extends FlowSubscriberBlackboxVerificati
 
     @Override
     public Flow.Subscriber<Integer> createFlowSubscriber() {
-        return new SyncSubscriber<Integer>(0);
+        return new SyncSubscriber<>(0);
     }
 
     @Override
