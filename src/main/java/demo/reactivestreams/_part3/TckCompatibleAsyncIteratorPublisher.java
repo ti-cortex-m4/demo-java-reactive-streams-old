@@ -78,8 +78,7 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
             if (!cancelled) {
                 subscriber.onSubscribe(this);
 
-                boolean hasNext = false;
-                    hasNext = iterator.hasNext();
+                boolean hasNext = iterator.hasNext();
 
                 if (!hasNext) {
                     doCancel();
@@ -103,10 +102,9 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
         private void doSendBatch() {
             int leftInBatch = batchSize;
             do {
-                T next;
-                boolean hasNext;
-                    next = iterator.next();
-                    hasNext = iterator.hasNext();
+                T next = iterator.next();
+                boolean hasNext = iterator.hasNext();
+
                 subscriber.onNext(next);
 
                 if (!hasNext) {
