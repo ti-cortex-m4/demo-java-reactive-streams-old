@@ -1,6 +1,5 @@
 package demo.reactivestreams.part1c;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
@@ -34,7 +33,9 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
         if (executor == null) {
             throw new NullPointerException();
         }
-        if (batchSize < 1) throw new IllegalArgumentException();
+        if (batchSize < 1) {
+            throw new IllegalArgumentException();
+        }
         this.iteratorSupplier = iteratorSupplier;
         this.executor = executor;
         this.batchSize = batchSize;
@@ -63,16 +64,11 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
             this.subscriber = subscriber;
         }
 
-        // Instead of executing `subscriber.onSubscribe` synchronously from within `Publisher.subscribe`
-        // we execute it asynchronously, this is to avoid executing the user code (`Iterable.iterator`) on the calling thread.
-        // It also makes it easier to follow rule 1.9
         private void doSubscribe() {
             try {
                 iterator = iteratorSupplier.get();
-//                if (iterator == null)
-//                    iterator = Collections.<T>emptyList().iterator(); // So we can assume that `iterator` is never null
-            } catch (final Throwable t) {
-                subscriber.onSubscribe(new Flow.Subscription() { // We need to make sure we signal onSubscribe before onError, obeying rule 1.9
+            } catch (Throwable throwable) {
+                subscriber.onSubscribe(new Flow.Subscription() {
                     @Override
                     public void cancel() {
                     }
@@ -81,25 +77,21 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
                     public void request(long n) {
                     }
                 });
-                terminateDueTo(t); // Here we send onError, obeying rule 1.09
+                doTerminate(throwable);
             }
 
             if (!cancelled) {
-                // Deal with setting up the subscription with the subscriber
                 subscriber.onSubscribe(this);
 
-                // Deal with already complete iterators promptly
-                boolean hasElements = false;
+                boolean hasNext = false;
                 try {
-                    hasElements = iterator.hasNext();
-                } catch (final Throwable t) {
-                    terminateDueTo(t); // If hasNext throws, there's something wrong and we need to signal onError as per 1.2, 1.4,
+                    hasNext = iterator.hasNext();
+                } catch (Throwable throwable) {
+                    doTerminate(throwable);
                 }
 
-                // If we don't have anything to deliver, we're already done, so lets do the right thing and
-                // not wait for demand to deliver `onComplete` as per rule 1.2 and 1.3
-                if (!hasElements) {
-                    doCancel(); // Rule 1.6 says we need to consider the `Subscription` cancelled when `onComplete` is signalled
+                if (!hasNext) {
+                    doCancel();
                     subscriber.onComplete();
                 }
             }
@@ -107,15 +99,14 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
 
         // This method will register inbound demand from our `Subscriber` and validate it against rule 3.9 and rule 3.17
         private void doRequest(final long n) {
-            if (n < 1)
-                terminateDueTo(new IllegalArgumentException(subscriber + " violated the Reactive Streams rule 3.9 by requesting a non-positive number of elements."));
-            else if (demand + n < 1) {
-                // As governed by rule 3.17, when demand overflows `Long.MAX_VALUE` we treat the signalled demand as "effectively unbounded"
-                demand = Long.MAX_VALUE;  // Here we protect from the overflow and treat it as "effectively unbounded"
-                doSend(); // Then we proceed with sending data downstream
+            if (n < 1) {
+                doTerminate(new IllegalArgumentException(subscriber + " violated the Reactive Streams rule 3.9 by requesting a non-positive number of elements."));
+            } else if (demand + n < 1) {
+                demand = Long.MAX_VALUE;
+                doSend();
             } else {
-                demand += n; // Here we record the downstream demand
-                doSend(); // Then we can proceed with sending data downstream
+                demand += n;
+                doSend();
             }
         }
 
@@ -131,7 +122,7 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
                     next = iterator.next(); // We have already checked `hasNext` when subscribing, so we can fall back to testing -after- `next` is called.
                     hasNext = iterator.hasNext(); // Need to keep track of End-of-Stream
                 } catch (final Throwable t) {
-                    terminateDueTo(t); // If `next` or `hasNext` throws (they can, since it is user-provided), we need to treat the stream as errored as per rule 1.4
+                    doTerminate(t); // If `next` or `hasNext` throws (they can, since it is user-provided), we need to treat the stream as errored as per rule 1.4
                     return;
                 }
                 subscriber.onNext(next); // Then we signal the next element downstream to the `Subscriber`
@@ -147,15 +138,13 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
                 signal(new Send());
         }
 
-        // This handles cancellation requests, and is idempotent, thread-safe and not synchronously performing heavy computations as specified in rule 3.5
         private void doCancel() {
             cancelled = true;
         }
 
-        // This is a helper method to ensure that we always `cancel` when we signal `onError` as per rule 1.6
-        private void terminateDueTo(final Throwable t) {
-            cancelled = true; // When we signal onError, the subscription must be considered as cancelled, as per rule 1.6
-            subscriber.onError(t); // Then we signal the error downstream, to the `Subscriber`
+        private void doTerminate(Throwable throwable) {
+            cancelled = true;
+            subscriber.onError(throwable);
         }
 
         private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<Signal>();
@@ -200,7 +189,7 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
                     if (!cancelled) {
                         doCancel(); // First of all, this failure is not recoverable, so we need to follow rule 1.4 and 1.6
                         try {
-                            terminateDueTo(new IllegalStateException("Publisher terminated due to unavailable Executor.", t));
+                            doTerminate(new IllegalStateException("Publisher terminated due to unavailable Executor.", t));
                         } finally {
                             inboundSignals.clear(); // We're not going to need these anymore
                             // This subscription is cancelled by now, but letting it become schedulable again means
@@ -233,14 +222,14 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
         private interface Signal extends Runnable {
         }
 
-        private  class Subscribe implements Signal {
+        private class Subscribe implements Signal {
             @Override
             public void run() {
                 doSubscribe();
             }
         }
 
-        private  class Request implements Signal {
+        private class Request implements Signal {
             final long n;
 
             Request(final long n) {
@@ -253,7 +242,7 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
             }
         }
 
-        private  class Send implements Signal {
+        private class Send implements Signal {
             @Override
             public void run() {
                 doSend();
