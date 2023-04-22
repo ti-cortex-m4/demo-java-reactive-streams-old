@@ -40,8 +40,8 @@ public class IteratorPublisher<T> implements Flow.Publisher<T> {
         public void request(long n) {
             logger.info("subscription.request: {}", n);
 
-            if ((n <= 0) && !terminated.getAndSet(true)) {
-                subscriber.onError(new IllegalArgumentException());
+            if ((n < 1) && !terminated.getAndSet(true)) {
+                subscriber.onError(new IllegalArgumentException("non-positive subscription request"));
                 return;
             }
 

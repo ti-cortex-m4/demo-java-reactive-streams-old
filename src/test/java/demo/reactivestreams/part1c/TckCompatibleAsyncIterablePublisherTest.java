@@ -6,12 +6,13 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
+
+import static org.testng.AssertJUnit.assertTrue;
 
 @Test
 public class TckCompatibleAsyncIterablePublisherTest extends FlowPublisherVerification<Integer> {
@@ -35,20 +36,23 @@ public class TckCompatibleAsyncIterablePublisherTest extends FlowPublisherVerifi
     }
 
     @Override
-    public Flow.Publisher<Integer> createFlowPublisher(final long elements) {
-        assert (elements <= maxElementsFromPublisher());
-        Iterator<Integer> iterator = Stream
-            .iterate(0, UnaryOperator.identity())
-            .limit(elements)
-            .iterator();
-        return new TckCompatibleAsyncIterablePublisher<>(() -> iterator, executorService);
+    public Flow.Publisher<Integer> createFlowPublisher(long elements) {
+        assertTrue(elements <= maxElementsFromPublisher());
+        return new TckCompatibleAsyncIterablePublisher<>(
+            () -> Stream
+                .iterate(0, UnaryOperator.identity())
+                .limit(elements)
+                .iterator(),
+            executorService);
     }
 
     @Override
     public Flow.Publisher<Integer> createFailedFlowPublisher() {
-        return new TckCompatibleAsyncIterablePublisher<Integer>(() -> {
-            throw new RuntimeException();
-        }, executorService);
+        return new TckCompatibleAsyncIterablePublisher<>(
+            () -> {
+                throw new RuntimeException();
+            },
+            executorService);
     }
 
     @Override

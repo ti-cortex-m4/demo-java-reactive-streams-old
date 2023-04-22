@@ -1,14 +1,12 @@
 package demo.reactivestreams.part1;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Flow;
 
 public class Runner {
 
     public static void main(String[] args) throws InterruptedException {
         List<Integer> list = List.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-        TckCompatibleIteratorPublisher<Integer> publisher = new TckCompatibleIteratorPublisher<>(() -> List.copyOf(list).iterator());
+        TckCompatibleSyncIteratorPublisher<Integer> publisher = new TckCompatibleSyncIteratorPublisher<>(() -> List.copyOf(list).iterator());
 
         SyncSubscriber<Integer> subscriber1 = new SyncSubscriber<>(1);
         publisher.subscribe(subscriber1);

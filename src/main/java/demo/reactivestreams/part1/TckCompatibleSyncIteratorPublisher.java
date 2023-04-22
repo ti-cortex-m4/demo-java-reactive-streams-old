@@ -10,13 +10,13 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-public class TckCompatibleIteratorPublisher<T> implements Flow.Publisher<T> {
+public class TckCompatibleSyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(TckCompatibleIteratorPublisher.class);
+    private static final Logger logger = LoggerFactory.getLogger(TckCompatibleSyncIteratorPublisher.class);
 
     private final Supplier<Iterator<? extends T>> iteratorSupplier;
 
-    public TckCompatibleIteratorPublisher(Supplier<Iterator<? extends T>> iteratorSupplier) {
+    public TckCompatibleSyncIteratorPublisher(Supplier<Iterator<? extends T>> iteratorSupplier) {
         this.iteratorSupplier = iteratorSupplier;
     }
 
@@ -52,8 +52,8 @@ public class TckCompatibleIteratorPublisher<T> implements Flow.Publisher<T> {
         public void request(long n) {
             logger.info("subscription.request: {}", n);
 
-            if ((n <= 0) && !terminated.getAndSet(true)) {
-                subscriber.onError(new IllegalArgumentException());
+            if ((n < 1) && !terminated.getAndSet(true)) {
+                subscriber.onError(new IllegalArgumentException("non-positive subscription request"));
                 return;
             }
 

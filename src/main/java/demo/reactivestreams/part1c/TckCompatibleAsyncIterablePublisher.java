@@ -1,5 +1,8 @@
 package demo.reactivestreams.part1c;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
@@ -8,6 +11,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T> {
+
+    private static final Logger logger = LoggerFactory.getLogger(TckCompatibleAsyncIterablePublisher.class);
 
     private final static int DEFAULT_BATCHSIZE = 1024;
 
@@ -89,7 +94,7 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
 
         private void doRequest(long n) {
             if (n < 1) {
-                doTerminate(new IllegalArgumentException());
+                doTerminate(new IllegalArgumentException("non-positive subscription request"));
             } else if (demand + n < 1) {
                 demand = Long.MAX_VALUE;
                 doSend();
@@ -184,11 +189,13 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
 
         @Override
         public void request(long n) {
+            logger.info("subscription.request: {}", n);
             signal(new Request(n));
         }
 
         @Override
         public void cancel() {
+            logger.info("subscription.cancel");
             signal(new Cancel());
         }
 
