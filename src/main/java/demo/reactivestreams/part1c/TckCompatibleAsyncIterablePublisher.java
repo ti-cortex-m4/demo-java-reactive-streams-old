@@ -48,16 +48,13 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
         new SubscriptionImpl(s).init();
     }
 
+    private class SubscriptionImpl implements Flow.Subscription, Runnable {
 
-    // This is our implementation of the Reactive Streams `Subscription`,
-    // which represents the association between a `Publisher` and a `Subscriber`.
-    final class SubscriptionImpl implements Flow.Subscription, Runnable {
+        private final Flow.Subscriber<? super T> subscriber; // We need a reference to the `Subscriber` so we can talk to it
 
-        final Flow.Subscriber<? super T> subscriber; // We need a reference to the `Subscriber` so we can talk to it
-
-        private boolean cancelled = false; // This flag will track whether this `Subscription` is to be considered cancelled or not
-        private long demand = 0; // Here we track the current demand, i.e. what has been requested but not yet delivered
         private Iterator<T> iterator; // This is our cursor into the data stream, which we will send to the `Subscriber`
+        private long demand = 0; // Here we track the current demand, i.e. what has been requested but not yet delivered
+        private boolean cancelled = false; // This flag will track whether this `Subscription` is to be considered cancelled or not
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
             if (subscriber == null) {
@@ -65,9 +62,6 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
             }
             this.subscriber = subscriber;
         }
-
-        private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<Signal>();
-        private final AtomicBoolean mutex = new AtomicBoolean(false);
 
         // Instead of executing `subscriber.onSubscribe` synchronously from within `Publisher.subscribe`
         // we execute it asynchronously, this is to avoid executing the user code (`Iterable.iterator`) on the calling thread.
@@ -163,6 +157,9 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
             cancelled = true; // When we signal onError, the subscription must be considered as cancelled, as per rule 1.6
             subscriber.onError(t); // Then we signal the error downstream, to the `Subscriber`
         }
+
+        private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<Signal>();
+        private final AtomicBoolean mutex = new AtomicBoolean(false);
 
         private void signal(Signal signal) {
             if (inboundSignals.offer(signal)) {
