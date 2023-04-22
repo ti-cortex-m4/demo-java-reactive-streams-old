@@ -19,6 +19,7 @@ public class FolderWatchService {
 
     private static final Logger logger = LoggerFactory.getLogger(FolderWatchService.class);
 
+    priva
     public void start(String folderName) {
         ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
         singleThreadExecutor.execute(() -> {

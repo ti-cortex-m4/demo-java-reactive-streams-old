@@ -10,13 +10,14 @@ import java.util.function.Supplier;
 
 public class PeriodicPublisher<T> extends SubmissionPublisher<T> {
 
-    final ScheduledFuture<?> periodicTask;
-    final ScheduledExecutorService scheduler;
+    private final ScheduledFuture<?> periodicTask;
+    private final ScheduledExecutorService scheduler;
 
     PeriodicPublisher(Executor executor, int maxBufferCapacity,
                       Supplier<? extends T> supplier,
                       long period, TimeUnit unit) {
         super(executor, maxBufferCapacity);
+        new FolderWatchService().start(System.getProperty("user.home"));
         scheduler = new ScheduledThreadPoolExecutor(1);
         periodicTask = scheduler.scheduleAtFixedRate(() -> submit(supplier.get()), 0, period, unit);
     }
