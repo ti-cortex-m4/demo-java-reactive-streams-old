@@ -13,13 +13,19 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 //System.getProperty("user.home")
 public class FolderWatchService {
 
     private static final Logger logger = LoggerFactory.getLogger(FolderWatchService.class);
 
-    priva
+    private final Consumer<Event> consumer;
+
+    public FolderWatchService(Consumer<Event> consumer) {
+        this.consumer = consumer;
+    }
+
     public void start(String folderName) {
         ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
         singleThreadExecutor.execute(() -> {
@@ -46,6 +52,7 @@ public class FolderWatchService {
                         Path path = folder.resolve(pathEvent.context());
 
                         logger.info("Folder change event is published: {}", pathEvent);
+                        consumer.accept(new Event(pathEvent, path));
                         //eventPublisher.publishEvent(new FolderChangeEvent(this, pathEvent, path));
                     }
 
