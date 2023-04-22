@@ -6,7 +6,7 @@ public class Runner {
 
     public static void main(String[] args) throws InterruptedException {
         List<Integer> list = List.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-        IteratorPublisher<Integer> publisher = new IteratorPublisher<>(() -> List.copyOf(list).iterator());
+        SyncIteratorPublisher<Integer> publisher = new SyncIteratorPublisher<>(() -> List.copyOf(list).iterator());
 
         SyncSubscriber<Integer> subscriber1 = new SyncSubscriber<>(1);
         publisher.subscribe(subscriber1);

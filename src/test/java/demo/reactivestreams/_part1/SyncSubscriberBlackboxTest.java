@@ -11,9 +11,9 @@ import org.testng.annotations.Test;
 import java.util.concurrent.Flow;
 
 @Test
-public class SimpleSubscriberBlackboxTest extends FlowSubscriberBlackboxVerification<Integer> {
+public class SyncSubscriberBlackboxTest extends FlowSubscriberBlackboxVerification<Integer> {
 
-    public SimpleSubscriberBlackboxTest() {
+    public SyncSubscriberBlackboxTest() {
         super(new TestEnvironment());
     }
 

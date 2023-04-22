@@ -1,6 +1,6 @@
 package demo.reactivestreams._part5;
 
-import demo.reactivestreams._part1.IteratorPublisher;
+import demo.reactivestreams._part1.SyncIteratorPublisher;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -11,7 +11,7 @@ public class PullRunner {
 
     public static void main(String[] args) throws InterruptedException {
         List<Integer> list = List.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-        IteratorPublisher<Integer> publisher = new IteratorPublisher<>(() -> List.copyOf(list).iterator());
+        SyncIteratorPublisher<Integer> publisher = new SyncIteratorPublisher<>(() -> List.copyOf(list).iterator());
 
         ExecutorService executorService = Executors.newFixedThreadPool(2);
         TckCompatibleAsyncSubscriber<Integer> subscriber1 = new TckCompatibleAsyncSubscriber<Integer>(1, executorService);

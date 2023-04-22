@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 import static org.testng.AssertJUnit.assertTrue;
 
 @Test
-public class TckCompatibleAsyncIterablePublisherTest extends FlowPublisherVerification<Integer> {
+public class TckCompatibleAsyncIteratorPublisherTest extends FlowPublisherVerification<Integer> {
 
     private ExecutorService executorService;
 
@@ -31,28 +31,30 @@ public class TckCompatibleAsyncIterablePublisherTest extends FlowPublisherVerifi
         }
     }
 
-    public TckCompatibleAsyncIterablePublisherTest() {
+    public TckCompatibleAsyncIteratorPublisherTest() {
         super(new TestEnvironment());
     }
 
     @Override
     public Flow.Publisher<Integer> createFlowPublisher(long elements) {
         assertTrue(elements <= maxElementsFromPublisher());
-        return new TckCompatibleAsyncIterablePublisher<>(
+        return new TckCompatibleAsyncIteratorPublisher<>(
             () -> Stream
                 .iterate(0, UnaryOperator.identity())
                 .limit(elements)
                 .iterator(),
-            executorService);
+            executorService
+        );
     }
 
     @Override
     public Flow.Publisher<Integer> createFailedFlowPublisher() {
-        return new TckCompatibleAsyncIterablePublisher<>(
+        return new TckCompatibleAsyncIteratorPublisher<>(
             () -> {
                 throw new RuntimeException();
             },
-            executorService);
+            executorService
+        );
     }
 
     @Override

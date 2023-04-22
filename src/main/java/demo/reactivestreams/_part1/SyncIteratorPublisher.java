@@ -8,13 +8,13 @@ import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-public class IteratorPublisher<T> implements Flow.Publisher<T> {
+public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(IteratorPublisher.class);
+    private static final Logger logger = LoggerFactory.getLogger(SyncIteratorPublisher.class);
 
     private final Supplier<Iterator<? extends T>> iteratorSupplier;
 
-    public IteratorPublisher(Supplier<Iterator<? extends T>> iteratorSupplier) {
+    public SyncIteratorPublisher(Supplier<Iterator<? extends T>> iteratorSupplier) {
         this.iteratorSupplier = iteratorSupplier;
     }
 

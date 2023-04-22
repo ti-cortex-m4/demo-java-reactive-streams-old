@@ -30,6 +30,7 @@ public class TckCompatibleSyncIteratorPublisherTest extends FlowPublisherVerific
         return new TckCompatibleSyncIteratorPublisher<>(
             () -> {
                 throw new RuntimeException();
-            });
+            }
+        );
     }
 }

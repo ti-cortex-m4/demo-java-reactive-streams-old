@@ -1,6 +1,6 @@
 package demo.reactivestreams._part5;
 
-import demo.reactivestreams._part1.IteratorPublisher;
+import demo.reactivestreams._part1.SyncIteratorPublisher;
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowSubscriberBlackboxVerification;
 import org.testng.annotations.AfterClass;
@@ -54,7 +54,7 @@ public class TckCompatibleAsyncSubscriberBlackboxTest extends FlowSubscriberBlac
     };
 
     List<Integer> list = List.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-    IteratorPublisher<Integer> publisher = new IteratorPublisher<>(() -> List.copyOf(list).iterator());
+    SyncIteratorPublisher<Integer> publisher = new SyncIteratorPublisher<>(() -> List.copyOf(list).iterator());
     publisher.subscribe(sub);
 //    new NumberIterablePublisher(0, 10, e).subscribe(sub);
     latch.await(env.defaultTimeoutMillis() * 10, TimeUnit.MILLISECONDS);

@@ -10,9 +10,9 @@ import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T> {
+public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(TckCompatibleAsyncIterablePublisher.class);
+    private static final Logger logger = LoggerFactory.getLogger(TckCompatibleAsyncIteratorPublisher.class);
 
     private final static int DEFAULT_BATCHSIZE = 1024;
 
@@ -20,11 +20,11 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
     private final Executor executor; // This is our thread pool, which will make sure that our Publisher runs asynchronously to its Subscribers
     private final int batchSize; // In general, if one uses an `Executor`, one should be nice nad not hog a thread for too long, this is the cap for that, in elements
 
-    public TckCompatibleAsyncIterablePublisher(Supplier<Iterator<T>> iteratorSupplier, final Executor executor) {
+    public TckCompatibleAsyncIteratorPublisher(Supplier<Iterator<T>> iteratorSupplier, final Executor executor) {
         this(iteratorSupplier, DEFAULT_BATCHSIZE, executor);
     }
 
-    public TckCompatibleAsyncIterablePublisher(Supplier<Iterator<T>> iteratorSupplier, final int batchSize, final Executor executor) {
+    public TckCompatibleAsyncIteratorPublisher(Supplier<Iterator<T>> iteratorSupplier, final int batchSize, final Executor executor) {
         if (iteratorSupplier == null) {
             throw new NullPointerException();
         }
