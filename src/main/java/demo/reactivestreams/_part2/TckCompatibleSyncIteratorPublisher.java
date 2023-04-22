@@ -17,6 +17,9 @@ public class TckCompatibleSyncIteratorPublisher<T> implements Flow.Publisher<T> 
     private final Supplier<Iterator<? extends T>> iteratorSupplier;
 
     public TckCompatibleSyncIteratorPublisher(Supplier<Iterator<? extends T>> iteratorSupplier) {
+        if (iteratorSupplier == null) {
+            throw new NullPointerException();
+        }
         this.iteratorSupplier = iteratorSupplier;
     }
 

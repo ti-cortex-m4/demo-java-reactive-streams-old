@@ -84,6 +84,9 @@ public class TckCompatibleAsyncSubscriber<T> implements Flow.Subscriber<T>, Runn
     private boolean done = false;
 
     public TckCompatibleAsyncSubscriber(int id, Executor executor) {
+        if (executor == null) {
+            throw new NullPointerException();
+        }
         this.id = id;
         this.executor = executor;
     }
