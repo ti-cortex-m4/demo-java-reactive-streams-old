@@ -46,7 +46,7 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
 
     private class SubscriptionImpl implements Flow.Subscription, Runnable {
 
-        private final Flow.Subscriber<? super T> subscriber; // We need a reference to the `Subscriber` so we can talk to it
+        private final Flow.Subscriber<? super T> subscriber;
 
         private Iterator<T> iterator;
         private long demand = 0;
@@ -79,11 +79,7 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
                 subscriber.onSubscribe(this);
 
                 boolean hasNext = false;
-                try {
                     hasNext = iterator.hasNext();
-                } catch (Throwable throwable) {
-                    doError(throwable);
-                }
 
                 if (!hasNext) {
                     doCancel();
@@ -109,13 +105,8 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
             do {
                 T next;
                 boolean hasNext;
-                try {
                     next = iterator.next();
                     hasNext = iterator.hasNext();
-                } catch (Throwable throwable) {
-                    doError(throwable);
-                    return;
-                }
                 subscriber.onNext(next);
 
                 if (!hasNext) {
@@ -138,7 +129,7 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
             subscriber.onError(throwable);
         }
 
-        private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<Signal>();
+        private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<>();
         private final AtomicBoolean mutex = new AtomicBoolean(false);
 
         private void signal(Signal signal) {
