@@ -1,4 +1,6 @@
-package demo.reactivestreams.part0;
+package demo.reactivestreams._part4;
+
+import demo.reactivestreams._part1.IteratorPublisher;
 
 import java.util.List;
 
@@ -8,10 +10,10 @@ public class Runner {
         List<Integer> list = List.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
         IteratorPublisher<Integer> publisher = new IteratorPublisher<>(() -> List.copyOf(list).iterator());
 
-        SyncSubscriber<Integer> subscriber1 = new SyncSubscriber<>(1);
+        TckCompatibleSyncSubscriber<Integer> subscriber1 = new TckCompatibleSyncSubscriber<Integer>(1);
         publisher.subscribe(subscriber1);
 
-        SyncSubscriber<Integer> subscriber2 = new SyncSubscriber<>(2);
+        TckCompatibleSyncSubscriber<Integer> subscriber2 = new TckCompatibleSyncSubscriber<Integer>(2);
         publisher.subscribe(subscriber2);
 
         subscriber1.awaitCompletion();

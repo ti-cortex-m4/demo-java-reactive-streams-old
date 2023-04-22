@@ -1,6 +1,6 @@
-package demo.reactivestreams.part1b;
+package demo.reactivestreams._part5;
 
-import demo.reactivestreams.part0.IteratorPublisher;
+import demo.reactivestreams._part1.IteratorPublisher;
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowSubscriberBlackboxVerification;
 import org.testng.annotations.AfterClass;

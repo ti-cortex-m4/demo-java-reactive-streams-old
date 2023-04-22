@@ -1,8 +1,4 @@
-/***************************************************
- * Licensed under MIT No Attribution (SPDX: MIT-0) *
- ***************************************************/
-
-package demo.reactivestreams.part0;
+package demo.reactivestreams._part4;
 
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowSubscriberBlackboxVerification;
@@ -11,15 +7,15 @@ import org.testng.annotations.Test;
 import java.util.concurrent.Flow;
 
 @Test
-public class SimpleSubscriberBlackboxTest extends FlowSubscriberBlackboxVerification<Integer> {
+public class TckCompatibleSyncSubscriberBlackboxTest extends FlowSubscriberBlackboxVerification<Integer> {
 
-    public SimpleSubscriberBlackboxTest() {
+    public TckCompatibleSyncSubscriberBlackboxTest() {
         super(new TestEnvironment());
     }
 
     @Override
     public Flow.Subscriber<Integer> createFlowSubscriber() {
-        return new SyncSubscriber<Integer>(0);
+        return new TckCompatibleSyncSubscriber<Integer>(0);
     }
 
     @Override

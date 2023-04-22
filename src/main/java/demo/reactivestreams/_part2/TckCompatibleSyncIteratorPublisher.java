@@ -1,4 +1,4 @@
-package demo.reactivestreams.part0;
+package demo.reactivestreams._part2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,16 +6,17 @@ import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-public class IteratorPublisher<T> implements Flow.Publisher<T> {
+public class TckCompatibleSyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(IteratorPublisher.class);
+    private static final Logger logger = LoggerFactory.getLogger(TckCompatibleSyncIteratorPublisher.class);
 
     private final Supplier<Iterator<? extends T>> iteratorSupplier;
 
-    public IteratorPublisher(Supplier<Iterator<? extends T>> iteratorSupplier) {
+    public TckCompatibleSyncIteratorPublisher(Supplier<Iterator<? extends T>> iteratorSupplier) {
         this.iteratorSupplier = iteratorSupplier;
     }
 
@@ -23,17 +24,28 @@ public class IteratorPublisher<T> implements Flow.Publisher<T> {
     public void subscribe(Flow.Subscriber<? super T> subscriber) {
         IteratorSubscription subscription = new IteratorSubscription(subscriber);
         subscriber.onSubscribe(subscription);
+        subscription.onSubscribed();
     }
 
     private class IteratorSubscription implements Flow.Subscription {
 
         private final Flow.Subscriber<? super T> subscriber;
         private final Iterator<? extends T> iterator;
+        private final AtomicLong demand = new AtomicLong();
         private final AtomicBoolean terminated = new AtomicBoolean(false);
+        private final AtomicReference<Throwable> error = new AtomicReference<>();
 
         IteratorSubscription(Flow.Subscriber<? super T> subscriber) {
             this.subscriber = subscriber;
-            this.iterator = iteratorSupplier.get();
+            Iterator<? extends T> iterator = null;
+
+            try {
+                iterator = iteratorSupplier.get();
+            } catch (Throwable e) {
+                error.set(e);
+            }
+
+            this.iterator = iterator;
         }
 
         @Override
@@ -45,7 +57,27 @@ public class IteratorPublisher<T> implements Flow.Publisher<T> {
                 return;
             }
 
-            for (long demand = n; demand > 0 && iterator.hasNext() && !terminated.get(); demand--) {
+            for (; ; ) {
+                long currentDemand = demand.getAcquire();
+                if (currentDemand == Long.MAX_VALUE) {
+                    return;
+                }
+
+                long adjustedDemand = currentDemand + n;
+                if (adjustedDemand < 0L) {
+                    adjustedDemand = Long.MAX_VALUE;
+                }
+
+                if (demand.compareAndSet(currentDemand, adjustedDemand)) {
+                    if (currentDemand > 0) {
+                        return;
+                    }
+
+                    break;
+                }
+            }
+
+            for (; demand.get() > 0 && iterator.hasNext() && !terminated.get(); demand.decrementAndGet()) {
                 try {
                     subscriber.onNext(iterator.next());
                 } catch (Throwable e) {
@@ -64,6 +96,13 @@ public class IteratorPublisher<T> implements Flow.Publisher<T> {
         public void cancel() {
             logger.info("subscription.cancel");
             terminated.getAndSet(true);
+        }
+
+        void onSubscribed() {
+            Throwable throwable = error.get();
+            if ((throwable != null) && !terminated.getAndSet(true)) {
+                subscriber.onError(throwable);
+            }
         }
     }
 }
