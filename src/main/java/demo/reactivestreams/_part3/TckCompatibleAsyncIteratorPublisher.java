@@ -17,14 +17,14 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
     private final static int DEFAULT_BATCHSIZE = 1024;
 
     private final Supplier<Iterator<T>> iteratorSupplier;
-    private final Executor executor; // This is our thread pool, which will make sure that our Publisher runs asynchronously to its Subscribers
+    private final Executor executor;
     private final int batchSize; // In general, if one uses an `Executor`, one should be nice nad not hog a thread for too long, this is the cap for that, in elements
 
     public TckCompatibleAsyncIteratorPublisher(Supplier<Iterator<T>> iteratorSupplier, final Executor executor) {
         this(iteratorSupplier, DEFAULT_BATCHSIZE, executor);
     }
 
-    public TckCompatibleAsyncIteratorPublisher(Supplier<Iterator<T>> iteratorSupplier, final int batchSize, final Executor executor) {
+    public TckCompatibleAsyncIteratorPublisher(Supplier<Iterator<T>> iteratorSupplier, int batchSize, Executor executor) {
         if (iteratorSupplier == null) {
             throw new NullPointerException();
         }
@@ -41,7 +41,7 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
 
     @Override
     public void subscribe(Flow.Subscriber<? super T> s) {
-        new SubscriptionImpl(s).init();
+        new SubscriptionImpl(s).subscribe();
     }
 
     private class SubscriptionImpl implements Flow.Subscription, Runnable {
@@ -99,7 +99,7 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
         }
 
         private void doSendBatch() {
-            int leftInBatch = batchSize;
+            int batchLeft = batchSize;
             do {
                 T item = iterator.next();
                 subscriber.onNext(item);
@@ -109,7 +109,7 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
                     doCancel();
                     subscriber.onComplete();
                 }
-            } while (!cancelled && --leftInBatch > 0 && --demand > 0);
+            } while (!cancelled && --batchLeft > 0 && --demand > 0);
 
             if (!cancelled && demand > 0) {
                 signal(new SendBatch());
@@ -168,7 +168,7 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
             }
         }
 
-        void init() {
+        void subscribe() {
             signal(new Subscribe());
         }
 
