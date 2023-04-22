@@ -19,7 +19,7 @@ public class TckCompatibleAsyncSubscriber<T> implements Flow.Subscriber<T>, Runn
     private class OnSubscribe implements Signal {
         private final Flow.Subscription s;
 
-        public OnSubscribe(Flow.Subscription s) {
+        OnSubscribe(Flow.Subscription s) {
             this.s = s;
         }
 
@@ -37,7 +37,7 @@ public class TckCompatibleAsyncSubscriber<T> implements Flow.Subscriber<T>, Runn
     private class OnNext implements Signal {
         private final T element;
 
-        public OnNext(T element) {
+        OnNext(T element) {
             this.element = element;
         }
 
@@ -56,7 +56,7 @@ public class TckCompatibleAsyncSubscriber<T> implements Flow.Subscriber<T>, Runn
     private class OnError implements Signal {
         private final Throwable throwable;
 
-        public OnError(Throwable throwable) {
+        OnError(Throwable throwable) {
             this.throwable = throwable;
         }
 
