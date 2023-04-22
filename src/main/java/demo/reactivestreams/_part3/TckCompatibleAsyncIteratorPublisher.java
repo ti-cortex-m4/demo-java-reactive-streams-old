@@ -49,8 +49,8 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
         private final Flow.Subscriber<? super T> subscriber; // We need a reference to the `Subscriber` so we can talk to it
 
         private Iterator<T> iterator;
-        private long demand = 0; // Here we track the current demand, i.e. what has been requested but not yet delivered
-        private boolean cancelled = false; // This flag will track whether this `Subscription` is to be considered cancelled or not
+        private long demand = 0;
+        private boolean cancelled = false;
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
             if (subscriber == null) {
@@ -72,7 +72,7 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
                     public void request(long n) {
                     }
                 });
-                doTerminate(throwable);
+                doError(throwable);
             }
 
             if (!cancelled) {
@@ -82,7 +82,7 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
                 try {
                     hasNext = iterator.hasNext();
                 } catch (Throwable throwable) {
-                    doTerminate(throwable);
+                    doError(throwable);
                 }
 
                 if (!hasNext) {
@@ -94,26 +94,26 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
 
         private void doRequest(long n) {
             if (n < 1) {
-                doTerminate(new IllegalArgumentException("non-positive subscription request"));
+                doError(new IllegalArgumentException("non-positive subscription request"));
             } else if (demand + n < 1) {
                 demand = Long.MAX_VALUE;
-                doSend();
+                doSendBatch();
             } else {
                 demand += n;
-                doSend();
+                doSendBatch();
             }
         }
 
-        private void doSend() {
+        private void doSendBatch() {
             int leftInBatch = batchSize;
             do {
                 T next;
                 boolean hasNext;
                 try {
-                    next = iterator.next(); // We have already checked `hasNext` when subscribing, so we can fall back to testing -after- `next` is called.
-                    hasNext = iterator.hasNext(); // Need to keep track of End-of-Stream
+                    next = iterator.next();
+                    hasNext = iterator.hasNext();
                 } catch (Throwable throwable) {
-                    doTerminate(throwable);
+                    doError(throwable);
                     return;
                 }
                 subscriber.onNext(next);
@@ -122,12 +122,10 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
                     doCancel();
                     subscriber.onComplete();
                 }
-            } while (!cancelled           // This makes sure that rule 1.8 is upheld, i.e. we need to stop signalling "eventually"
-                && --leftInBatch > 0 // This makes sure that we only send `batchSize` number of elements in one go (so we can yield to other Runnables)
-                && --demand > 0);    // This makes sure that rule 1.1 is upheld (sending more than was demanded)
+            } while (!cancelled && --leftInBatch > 0 && --demand > 0);
 
             if (!cancelled && demand > 0) {
-                signal(new Send());
+                signal(new SendBatch());
             }
         }
 
@@ -135,7 +133,7 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
             cancelled = true;
         }
 
-        private void doTerminate(Throwable throwable) {
+        private void doError(Throwable throwable) {
             cancelled = true;
             subscriber.onError(throwable);
         }
@@ -174,7 +172,7 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
                     if (!cancelled) {
                         doCancel();
                         try {
-                            doTerminate(new IllegalStateException(throwable));
+                            doError(new IllegalStateException(throwable));
                         } finally {
                             mutex.set(false);
                         }
@@ -222,10 +220,10 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
             }
         }
 
-        private class Send implements Signal {
+        private class SendBatch implements Signal {
             @Override
             public void run() {
-                doSend();
+                doSendBatch();
             }
         }
 
