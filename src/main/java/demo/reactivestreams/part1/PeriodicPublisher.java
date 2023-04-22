@@ -13,12 +13,14 @@ public class PeriodicPublisher extends SubmissionPublisher<Event> {
 //    private final ScheduledFuture<?> periodicTask;
 //    private final ScheduledExecutorService scheduler;
 
-    PeriodicPublisher(Executor executor, int maxBufferCapacity
+    PeriodicPublisher(
+//        Executor executor, int maxBufferCapacity
 //        ,
 //                      Supplier<? extends T> supplier,
 //                      long period, TimeUnit unit
     ) {
-        super(executor, maxBufferCapacity);
+        super();
+       // super(executor, maxBufferCapacity);
         new FolderWatchService(event -> submit(event)).start(System.getProperty("user.home"));
 //        scheduler = new ScheduledThreadPoolExecutor(1);
 //        periodicTask = scheduler.scheduleAtFixedRate(() -> submit(supplier.get()), 0, period, unit);

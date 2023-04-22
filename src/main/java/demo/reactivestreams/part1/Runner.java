@@ -12,24 +12,24 @@ public class Runner {
     private static final Logger logger = LoggerFactory.getLogger(Runner.class);
 
     public static void main(String[] args) throws InterruptedException {
-        SubmissionPublisher<Integer> publisher = new SubmissionPublisher<>();
+        PeriodicPublisher publisher = new PeriodicPublisher();
 
-        SyncSubscriber<Integer> subscriber1 = new SyncSubscriber<>(1);
+        SyncSubscriber<Event> subscriber1 = new SyncSubscriber<>(1);
         publisher.subscribe(subscriber1);
 
-        SyncSubscriber<Integer> subscriber2 = new SyncSubscriber<>(2);
-        publisher.subscribe(subscriber2);
-
-        Iterator<Integer> iterator = IntStream.rangeClosed(0, 9).iterator();
-        iterator.forEachRemaining(item -> {
-            logger.info("publisher.submit: {}", item);
-            publisher.submit(item);
-        });
-
-        logger.info("publisher.close");
-        publisher.close();
+//        SyncSubscriber<Integer> subscriber2 = new SyncSubscriber<>(2);
+//        publisher.subscribe(subscriber2);
+//
+//        Iterator<Integer> iterator = IntStream.rangeClosed(0, 9).iterator();
+//        iterator.forEachRemaining(item -> {
+//            logger.info("publisher.submit: {}", item);
+//            publisher.submit(item);
+//        });
+//
+//        logger.info("publisher.close");
+//        publisher.close();
 
         subscriber1.awaitCompletion();
-        subscriber2.awaitCompletion();
+//        subscriber2.awaitCompletion();
     }
 }
