@@ -7,7 +7,9 @@ package org.reactivestreams.example.unicast.publisher;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.example.unicast.publisher.RangePublisher;
 import org.reactivestreams.tck.*;
+import org.testng.annotations.Test;
 
+@Test
 public class RangePublisherTest extends PublisherVerification<Integer> {
     public RangePublisherTest() {
         super(new TestEnvironment(50, 50));

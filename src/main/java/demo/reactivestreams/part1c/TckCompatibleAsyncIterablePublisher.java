@@ -34,7 +34,7 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
         if (executor == null) {
             throw new NullPointerException();
         }
-        if (batchSize < 1) throw new IllegalArgumentException("batchSize must be greater than zero!");
+        if (batchSize < 1) throw new IllegalArgumentException();
         this.iteratorSupplier = iteratorSupplier;
         this.executor = executor;
         this.batchSize = batchSize;
@@ -69,33 +69,14 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
         private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<Signal>();
         private final AtomicBoolean mutex = new AtomicBoolean(false);
 
-        // This method will register inbound demand from our `Subscriber` and validate it against rule 3.9 and rule 3.17
-        private void doRequest(final long n) {
-            if (n < 1)
-                terminateDueTo(new IllegalArgumentException(subscriber + " violated the Reactive Streams rule 3.9 by requesting a non-positive number of elements."));
-            else if (demand + n < 1) {
-                // As governed by rule 3.17, when demand overflows `Long.MAX_VALUE` we treat the signalled demand as "effectively unbounded"
-                demand = Long.MAX_VALUE;  // Here we protect from the overflow and treat it as "effectively unbounded"
-                doSend(); // Then we proceed with sending data downstream
-            } else {
-                demand += n; // Here we record the downstream demand
-                doSend(); // Then we can proceed with sending data downstream
-            }
-        }
-
-        // This handles cancellation requests, and is idempotent, thread-safe and not synchronously performing heavy computations as specified in rule 3.5
-        private void doCancel() {
-            cancelled = true;
-        }
-
         // Instead of executing `subscriber.onSubscribe` synchronously from within `Publisher.subscribe`
         // we execute it asynchronously, this is to avoid executing the user code (`Iterable.iterator`) on the calling thread.
         // It also makes it easier to follow rule 1.9
         private void doSubscribe() {
             try {
                 iterator = iteratorSupplier.get();
-                if (iterator == null)
-                    iterator = Collections.<T>emptyList().iterator(); // So we can assume that `iterator` is never null
+//                if (iterator == null)
+//                    iterator = Collections.<T>emptyList().iterator(); // So we can assume that `iterator` is never null
             } catch (final Throwable t) {
                 subscriber.onSubscribe(new Flow.Subscription() { // We need to make sure we signal onSubscribe before onError, obeying rule 1.9
                     @Override
@@ -130,6 +111,20 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
             }
         }
 
+        // This method will register inbound demand from our `Subscriber` and validate it against rule 3.9 and rule 3.17
+        private void doRequest(final long n) {
+            if (n < 1)
+                terminateDueTo(new IllegalArgumentException(subscriber + " violated the Reactive Streams rule 3.9 by requesting a non-positive number of elements."));
+            else if (demand + n < 1) {
+                // As governed by rule 3.17, when demand overflows `Long.MAX_VALUE` we treat the signalled demand as "effectively unbounded"
+                demand = Long.MAX_VALUE;  // Here we protect from the overflow and treat it as "effectively unbounded"
+                doSend(); // Then we proceed with sending data downstream
+            } else {
+                demand += n; // Here we record the downstream demand
+                doSend(); // Then we can proceed with sending data downstream
+            }
+        }
+
         // This is our behavior for producing elements downstream
         private void doSend() {
             // In order to play nice with the `Executor` we will only send at-most `batchSize` before
@@ -156,6 +151,11 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
 
             if (!cancelled && demand > 0) // If the `Subscription` is still alive and well, and we have demand to satisfy, we signal ourselves to send more data
                 signal(new Send());
+        }
+
+        // This handles cancellation requests, and is idempotent, thread-safe and not synchronously performing heavy computations as specified in rule 3.5
+        private void doCancel() {
+            cancelled = true;
         }
 
         // This is a helper method to ensure that we always `cancel` when we signal `onError` as per rule 1.6
@@ -187,7 +187,7 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
 //                            doSubscribe();
                     }
                 } finally {
-                    mutex.set(false); // establishes a happens-before relationship with the beginning of the next run
+                    mutex.set(false);
                     if (!inboundSignals.isEmpty()) {
                         tryExecute();
                     }
@@ -195,9 +195,7 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
             }
         }
 
-        // This method makes sure that this `Subscription` is only running on one Thread at a time,
-        // this is important to make sure that we follow rule 1.3
-        private final void tryExecute() {
+        private void tryExecute() {
             if (mutex.compareAndSet(false, true)) {
                 try {
                     executor.execute(this);
@@ -217,6 +215,14 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
             }
         }
 
+        // The reason for the `init` method is that we want to ensure the `SubscriptionImpl`
+        // is completely constructed before it is exposed to the thread pool, therefor this
+        // method is only intended to be invoked once, and immediately after the constructor has
+        // finished.
+        void init() {
+            signal(new Subscribe());
+        }
+
         @Override
         public void request(final long n) {
             signal(new Request(n));
@@ -227,35 +233,13 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
             signal(new Cancel());
         }
 
-        // The reason for the `init` method is that we want to ensure the `SubscriptionImpl`
-        // is completely constructed before it is exposed to the thread pool, therefor this
-        // method is only intended to be invoked once, and immediately after the constructor has
-        // finished.
-        void init() {
-            signal(new Subscribe());
-        }
-
         private interface Signal extends Runnable {
-        }
-
-        private class Cancel implements Signal {
-            @Override
-            public void run() {
-                doCancel();
-            }
         }
 
         private  class Subscribe implements Signal {
             @Override
             public void run() {
                 doSubscribe();
-            }
-        }
-
-        private  class Send implements Signal {
-            @Override
-            public void run() {
-                doSend();
             }
         }
 
@@ -269,6 +253,20 @@ public class TckCompatibleAsyncIterablePublisher<T> implements Flow.Publisher<T>
             @Override
             public void run() {
                 doRequest(n);
+            }
+        }
+
+        private  class Send implements Signal {
+            @Override
+            public void run() {
+                doSend();
+            }
+        }
+
+        private class Cancel implements Signal {
+            @Override
+            public void run() {
+                doCancel();
             }
         }
     }
