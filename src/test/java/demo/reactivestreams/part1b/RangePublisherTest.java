@@ -10,6 +10,7 @@ import java.util.concurrent.Flow;
 
 @Test
 public class RangePublisherTest extends FlowPublisherVerification<Integer> {
+
     public RangePublisherTest() {
         super(new TestEnvironment(50, 50));
     }
