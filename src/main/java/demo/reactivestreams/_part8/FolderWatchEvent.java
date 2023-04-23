@@ -1,4 +1,4 @@
-package demo.reactivestreams.part1;
+package demo.reactivestreams._part8;
 
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;

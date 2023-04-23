@@ -1,4 +1,4 @@
-package demo.reactivestreams.part1;
+package demo.reactivestreams._part8;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

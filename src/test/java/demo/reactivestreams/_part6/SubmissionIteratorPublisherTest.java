@@ -1,14 +1,11 @@
-package demo.reactivestreams.part2;
+package demo.reactivestreams._part6;
 
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowPublisherVerification;
 import org.testng.annotations.Test;
 
-import java.util.Iterator;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
-import java.util.function.UnaryOperator;
-import java.util.stream.Stream;
 
 @Test
 public class SubmissionIteratorPublisherTest extends FlowPublisherVerification<Integer> {

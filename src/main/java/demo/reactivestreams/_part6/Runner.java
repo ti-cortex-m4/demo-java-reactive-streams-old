@@ -1,4 +1,4 @@
-package demo.reactivestreams.part2;
+package demo.reactivestreams._part6;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,9 +7,9 @@ import java.util.Iterator;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.IntStream;
 
-public class SubmissionPublisherRunner {
+public class Runner {
 
-    private static final Logger logger = LoggerFactory.getLogger(SubmissionPublisherRunner.class);
+    private static final Logger logger = LoggerFactory.getLogger(Runner.class);
 
     public static void main(String[] args) throws InterruptedException {
         SubmissionPublisher<Integer> publisher = new SubmissionPublisher<>();
