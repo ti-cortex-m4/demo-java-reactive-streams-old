@@ -1,8 +1,6 @@
 package demo.reactivestreams.part1b;
 
 import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicLong;
@@ -62,12 +60,13 @@ public final class RangePublisher implements Flow.Publisher<Integer> {
             // doesn't run concurrently with itself, which would violate rule 1.3
             // among others (no concurrent notifications).
             // The atomic transition from 0L to N > 0L will ensure this.
-            extends AtomicLong implements Flow.Subscription {
+            /*extends AtomicLong*/ implements Flow.Subscription {
 
+        private final AtomicLong x = new AtomicLong();
         private static final long serialVersionUID = -9000845542177067735L;
 
         /** The Subscriber we are emitting integer values to. */
-        final Flow.Subscriber<? super Integer> downstream;
+        final Flow.Subscriber<? super Integer> subscriber;
 
         /** The end index (exclusive). */
         final int end;
@@ -92,12 +91,12 @@ public final class RangePublisher implements Flow.Publisher<Integer> {
         /**
          * Constructs a stateful RangeSubscription that emits signals to the given
          * downstream from an integer range of [start, end).
-         * @param downstream the Subscriber receiving the integer values and the completion signal.
+         * @param subscriber the Subscriber receiving the integer values and the completion signal.
          * @param start the first integer value emitted, start of the range
          * @param end the end of the range, exclusive
          */
-        RangeSubscription(Flow.Subscriber<? super Integer> downstream, int start, int end) {
-            this.downstream = downstream;
+        RangeSubscription(Flow.Subscriber<? super Integer> subscriber, int start, int end) {
+            this.subscriber = subscriber;
             this.index = start;
             this.end = end;
         }
@@ -113,7 +112,7 @@ public final class RangePublisher implements Flow.Publisher<Integer> {
             }
             // Downstream requests are cumulative and may come from any thread
             for (;;) {
-                long requested = get();
+                long requested = x.get();
                 long update = requested + n;
                 // As governed by rule 3.17, when demand overflows `Long.MAX_VALUE`
                 // we treat the signalled demand as "effectively unbounded"
@@ -121,7 +120,7 @@ public final class RangePublisher implements Flow.Publisher<Integer> {
                     update = Long.MAX_VALUE;
                 }
                 // atomically update the current requested amount
-                if (compareAndSet(requested, update)) {
+                if (x.compareAndSet(requested, update)) {
                     // if there was no prior request amount, we start the emission loop
                     if (requested == 0L) {
                         emit(update);
@@ -141,7 +140,7 @@ public final class RangePublisher implements Flow.Publisher<Integer> {
 
         void emit(long currentRequested) {
             // Load fields to avoid re-reading them from memory due to volatile accesses in the loop.
-            Flow.Subscriber<? super Integer> downstream = this.downstream;
+            Flow.Subscriber<? super Integer> downstream = this.subscriber;
             int index = this.index;
             int end = this.end;
             int emitted = 0;
@@ -194,12 +193,12 @@ public final class RangePublisher implements Flow.Publisher<Integer> {
                     }
 
                     // Did the requested amount change while we were looping?
-                    long freshRequested = get();
+                    long freshRequested = x.get();
                     if (freshRequested == currentRequested) {
                         // Save where the loop has left off: the next value to be emitted
                         this.index = index;
                         // Atomically subtract the previously requested (also emitted) amount
-                        currentRequested = addAndGet(-currentRequested);
+                        currentRequested = x.addAndGet(-currentRequested);
                         // If there was no new request in between get() and addAndGet(), we simply quit
                         // The next 0 to N transition in request() will trigger the next emission loop.
                         if (currentRequested == 0L) {
