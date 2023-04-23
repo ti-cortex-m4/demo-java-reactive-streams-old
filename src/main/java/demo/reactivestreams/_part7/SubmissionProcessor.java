@@ -25,11 +25,9 @@ public class SubmissionProcessor extends SubmissionPublisher<Integer> implements
         logger.info("processor.next: {}", item);
         if (item % 2 == 0) {
             logger.info("processor.submit: {}", item);
-            submit(item * item);
-        } else {
-            logger.info("processor.skip: {}", item);
+            submit(item * 10);
         }
-        this.subscription.request(1);
+        subscription.request(1);
     }
 
     @Override

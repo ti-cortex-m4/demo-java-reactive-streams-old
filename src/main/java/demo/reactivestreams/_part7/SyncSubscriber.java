@@ -6,17 +6,13 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
 
-public class BackpressureSubscriber implements Flow.Subscriber<Integer> {
+public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(BackpressureSubscriber.class);
+    private static final Logger logger = LoggerFactory.getLogger(SyncSubscriber.class);
 
-    private final CountDownLatch countDownLatch;
+    private final CountDownLatch completed = new CountDownLatch(1);
 
     private Flow.Subscription subscription;
-
-    public BackpressureSubscriber(CountDownLatch countDownLatch) {
-        this.countDownLatch = countDownLatch;
-    }
 
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
@@ -26,9 +22,9 @@ public class BackpressureSubscriber implements Flow.Subscriber<Integer> {
     }
 
     @Override
-    public void onNext(Integer item) {
+    public void onNext(T item) {
         logger.info("subscriber.next: {}", item);
-        this.subscription.request(1);
+        subscription.request(1);
     }
 
     @Override
@@ -38,7 +34,11 @@ public class BackpressureSubscriber implements Flow.Subscriber<Integer> {
 
     @Override
     public void onComplete() {
-        logger.info("subscriber.completed");
-        countDownLatch.countDown();
+        logger.info("subscriber.complete");
+        completed.countDown();
+    }
+
+    public void awaitCompletion() throws InterruptedException {
+        completed.await();
     }
 }
