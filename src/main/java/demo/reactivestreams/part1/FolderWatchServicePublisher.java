@@ -11,11 +11,10 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.SubmissionPublisher;
 
-public class FolderWatchServicePublisher extends SubmissionPublisher<FolderWatchEvent> {
+public class FolderWatchServicePublisher extends SubmissionPublisher<Message> {
 
     private static final Logger logger = LoggerFactory.getLogger(FolderWatchServicePublisher.class);
 
@@ -26,8 +25,6 @@ public class FolderWatchServicePublisher extends SubmissionPublisher<FolderWatch
 
         task =  executorService.submit(() -> {
             try {
-                logger.info("Folder watch service started");
-
                 WatchService watchService = FileSystems.getDefault().newWatchService();
                 Path folder = Paths.get(folderName);
                 folder.register(watchService,
@@ -40,7 +37,6 @@ public class FolderWatchServicePublisher extends SubmissionPublisher<FolderWatch
                 while ((key = watchService.take()) != null) {
                     for (WatchEvent<?> event : key.pollEvents()) {
                         WatchEvent.Kind<?> kind = event.kind();
-
                         if (kind == StandardWatchEventKinds.OVERFLOW) {
                             continue;
                         }
@@ -48,11 +44,9 @@ public class FolderWatchServicePublisher extends SubmissionPublisher<FolderWatch
                         WatchEvent<Path> pathEvent = (WatchEvent<Path>) event;
                         Path path = folder.resolve(pathEvent.context());
 
-                        //logger.info("Folder change event is published: {}", pathEvent);
-
-                        logger.info("publisher.submit {}", pathEvent);
-                        submit(new FolderWatchEvent(pathEvent, path));
-                        //eventPublisher.publishEvent(new FolderChangeEvent(this, pathEvent, path));
+                        Message message = new Message(pathEvent, path);
+                        logger.info("publisher.submit {}", message);
+                        submit(message);
                     }
 
                     boolean valid = key.reset();
@@ -62,15 +56,10 @@ public class FolderWatchServicePublisher extends SubmissionPublisher<FolderWatch
                 }
 
                 watchService.close();
-                logger.info("Folder watch service finished");
             } catch (Exception e) {
                 logger.error("Folder watch service failed", e);
             }
         });
-
-//        new FolderWatchService(event -> submit(event)).start(System.getProperty("user.home"));
-//        scheduler = new ScheduledThreadPoolExecutor(1);
-//        periodicTask = scheduler.scheduleAtFixedRate(() -> submit(supplier.get()), 0, period, unit);
     }
 
     @Override

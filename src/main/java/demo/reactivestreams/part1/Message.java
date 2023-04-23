@@ -4,12 +4,12 @@ import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.util.StringJoiner;
 
-public class FolderWatchEvent {
+public class Message {
 
     private final String action;
     private final String path;
 
-    public FolderWatchEvent(WatchEvent<Path> event, Path path) {
+    public Message(WatchEvent<Path> event, Path path) {
         this.action = event.kind().toString();
         this.path = path.toString();
     }
@@ -24,7 +24,7 @@ public class FolderWatchEvent {
 
     @Override
     public String toString() {
-        return new StringJoiner(", ", FolderWatchEvent.class.getSimpleName() + "[", "]")
+        return new StringJoiner(", ", Message.class.getSimpleName() + "[", "]")
             .add("action='" + action + "'")
             .add("path='" + path + "'")
             .toString();

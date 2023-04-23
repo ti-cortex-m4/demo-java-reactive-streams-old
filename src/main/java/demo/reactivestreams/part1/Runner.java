@@ -5,14 +5,16 @@ import org.slf4j.LoggerFactory;
 
 import demo.reactivestreams._part1.SyncSubscriber;
 
+import java.util.concurrent.SubmissionPublisher;
+
 public class Runner {
 
     private static final Logger logger = LoggerFactory.getLogger(Runner.class);
 
     public static void main(String[] args) throws InterruptedException {
-        try (FolderWatchServicePublisher publisher = new FolderWatchServicePublisher(System.getProperty("user.home"))) {
+        try (SubmissionPublisher<Message> publisher = new FolderWatchServicePublisher(System.getProperty("user.home"))) {
 
-            SyncSubscriber<FolderWatchEvent> subscriber1 = new SyncSubscriber<>(1);
+            SyncSubscriber<Message> subscriber1 = new SyncSubscriber<>(1);
             publisher.subscribe(subscriber1);
 
 //        SyncSubscriber<Integer> subscriber2 = new SyncSubscriber<>(2);
