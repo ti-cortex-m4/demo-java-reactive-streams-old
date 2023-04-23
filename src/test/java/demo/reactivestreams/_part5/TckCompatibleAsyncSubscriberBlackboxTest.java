@@ -40,12 +40,7 @@ public class TckCompatibleAsyncSubscriberBlackboxTest extends FlowSubscriberBlac
 
     @Override
     public Flow.Subscriber<Integer> createFlowSubscriber() {
-        return new TckCompatibleAsyncSubscriber<Integer>(0, executorService) {
-            @Override
-            protected boolean whenNext(final Integer element) {
-                return true;
-            }
-        };
+        return new TckCompatibleAsyncSubscriber<>(0, executorService);
     }
 
     @Test
@@ -81,5 +76,4 @@ public class TckCompatibleAsyncSubscriberBlackboxTest extends FlowSubscriberBlac
     public Integer createElement(int element) {
         return element;
     }
-
 }

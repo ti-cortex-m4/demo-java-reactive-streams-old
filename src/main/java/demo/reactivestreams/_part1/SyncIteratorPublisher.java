@@ -47,9 +47,9 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
             for (long demand = n; demand > 0 && iterator.hasNext() && !terminated.get(); demand--) {
                 try {
                     subscriber.onNext(iterator.next());
-                } catch (Throwable e) {
+                } catch (Throwable throwable) {
                     if (!terminated.getAndSet(true)) {
-                        subscriber.onError(e);
+                        subscriber.onError(throwable);
                     }
                 }
             }

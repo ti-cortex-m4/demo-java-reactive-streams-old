@@ -25,12 +25,12 @@ public class TckCompatibleSyncIteratorPublisher<T> implements Flow.Publisher<T> 
 
     @Override
     public void subscribe(Flow.Subscriber<? super T> subscriber) {
-        IteratorSubscription subscription = new IteratorSubscription(subscriber);
+        SubscriptionImpl subscription = new SubscriptionImpl(subscriber);
         subscriber.onSubscribe(subscription);
         subscription.onSubscribed();
     }
 
-    private class IteratorSubscription implements Flow.Subscription {
+    private class SubscriptionImpl implements Flow.Subscription {
 
         private final Flow.Subscriber<? super T> subscriber;
         private final Iterator<? extends T> iterator;
@@ -38,7 +38,7 @@ public class TckCompatibleSyncIteratorPublisher<T> implements Flow.Publisher<T> 
         private final AtomicBoolean terminated = new AtomicBoolean(false);
         private final AtomicReference<Throwable> error = new AtomicReference<>();
 
-        IteratorSubscription(Flow.Subscriber<? super T> subscriber) {
+        SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
             this.subscriber = subscriber;
             Iterator<? extends T> iterator = null;
 

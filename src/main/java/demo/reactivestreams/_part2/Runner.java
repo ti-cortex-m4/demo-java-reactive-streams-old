@@ -1,5 +1,7 @@
 package demo.reactivestreams._part2;
 
+import demo.reactivestreams._part1.SyncSubscriber;
+
 import java.util.List;
 
 public class Runner {
