@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.SubmissionPublisher;
 
-public class FolderWatchServicePublisher extends SubmissionPublisher<Message> {
+public class FolderWatchServicePublisher extends SubmissionPublisher<FolderWatchEvent> {
 
     private static final Logger logger = LoggerFactory.getLogger(FolderWatchServicePublisher.class);
 
@@ -46,9 +46,9 @@ public class FolderWatchServicePublisher extends SubmissionPublisher<Message> {
                         WatchEvent<Path> pathEvent = (WatchEvent<Path>) event;
                         Path path = folder.resolve(pathEvent.context());
 
-                        Message message = new Message(pathEvent, path);
-                        logger.info("publisher.submit {}", message);
-                        submit(message);
+                        FolderWatchEvent item = new FolderWatchEvent(pathEvent, path);
+                        logger.info("publisher.submit {}", item);
+                        submit(item);
                     }
 
                     boolean valid = key.reset();
