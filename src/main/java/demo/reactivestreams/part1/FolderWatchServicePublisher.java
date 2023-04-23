@@ -3,6 +3,7 @@ package demo.reactivestreams.part1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,11 +22,12 @@ public class FolderWatchServicePublisher extends SubmissionPublisher<Message> {
     private final Future<?> task;
 
     FolderWatchServicePublisher(String folderName) {
-        ExecutorService executorService = (ExecutorService)getExecutor();
+        ExecutorService executorService = (ExecutorService) getExecutor();
 
-        task =  executorService.submit(() -> {
+        task = executorService.submit(() -> {
             try {
                 WatchService watchService = FileSystems.getDefault().newWatchService();
+
                 Path folder = Paths.get(folderName);
                 folder.register(watchService,
                     StandardWatchEventKinds.ENTRY_CREATE,
@@ -56,8 +58,8 @@ public class FolderWatchServicePublisher extends SubmissionPublisher<Message> {
                 }
 
                 watchService.close();
-            } catch (Exception e) {
-                logger.error("Folder watch service failed", e);
+            } catch (IOException | InterruptedException e) {
+                throw new RuntimeException(e);
             }
         });
     }
