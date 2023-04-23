@@ -13,22 +13,26 @@ import java.nio.file.WatchService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.function.Consumer;
+import java.util.concurrent.SubmissionPublisher;
 
-//System.getProperty("user.home")
-public class FolderWatchService {
+public class FolderWatchServicePublisher extends SubmissionPublisher<FolderWatchEvent> {
 
-    private static final Logger logger = LoggerFactory.getLogger(FolderWatchService.class);
+    private static final Logger logger = LoggerFactory.getLogger(FolderWatchServicePublisher.class);
 
-    private final Consumer<FolderWatchEvent> consumer;
+    private final Future<?> task;
+//    private final ScheduledFuture<?> periodicTask;
+//    private final ScheduledExecutorService scheduler;
 
-    public FolderWatchService(Consumer<FolderWatchEvent> consumer) {
-        this.consumer = consumer;
-    }
-
-    public void start(String folderName) {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        Future<?> task = executorService.submit(() -> {
+    FolderWatchServicePublisher(String folderName
+//        Executor executor, int maxBufferCapacity
+//        ,
+//                      Supplier<? extends T> supplier,
+//                      long period, TimeUnit unit
+    ) {
+        super();
+       // super(executor, maxBufferCapacity);
+        ExecutorService executorService = (ExecutorService)getExecutor();
+        task =  executorService.submit(() -> {
             try {
                 logger.info("Folder watch service started");
 
@@ -52,8 +56,10 @@ public class FolderWatchService {
                         WatchEvent<Path> pathEvent = (WatchEvent<Path>) event;
                         Path path = folder.resolve(pathEvent.context());
 
-                        logger.info("Folder change event is published: {}", pathEvent);
-                        consumer.accept(new FolderWatchEvent(pathEvent, path));
+                        //logger.info("Folder change event is published: {}", pathEvent);
+
+                        logger.info("publisher.submit {}", pathEvent);
+                        submit(new FolderWatchEvent(pathEvent, path));
                         //eventPublisher.publishEvent(new FolderChangeEvent(this, pathEvent, path));
                     }
 
@@ -69,5 +75,16 @@ public class FolderWatchService {
                 logger.error("Folder watch service failed", e);
             }
         });
+
+//        new FolderWatchService(event -> submit(event)).start(System.getProperty("user.home"));
+//        scheduler = new ScheduledThreadPoolExecutor(1);
+//        periodicTask = scheduler.scheduleAtFixedRate(() -> submit(supplier.get()), 0, period, unit);
+    }
+
+    @Override
+    public void close() {
+        task.cancel(false);
+//        scheduler.shutdown();
+        super.close();
     }
 }
