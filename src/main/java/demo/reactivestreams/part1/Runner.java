@@ -10,10 +10,10 @@ public class Runner {
     private static final Logger logger = LoggerFactory.getLogger(Runner.class);
 
     public static void main(String[] args) throws InterruptedException {
-        FolderWatchServicePublisher publisher = new FolderWatchServicePublisher(System.getProperty("user.home"));
+        try (FolderWatchServicePublisher publisher = new FolderWatchServicePublisher(System.getProperty("user.home"))) {
 
-        SyncSubscriber<FolderWatchEvent> subscriber1 = new SyncSubscriber<>(1);
-        publisher.subscribe(subscriber1);
+            SyncSubscriber<FolderWatchEvent> subscriber1 = new SyncSubscriber<>(1);
+            publisher.subscribe(subscriber1);
 
 //        SyncSubscriber<Integer> subscriber2 = new SyncSubscriber<>(2);
 //        publisher.subscribe(subscriber2);
@@ -27,7 +27,8 @@ public class Runner {
 //        logger.info("publisher.close");
 //        publisher.close();
 
-        subscriber1.awaitCompletion();
+            subscriber1.awaitCompletion();
+        }
 //        subscriber2.awaitCompletion();
     }
 }

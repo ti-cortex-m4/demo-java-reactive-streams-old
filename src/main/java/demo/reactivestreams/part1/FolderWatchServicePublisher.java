@@ -20,18 +20,10 @@ public class FolderWatchServicePublisher extends SubmissionPublisher<FolderWatch
     private static final Logger logger = LoggerFactory.getLogger(FolderWatchServicePublisher.class);
 
     private final Future<?> task;
-//    private final ScheduledFuture<?> periodicTask;
-//    private final ScheduledExecutorService scheduler;
 
-    FolderWatchServicePublisher(String folderName
-//        Executor executor, int maxBufferCapacity
-//        ,
-//                      Supplier<? extends T> supplier,
-//                      long period, TimeUnit unit
-    ) {
-        super();
-       // super(executor, maxBufferCapacity);
+    FolderWatchServicePublisher(String folderName) {
         ExecutorService executorService = (ExecutorService)getExecutor();
+
         task =  executorService.submit(() -> {
             try {
                 logger.info("Folder watch service started");
@@ -84,7 +76,6 @@ public class FolderWatchServicePublisher extends SubmissionPublisher<FolderWatch
     @Override
     public void close() {
         task.cancel(false);
-//        scheduler.shutdown();
         super.close();
     }
 }
