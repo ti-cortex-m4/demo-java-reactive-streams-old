@@ -8,11 +8,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.testng.Assert.assertEquals;
@@ -30,7 +28,7 @@ public class TckCompatibleAsyncSubscriberBlackboxTest extends FlowSubscriberBlac
     @AfterClass
     void after() {
         if (executorService != null) {
-          executorService.shutdown();
+            executorService.shutdown();
         }
     }
 
@@ -45,31 +43,21 @@ public class TckCompatibleAsyncSubscriberBlackboxTest extends FlowSubscriberBlac
 
     @Test
     public void testAccumulation() throws InterruptedException {
+        AtomicLong accumulator = new AtomicLong();
 
-        final AtomicLong i = new AtomicLong(Long.MIN_VALUE);
-        final CountDownLatch latch = new CountDownLatch(1);
-        final Flow.Subscriber<Integer> sub = new TckCompatibleAsyncSubscriber<Integer>(0, executorService) {
-            private long acc;
-
+        TckCompatibleAsyncSubscriber<Integer> subscriber = new TckCompatibleAsyncSubscriber<>(0, executorService) {
             @Override
-            protected boolean whenNext(final Integer element) {
-                acc += element;
+            protected boolean whenNext(Integer element) {
+                accumulator.addAndGet(element);
                 return true;
-            }
-
-            @Override
-            protected void whenComplete() {
-                i.set(acc);
-                latch.countDown();
             }
         };
 
-        List<Integer> list = List.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-        SyncIteratorPublisher<Integer> publisher = new SyncIteratorPublisher<>(() -> List.copyOf(list).iterator());
-        publisher.subscribe(sub);
-//    new NumberIterablePublisher(0, 10, e).subscribe(sub);
-        latch.await(env.defaultTimeoutMillis() * 10, TimeUnit.MILLISECONDS);
-        assertEquals(i.get(), 45);
+        SyncIteratorPublisher<Integer> publisher = new SyncIteratorPublisher<>(() -> List.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9).iterator());
+        publisher.subscribe(subscriber);
+
+        subscriber.awaitCompletion();
+        assertEquals(accumulator.get(), 45);
     }
 
     @Override
