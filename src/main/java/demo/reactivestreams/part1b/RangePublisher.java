@@ -1,13 +1,10 @@
-/***************************************************
- * Licensed under MIT No Attribution (SPDX: MIT-0) *
- ***************************************************/
-
 package demo.reactivestreams.part1b;
 
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
+import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -15,7 +12,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * be subscribed to multiple times and each individual subscription
  * will receive range of monotonically increasing integer values on demand.
  */
-public final class RangePublisher implements Publisher<Integer> {
+public final class RangePublisher implements Flow.Publisher<Integer> {
 
     /** The starting value of the range. */
     final int start;
@@ -35,7 +32,7 @@ public final class RangePublisher implements Publisher<Integer> {
     }
 
     @Override
-    public void subscribe(Subscriber<? super Integer> subscriber) {
+    public void subscribe(Flow.Subscriber<? super Integer> subscriber) {
         // As per rule 1.11, we have decided to support multiple subscribers
         // in a unicast configuration for this `Publisher` implementation.
 
@@ -65,12 +62,12 @@ public final class RangePublisher implements Publisher<Integer> {
             // doesn't run concurrently with itself, which would violate rule 1.3
             // among others (no concurrent notifications).
             // The atomic transition from 0L to N > 0L will ensure this.
-            extends AtomicLong implements Subscription {
+            extends AtomicLong implements Flow.Subscription {
 
         private static final long serialVersionUID = -9000845542177067735L;
 
         /** The Subscriber we are emitting integer values to. */
-        final Subscriber<? super Integer> downstream;
+        final Flow.Subscriber<? super Integer> downstream;
 
         /** The end index (exclusive). */
         final int end;
@@ -99,7 +96,7 @@ public final class RangePublisher implements Publisher<Integer> {
          * @param start the first integer value emitted, start of the range
          * @param end the end of the range, exclusive
          */
-        RangeSubscription(Subscriber<? super Integer> downstream, int start, int end) {
+        RangeSubscription(Flow.Subscriber<? super Integer> downstream, int start, int end) {
             this.downstream = downstream;
             this.index = start;
             this.end = end;
@@ -144,7 +141,7 @@ public final class RangePublisher implements Publisher<Integer> {
 
         void emit(long currentRequested) {
             // Load fields to avoid re-reading them from memory due to volatile accesses in the loop.
-            Subscriber<? super Integer> downstream = this.downstream;
+            Flow.Subscriber<? super Integer> downstream = this.downstream;
             int index = this.index;
             int end = this.end;
             int emitted = 0;

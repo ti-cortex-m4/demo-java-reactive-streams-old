@@ -4,12 +4,13 @@ import demo.reactivestreams._part1.SyncIteratorPublisher;
 import org.reactivestreams.Publisher;
 
 import java.util.List;
+import java.util.concurrent.Flow;
 
 public class Runner {
 
     public static void main(String[] args) throws InterruptedException {
         List<Integer> list = List.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-        Publisher<Integer> publisher = new RangePublisher(0,3);
+        Flow.Publisher<Integer> publisher = new RangePublisher(0,3);
 
         SyncSubscriber<Integer> subscriber1 = new SyncSubscriber<>(1);
         publisher.subscribe(subscriber1);
