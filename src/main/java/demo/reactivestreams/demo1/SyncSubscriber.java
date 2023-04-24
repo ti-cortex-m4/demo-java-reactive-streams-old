@@ -1,4 +1,4 @@
-package demo.reactivestreams._part4;
+package demo.reactivestreams.demo1;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,9 +6,9 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
 
-public class TckCompatibleSyncSubscriber<T> implements Flow.Subscriber<T> {
+public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(TckCompatibleSyncSubscriber.class);
+    private static final Logger logger = LoggerFactory.getLogger(SyncSubscriber.class);
 
     private final int id;
     private final CountDownLatch completed = new CountDownLatch(1);
@@ -16,7 +16,7 @@ public class TckCompatibleSyncSubscriber<T> implements Flow.Subscriber<T> {
     private Flow.Subscription subscription;
     private boolean done = false;
 
-    public TckCompatibleSyncSubscriber(int id) {
+    public SyncSubscriber(int id) {
         this.id = id;
     }
 
@@ -57,7 +57,7 @@ public class TckCompatibleSyncSubscriber<T> implements Flow.Subscriber<T> {
 
     @Override
     public void onComplete() {
-        logger.info("({}) subscriber.complete",id);
+        logger.info("({}) subscriber.complete", id);
         completed.countDown();
     }
 

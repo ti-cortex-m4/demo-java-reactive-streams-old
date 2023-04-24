@@ -1,4 +1,4 @@
-package demo.reactivestreams._part4;
+package demo.reactivestreams.demo1;
 
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowSubscriberBlackboxVerification;
@@ -15,7 +15,7 @@ public class TckCompatibleSyncSubscriberBlackboxTest extends FlowSubscriberBlack
 
     @Override
     public Flow.Subscriber<Integer> createFlowSubscriber() {
-        return new TckCompatibleSyncSubscriber<>(0);
+        return new SyncSubscriber<>(0);
     }
 
     @Override

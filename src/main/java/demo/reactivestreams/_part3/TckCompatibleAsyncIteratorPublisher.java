@@ -19,7 +19,7 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
 
     private final Supplier<Iterator<T>> iteratorSupplier;
     private final Executor executor;
-    private final int batchSize; // In general, if one uses an `Executor`, one should be nice nad not hog a thread for too long, this is the cap for that, in elements
+    private final int batchSize;
 
     public TckCompatibleAsyncIteratorPublisher(Supplier<Iterator<T>> iteratorSupplier, final Executor executor) {
         this(iteratorSupplier, DEFAULT_BATCHSIZE, executor);

@@ -1,4 +1,4 @@
-package demo.reactivestreams._part4;
+package demo.reactivestreams.demo1;
 
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowSubscriberWhiteboxVerification;
@@ -15,7 +15,7 @@ public class TckCompatibleSyncSubscriberWhiteboxTest extends FlowSubscriberWhite
 
     @Override
     public Flow.Subscriber<Integer> createFlowSubscriber(WhiteboxSubscriberProbe<Integer> probe) {
-        return new TckCompatibleSyncSubscriber<>(0) {
+        return new SyncSubscriber<>(0) {
             @Override
             public void onSubscribe(Flow.Subscription subscription) {
                 super.onSubscribe(subscription);
