@@ -30,7 +30,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
     @Override
     public void subscribe(Flow.Subscriber<? super T> subscriber) {
-        new SubscriptionImpl(subscriber).doInit();
+        new SubscriptionImpl(subscriber).init();
     }
 
     private class SubscriptionImpl implements Flow.Subscription {
@@ -115,7 +115,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             terminated.set(true);
         }
 
-        private void doInit() {
+        private void init() {
             executorImpl.signal(new Subscribe());
         }
 
