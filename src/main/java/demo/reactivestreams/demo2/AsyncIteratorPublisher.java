@@ -11,9 +11,9 @@ import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T> {
+public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
-    private static final Logger logger = LoggerFactory.getLogger(TckCompatibleAsyncIteratorPublisher.class);
+    private static final Logger logger = LoggerFactory.getLogger(AsyncIteratorPublisher.class);
 
     private final static int DEFAULT_BATCHSIZE = 1024;
 
@@ -21,11 +21,11 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
     private final Executor executor;
     private final int batchSize;
 
-    public TckCompatibleAsyncIteratorPublisher(Supplier<Iterator<T>> iteratorSupplier, final Executor executor) {
+    public AsyncIteratorPublisher(Supplier<Iterator<T>> iteratorSupplier, final Executor executor) {
         this(iteratorSupplier, DEFAULT_BATCHSIZE, executor);
     }
 
-    public TckCompatibleAsyncIteratorPublisher(Supplier<Iterator<T>> iteratorSupplier, int batchSize, Executor executor) {
+    public AsyncIteratorPublisher(Supplier<Iterator<T>> iteratorSupplier, int batchSize, Executor executor) {
         if (batchSize < 1) {
             throw new IllegalArgumentException();
         }

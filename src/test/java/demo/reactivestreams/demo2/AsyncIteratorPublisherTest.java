@@ -1,6 +1,5 @@
 package demo.reactivestreams.demo2;
 
-import demo.reactivestreams._part3.AsyncIteratorPublisher;
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowPublisherVerification;
 import org.testng.annotations.AfterClass;
@@ -18,6 +17,10 @@ public class AsyncIteratorPublisherTest extends FlowPublisherVerification<Intege
 
     private ExecutorService executorService;
 
+    public AsyncIteratorPublisherTest() {
+        super(new TestEnvironment());
+    }
+
     @BeforeClass
     void before() {
         executorService = Executors.newFixedThreadPool(4);
@@ -28,10 +31,6 @@ public class AsyncIteratorPublisherTest extends FlowPublisherVerification<Intege
         if (executorService != null) {
             executorService.shutdown();
         }
-    }
-
-    public AsyncIteratorPublisherTest() {
-        super(new TestEnvironment());
     }
 
     @Override

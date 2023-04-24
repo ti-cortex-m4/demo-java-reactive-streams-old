@@ -10,12 +10,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
 
-import static org.testng.Assert.assertEquals;
-
 @Test
 public class AsyncSubscriberBlackboxTest extends FlowSubscriberBlackboxVerification<Integer> {
 
     private ExecutorService executorService;
+
+    public AsyncSubscriberBlackboxTest() {
+        super(new TestEnvironment());
+    }
 
     @BeforeClass
     void before() {
@@ -27,10 +29,6 @@ public class AsyncSubscriberBlackboxTest extends FlowSubscriberBlackboxVerificat
         if (executorService != null) {
             executorService.shutdown();
         }
-    }
-
-    public AsyncSubscriberBlackboxTest() {
-        super(new TestEnvironment());
     }
 
     @Override

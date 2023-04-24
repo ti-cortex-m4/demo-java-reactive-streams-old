@@ -10,10 +10,11 @@ import java.util.concurrent.TimeUnit;
 public class Runner {
 
     public static void main(String[] args) throws InterruptedException {
-        List<Integer> list = List.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-        SyncIteratorPublisher<Integer> publisher = new SyncIteratorPublisher<>(() -> List.copyOf(list).iterator());
+        ExecutorService executorService = Executors.newFixedThreadPool(3);
 
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        List<Integer> list = List.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+        AsyncIteratorPublisher<Integer> publisher = new AsyncIteratorPublisher<>(() -> List.copyOf(list).iterator(), executorService);
+
         AsyncSubscriber<Integer> subscriber1 = new AsyncSubscriber<Integer>(1, executorService);
         publisher.subscribe(subscriber1);
 
