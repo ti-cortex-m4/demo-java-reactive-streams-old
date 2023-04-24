@@ -33,9 +33,10 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         new SubscriptionImpl(subscriber).subscribe();
     }
 
-    private class SubscriptionImpl implements Flow.Subscription, Runnable {
+    private class SubscriptionImpl implements Flow.Subscription {
 
         private final Flow.Subscriber<? super T> subscriber;
+        private final ExecutorImpl executorImpl;
 
         private Iterator<T> iterator;
         private long demand = 0;
@@ -43,6 +44,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
             this.subscriber = Objects.requireNonNull(subscriber);
+            this.executorImpl = new ExecutorImpl();
         }
 
         private void doSubscribe() {
@@ -95,7 +97,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             } while (!cancelled && --batchLeft > 0 && --demand > 0);
 
             if (!cancelled && demand > 0) {
-                signal(new Next());
+                executorImpl.signal(new Next());
             }
         }
 
@@ -108,63 +110,20 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             subscriber.onError(throwable);
         }
 
-        private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<>();
-        private final AtomicBoolean mutex = new AtomicBoolean(false);
-
-        private void signal(Signal signal) {
-            if (inboundSignals.offer(signal)) {
-                tryExecute();
-            }
-        }
-
-        @Override
-        public void run() {
-            if (mutex.get()) {
-                try {
-                    Signal signal = inboundSignals.poll();
-                    if (!cancelled) {
-                        signal.run();
-                    }
-                } finally {
-                    mutex.set(false);
-                    if (!inboundSignals.isEmpty()) {
-                        tryExecute();
-                    }
-                }
-            }
-        }
-
-        private void tryExecute() {
-            if (mutex.compareAndSet(false, true)) {
-                try {
-                    executor.execute(this);
-                } catch (Throwable throwable) {
-                    if (!cancelled) {
-                        doCancel();
-                        try {
-                            doError(new IllegalStateException(throwable));
-                        } finally {
-                            mutex.set(false);
-                        }
-                    }
-                }
-            }
-        }
-
         void subscribe() {
-            signal(new Subscribe());
+            executorImpl.signal(new Subscribe());
         }
 
         @Override
         public void request(long n) {
             logger.info("subscription.request: {}", n);
-            signal(new Request(n));
+            executorImpl.signal(new Request(n));
         }
 
         @Override
         public void cancel() {
             logger.info("subscription.cancel");
-            signal(new Cancel());
+            executorImpl.signal(new Cancel());
         }
 
         private interface Signal extends Runnable {
@@ -201,6 +160,52 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             @Override
             public void run() {
                 doCancel();
+            }
+        }
+
+        private class ExecutorImpl implements Runnable {
+
+            private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<>();
+            private final AtomicBoolean mutex = new AtomicBoolean(false);
+
+            private void signal(Signal signal) {
+                if (inboundSignals.offer(signal)) {
+                    tryExecute();
+                }
+            }
+
+            @Override
+            public void run() {
+                if (mutex.get()) {
+                    try {
+                        Signal signal = inboundSignals.poll();
+                        if (!cancelled) {
+                            signal.run();
+                        }
+                    } finally {
+                        mutex.set(false);
+                        if (!inboundSignals.isEmpty()) {
+                            tryExecute();
+                        }
+                    }
+                }
+            }
+
+            private void tryExecute() {
+                if (mutex.compareAndSet(false, true)) {
+                    try {
+                        executor.execute(this);
+                    } catch (Throwable throwable) {
+                        if (!cancelled) {
+                            doCancel();
+                            try {
+                                doError(new IllegalStateException(throwable));
+                            } finally {
+                                mutex.set(false);
+                            }
+                        }
+                    }
+                }
             }
         }
     }

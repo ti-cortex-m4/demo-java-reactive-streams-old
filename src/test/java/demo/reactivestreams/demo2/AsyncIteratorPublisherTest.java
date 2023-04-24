@@ -40,6 +40,7 @@ public class AsyncIteratorPublisherTest extends FlowPublisherVerification<Intege
                 .iterate(0, UnaryOperator.identity())
                 .limit(elements)
                 .iterator(),
+            1024,
             executorService
         );
     }
@@ -50,6 +51,7 @@ public class AsyncIteratorPublisherTest extends FlowPublisherVerification<Intege
             () -> {
                 throw new RuntimeException();
             },
+            1024,
             executorService
         );
     }

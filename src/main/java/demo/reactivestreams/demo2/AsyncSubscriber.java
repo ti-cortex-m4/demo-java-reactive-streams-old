@@ -10,7 +10,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
+public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(AsyncSubscriber.class);
 
@@ -64,7 +64,6 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
         @Override
         public void run() {
             done = true;
-            whenError(throwable);
         }
     }
 
@@ -73,12 +72,13 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
         @Override
         public void run() {
             done = true;
-            whenComplete();
+            completed.countDown();
         }
     }
 
     private final int id;
     private final Executor executor;
+    private final ExecutorImpl executorImpl;
     private final CountDownLatch completed = new CountDownLatch(1);
 
     private Flow.Subscription subscription;
@@ -87,6 +87,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     public AsyncSubscriber(int id, Executor executor) {
         this.id = id;
         this.executor = Objects.requireNonNull(executor);
+        this.executorImpl = new ExecutorImpl();
     }
 
     public void awaitCompletion() throws InterruptedException {
@@ -103,13 +104,6 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
         return true;
     }
 
-    protected void whenError(Throwable throwable) {
-    }
-
-    protected void whenComplete() {
-        completed.countDown();
-    }
-
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
         logger.info("({}) subscriber.subscribe: {}", id, subscription);
@@ -117,7 +111,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
             throw new NullPointerException();
         }
 
-        signal(new OnSubscribe(subscription));
+        executorImpl.signal(new OnSubscribe(subscription));
     }
 
     @Override
@@ -127,7 +121,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
             throw new NullPointerException();
         }
 
-        signal(new OnNext(element));
+        executorImpl.signal(new OnNext(element));
     }
 
     @Override
@@ -137,54 +131,57 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
             throw new NullPointerException();
         }
 
-        signal(new OnError(throwable));
+        executorImpl.signal(new OnError(throwable));
     }
 
     @Override
     public void onComplete() {
         logger.info("({}) subscriber.complete", id);
-        signal(new OnComplete());
+        executorImpl.signal(new OnComplete());
     }
 
-    private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<>();
-    private final AtomicBoolean mutex = new AtomicBoolean(false);
+    private class ExecutorImpl implements Runnable {
 
-    @Override
-    public void run() {
-        if (mutex.get()) {
-            try {
-                Signal signal = inboundSignals.poll();
-                logger.debug("({}) subscriber.poll {}", id, signal);
-                if (!done) {
-                    signal.run();
-                }
-            } finally {
-                mutex.set(false);
-                if (!inboundSignals.isEmpty()) {
-                    tryExecute();
+        private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<>();
+        private final AtomicBoolean mutex = new AtomicBoolean(false);
+
+        @Override
+        public void run() {
+            if (mutex.get()) {
+                try {
+                    Signal signal = inboundSignals.poll();
+                    logger.debug("({}) subscriber.poll {}", id, signal);
+                    if (!done) {
+                        signal.run();
+                    }
+                } finally {
+                    mutex.set(false);
+                    if (!inboundSignals.isEmpty()) {
+                        tryExecute();
+                    }
                 }
             }
         }
-    }
 
-    private void signal(Signal signal) {
-        logger.debug("({}) subscriber.offer {}", id, signal);
-        if (inboundSignals.offer(signal)) {
-            tryExecute();
+        private void signal(Signal signal) {
+            logger.debug("({}) subscriber.offer {}", id, signal);
+            if (inboundSignals.offer(signal)) {
+                tryExecute();
+            }
         }
-    }
 
-    private void tryExecute() {
-        if (mutex.compareAndSet(false, true)) {
-            try {
-                executor.execute(this);
-            } catch (Throwable throwable) {
-                if (!done) {
-                    try {
-                        done();
-                    } finally {
-                        inboundSignals.clear();
-                        mutex.set(false);
+        private void tryExecute() {
+            if (mutex.compareAndSet(false, true)) {
+                try {
+                    executor.execute(this);
+                } catch (Throwable throwable) {
+                    if (!done) {
+                        try {
+                            done();
+                        } finally {
+                            inboundSignals.clear();
+                            mutex.set(false);
+                        }
                     }
                 }
             }
