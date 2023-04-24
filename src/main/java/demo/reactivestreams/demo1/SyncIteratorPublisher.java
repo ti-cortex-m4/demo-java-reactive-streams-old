@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
@@ -23,17 +24,26 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
     public void subscribe(Flow.Subscriber<? super T> subscriber) {
         SubscriptionImpl subscription = new SubscriptionImpl(subscriber);
         subscriber.onSubscribe(subscription);
+        subscription.onSubscribed();
     }
 
     private class SubscriptionImpl implements Flow.Subscription {
 
         private final Flow.Subscriber<? super T> subscriber;
         private final Iterator<? extends T> iterator;
+        private final AtomicReference<Throwable> error = new AtomicReference<>();
         private final AtomicBoolean terminated = new AtomicBoolean(false);
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
             this.subscriber = Objects.requireNonNull(subscriber);
-            this.iterator = Objects.requireNonNull(iteratorSupplier.get());
+
+            Iterator<? extends T> iterator = null;
+            try {
+                iterator = iteratorSupplier.get();
+            } catch (Throwable throwable) {
+                error.set(throwable);
+            }
+            this.iterator = iterator;
         }
 
         @Override
@@ -67,6 +77,14 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
         public void cancel() {
             logger.info("subscription.cancel");
             doTerminate();
+        }
+
+        void onSubscribed() {
+            Throwable throwable = error.get();
+            if ((throwable != null) && !terminated.get()) {
+                doTerminate();
+                subscriber.onError(throwable);
+            }
         }
 
         private void doTerminate() {
