@@ -26,12 +26,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
 
         @Override
         public void run() {
-            if (subscription != null) {
-                s.cancel();
-            } else {
-                subscription = s;
-                subscription.request(1);
-            }
+            doSubscribe(s);
         }
     }
 
@@ -44,13 +39,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
 
         @Override
         public void run() {
-            if (!done) {
-                if (whenNext(element)) {
-                    subscription.request(1);
-                } else {
-                    doDone();
-                }
-            }
+            doNext(element);
         }
     }
 
@@ -63,17 +52,43 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
 
         @Override
         public void run() {
-            done = true;
+            doError(throwable);
         }
     }
 
     private class OnComplete implements Signal {
-
         @Override
         public void run() {
-            done = true;
-            completed.countDown();
+            doComplete();
         }
+    }
+
+    private void doSubscribe(Flow.Subscription s) {
+        if (this.subscription != null) {
+            s.cancel();
+        } else {
+            this.subscription = s;
+            this.subscription.request(1);
+        }
+    }
+
+    private void doNext(T element) {
+        if (!done) {
+            if (whenNext(element)) {
+                subscription.request(1);
+            } else {
+                doDone();
+            }
+        }
+    }
+
+    private void doError(Throwable throwable) {
+        done = true;
+    }
+
+    private void doComplete() {
+        done = true;
+        completed.countDown();
     }
 
     private final int id;
