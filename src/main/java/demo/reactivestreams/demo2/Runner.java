@@ -1,7 +1,5 @@
 package demo.reactivestreams.demo2;
 
-import demo.reactivestreams._part1.SyncIteratorPublisher;
-
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -10,15 +8,15 @@ import java.util.concurrent.TimeUnit;
 public class Runner {
 
     public static void main(String[] args) throws InterruptedException {
-        ExecutorService executorService = Executors.newFixedThreadPool(3);
+        ExecutorService executorService = Executors.newCachedThreadPool();
 
-        List<Integer> list = List.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-        AsyncIteratorPublisher<Integer> publisher = new AsyncIteratorPublisher<>(() -> List.copyOf(list).iterator(), 1024, executorService);
+        List<String> list = List.of("The quick brown fox jumps over the lazy dog.".split(" "));
+        AsyncIteratorPublisher<String> publisher = new AsyncIteratorPublisher<>(() -> List.copyOf(list).iterator(), 1024, executorService);
 
-        AsyncSubscriber<Integer> subscriber1 = new AsyncSubscriber<Integer>(1, executorService);
+        AsyncSubscriber<String> subscriber1 = new AsyncSubscriber<>(1, executorService);
         publisher.subscribe(subscriber1);
 
-        AsyncSubscriber<Integer> subscriber2 = new AsyncSubscriber<Integer>(2, executorService);
+        AsyncSubscriber<String> subscriber2 = new AsyncSubscriber<>(2, executorService);
         publisher.subscribe(subscriber2);
 
         subscriber1.awaitCompletion();
