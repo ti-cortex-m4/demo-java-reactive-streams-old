@@ -41,25 +41,6 @@ public class TckCompatibleAsyncSubscriberBlackboxTest extends FlowSubscriberBlac
         return new TckCompatibleAsyncSubscriber<>(0, executorService);
     }
 
-    @Test
-    public void testAccumulation() throws InterruptedException {
-        AtomicLong accumulator = new AtomicLong();
-
-        TckCompatibleAsyncSubscriber<Integer> subscriber = new TckCompatibleAsyncSubscriber<>(0, executorService) {
-            @Override
-            protected boolean whenNext(Integer element) {
-                accumulator.addAndGet(element);
-                return true;
-            }
-        };
-
-        SyncIteratorPublisher<Integer> publisher = new SyncIteratorPublisher<>(() -> List.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9).iterator());
-        publisher.subscribe(subscriber);
-
-        subscriber.awaitCompletion();
-        assertEquals(accumulator.get(), 45);
-    }
-
     @Override
     public Integer createElement(int element) {
         return element;

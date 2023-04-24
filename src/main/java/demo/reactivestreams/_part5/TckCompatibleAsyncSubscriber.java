@@ -3,6 +3,7 @@ package demo.reactivestreams._part5;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -84,11 +85,8 @@ public class TckCompatibleAsyncSubscriber<T> implements Flow.Subscriber<T>, Runn
     private boolean done = false;
 
     public TckCompatibleAsyncSubscriber(int id, Executor executor) {
-        if (executor == null) {
-            throw new NullPointerException();
-        }
         this.id = id;
-        this.executor = executor;
+        this.executor = Objects.requireNonNull(executor);
     }
 
     public void awaitCompletion() throws InterruptedException {
@@ -113,13 +111,13 @@ public class TckCompatibleAsyncSubscriber<T> implements Flow.Subscriber<T>, Runn
     }
 
     @Override
-    public void onSubscribe(Flow.Subscription s) {
-        logger.info("({}) subscriber.subscribe: {}", id, s);
-        if (s == null) {
+    public void onSubscribe(Flow.Subscription subscription) {
+        logger.info("({}) subscriber.subscribe: {}", id, subscription);
+        if (subscription == null) {
             throw new NullPointerException();
         }
 
-        signal(new OnSubscribe(s));
+        signal(new OnSubscribe(subscription));
     }
 
     @Override

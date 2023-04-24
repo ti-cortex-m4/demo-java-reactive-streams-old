@@ -17,7 +17,6 @@ public class SubmissionProcessor extends SubmissionPublisher<Integer> implements
         logger.info("processor.subscribed: {}", subscription);
         this.subscription = subscription;
         this.subscription.request(1);
-
     }
 
     @Override

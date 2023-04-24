@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
@@ -25,23 +26,17 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
     }
 
     public TckCompatibleAsyncIteratorPublisher(Supplier<Iterator<T>> iteratorSupplier, int batchSize, Executor executor) {
-        if (iteratorSupplier == null) {
-            throw new NullPointerException();
-        }
-        if (executor == null) {
-            throw new NullPointerException();
-        }
         if (batchSize < 1) {
             throw new IllegalArgumentException();
         }
-        this.iteratorSupplier = iteratorSupplier;
-        this.executor = executor;
+        this.iteratorSupplier = Objects.requireNonNull(iteratorSupplier);
+        this.executor = Objects.requireNonNull(executor);
         this.batchSize = batchSize;
     }
 
     @Override
-    public void subscribe(Flow.Subscriber<? super T> s) {
-        new SubscriptionImpl(s).subscribe();
+    public void subscribe(Flow.Subscriber<? super T> subscriber) {
+        new SubscriptionImpl(subscriber).subscribe();
     }
 
     private class SubscriptionImpl implements Flow.Subscription, Runnable {
@@ -53,10 +48,7 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
         private boolean cancelled = false;
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
-            if (subscriber == null) {
-                throw new NullPointerException();
-            }
-            this.subscriber = subscriber;
+            this.subscriber = Objects.requireNonNull(subscriber);
         }
 
         private void doSubscribe() {
@@ -91,14 +83,14 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
                 doError(new IllegalArgumentException("non-positive subscription request"));
             } else if (demand + n < 1) {
                 demand = Long.MAX_VALUE;
-                doSendBatch();
+                doNext();
             } else {
                 demand += n;
-                doSendBatch();
+                doNext();
             }
         }
 
-        private void doSendBatch() {
+        private void doNext() {
             int batchLeft = batchSize;
             do {
                 T item = iterator.next();
@@ -112,7 +104,7 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
             } while (!cancelled && --batchLeft > 0 && --demand > 0);
 
             if (!cancelled && demand > 0) {
-                signal(new SendBatch());
+                signal(new Next());
             }
         }
 
@@ -207,10 +199,10 @@ public class TckCompatibleAsyncIteratorPublisher<T> implements Flow.Publisher<T>
             }
         }
 
-        private class SendBatch implements Signal {
+        private class Next implements Signal {
             @Override
             public void run() {
-                doSendBatch();
+                doNext();
             }
         }
 

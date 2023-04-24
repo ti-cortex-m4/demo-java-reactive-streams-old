@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -17,10 +18,7 @@ public class TckCompatibleSyncIteratorPublisher<T> implements Flow.Publisher<T> 
     private final Supplier<Iterator<? extends T>> iteratorSupplier;
 
     public TckCompatibleSyncIteratorPublisher(Supplier<Iterator<? extends T>> iteratorSupplier) {
-        if (iteratorSupplier == null) {
-            throw new NullPointerException();
-        }
-        this.iteratorSupplier = iteratorSupplier;
+        this.iteratorSupplier = Objects.requireNonNull(iteratorSupplier);
     }
 
     @Override
@@ -39,7 +37,7 @@ public class TckCompatibleSyncIteratorPublisher<T> implements Flow.Publisher<T> 
         private final AtomicReference<Throwable> error = new AtomicReference<>();
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
-            this.subscriber = subscriber;
+            this.subscriber = Objects.requireNonNull(subscriber);
             Iterator<? extends T> iterator = null;
 
             try {

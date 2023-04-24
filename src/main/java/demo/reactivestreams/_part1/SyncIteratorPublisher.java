@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -15,23 +16,23 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
     private final Supplier<Iterator<? extends T>> iteratorSupplier;
 
     public SyncIteratorPublisher(Supplier<Iterator<? extends T>> iteratorSupplier) {
-        this.iteratorSupplier = iteratorSupplier;
+        this.iteratorSupplier = Objects.requireNonNull(iteratorSupplier);
     }
 
     @Override
     public void subscribe(Flow.Subscriber<? super T> subscriber) {
-        IteratorSubscription subscription = new IteratorSubscription(subscriber);
+        SubscriptionImpl subscription = new SubscriptionImpl(subscriber);
         subscriber.onSubscribe(subscription);
     }
 
-    private class IteratorSubscription implements Flow.Subscription {
+    private class SubscriptionImpl implements Flow.Subscription {
 
         private final Flow.Subscriber<? super T> subscriber;
         private final Iterator<? extends T> iterator;
         private final AtomicBoolean terminated = new AtomicBoolean(false);
 
-        IteratorSubscription(Flow.Subscriber<? super T> subscriber) {
-            this.subscriber = subscriber;
+        SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
+            this.subscriber = Objects.requireNonNull(subscriber);
             this.iterator = iteratorSupplier.get();
         }
 
