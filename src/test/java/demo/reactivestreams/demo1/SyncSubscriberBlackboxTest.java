@@ -7,9 +7,9 @@ import org.testng.annotations.Test;
 import java.util.concurrent.Flow;
 
 @Test
-public class TckCompatibleSyncSubscriberBlackboxTest extends FlowSubscriberBlackboxVerification<Integer> {
+public class SyncSubscriberBlackboxTest extends FlowSubscriberBlackboxVerification<Integer> {
 
-    public TckCompatibleSyncSubscriberBlackboxTest() {
+    public SyncSubscriberBlackboxTest() {
         super(new TestEnvironment());
     }
 

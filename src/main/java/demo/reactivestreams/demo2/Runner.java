@@ -1,4 +1,4 @@
-package demo.reactivestreams._part5;
+package demo.reactivestreams.demo2;
 
 import demo.reactivestreams._part1.SyncIteratorPublisher;
 
@@ -14,10 +14,10 @@ public class Runner {
         SyncIteratorPublisher<Integer> publisher = new SyncIteratorPublisher<>(() -> List.copyOf(list).iterator());
 
         ExecutorService executorService = Executors.newFixedThreadPool(2);
-        TckCompatibleAsyncSubscriber<Integer> subscriber1 = new TckCompatibleAsyncSubscriber<Integer>(1, executorService);
+        AsyncSubscriber<Integer> subscriber1 = new AsyncSubscriber<Integer>(1, executorService);
         publisher.subscribe(subscriber1);
 
-        TckCompatibleAsyncSubscriber<Integer> subscriber2 = new TckCompatibleAsyncSubscriber<Integer>(2, executorService);
+        AsyncSubscriber<Integer> subscriber2 = new AsyncSubscriber<Integer>(2, executorService);
         publisher.subscribe(subscriber2);
 
         subscriber1.awaitCompletion();

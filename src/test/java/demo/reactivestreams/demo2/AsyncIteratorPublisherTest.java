@@ -1,5 +1,6 @@
-package demo.reactivestreams._part3;
+package demo.reactivestreams.demo2;
 
+import demo.reactivestreams._part3.AsyncIteratorPublisher;
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowPublisherVerification;
 import org.testng.annotations.AfterClass;
@@ -12,10 +13,8 @@ import java.util.concurrent.Flow;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
-import static org.testng.AssertJUnit.assertTrue;
-
 @Test
-public class TckCompatibleAsyncIteratorPublisherTest extends FlowPublisherVerification<Integer> {
+public class AsyncIteratorPublisherTest extends FlowPublisherVerification<Integer> {
 
     private ExecutorService executorService;
 
@@ -31,7 +30,7 @@ public class TckCompatibleAsyncIteratorPublisherTest extends FlowPublisherVerifi
         }
     }
 
-    public TckCompatibleAsyncIteratorPublisherTest() {
+    public AsyncIteratorPublisherTest() {
         super(new TestEnvironment());
     }
 

@@ -7,9 +7,9 @@ import org.testng.annotations.Test;
 import java.util.concurrent.Flow;
 
 @Test
-public class TckCompatibleSyncSubscriberWhiteboxTest extends FlowSubscriberWhiteboxVerification<Integer> {
+public class SyncSubscriberWhiteboxTest extends FlowSubscriberWhiteboxVerification<Integer> {
 
-    public TckCompatibleSyncSubscriberWhiteboxTest() {
+    public SyncSubscriberWhiteboxTest() {
         super(new TestEnvironment());
     }
 

@@ -1,4 +1,4 @@
-package demo.reactivestreams._part5;
+package demo.reactivestreams.demo2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,9 +10,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class TckCompatibleAsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
+public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(TckCompatibleAsyncSubscriber.class);
+    private static final Logger logger = LoggerFactory.getLogger(AsyncSubscriber.class);
 
     private interface Signal extends Runnable {
     }
@@ -84,7 +84,7 @@ public class TckCompatibleAsyncSubscriber<T> implements Flow.Subscriber<T>, Runn
     private Flow.Subscription subscription;
     private boolean done = false;
 
-    public TckCompatibleAsyncSubscriber(int id, Executor executor) {
+    public AsyncSubscriber(int id, Executor executor) {
         this.id = id;
         this.executor = Objects.requireNonNull(executor);
     }

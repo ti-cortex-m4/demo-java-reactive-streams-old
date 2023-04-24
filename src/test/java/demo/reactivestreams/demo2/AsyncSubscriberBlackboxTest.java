@@ -1,22 +1,19 @@
-package demo.reactivestreams._part5;
+package demo.reactivestreams.demo2;
 
-import demo.reactivestreams._part1.SyncIteratorPublisher;
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowSubscriberBlackboxVerification;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.testng.Assert.assertEquals;
 
 @Test
-public class TckCompatibleAsyncSubscriberBlackboxTest extends FlowSubscriberBlackboxVerification<Integer> {
+public class AsyncSubscriberBlackboxTest extends FlowSubscriberBlackboxVerification<Integer> {
 
     private ExecutorService executorService;
 
@@ -32,13 +29,13 @@ public class TckCompatibleAsyncSubscriberBlackboxTest extends FlowSubscriberBlac
         }
     }
 
-    public TckCompatibleAsyncSubscriberBlackboxTest() {
+    public AsyncSubscriberBlackboxTest() {
         super(new TestEnvironment());
     }
 
     @Override
     public Flow.Subscriber<Integer> createFlowSubscriber() {
-        return new TckCompatibleAsyncSubscriber<>(0, executorService);
+        return new AsyncSubscriber<>(0, executorService);
     }
 
     @Override
