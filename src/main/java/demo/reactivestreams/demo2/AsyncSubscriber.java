@@ -161,7 +161,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
             if (mutex.get()) {
                 try {
                     Signal signal = inboundSignals.poll();
-                    logger.debug("({}) signal.poll {}", id, signal);
+                    logger.warn("({}) signal.poll {}", id, signal);
                     if (!terminated.get()) {
                         signal.run();
                     }
@@ -175,7 +175,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
         }
 
         private void signal(Signal signal) {
-            logger.debug("({}) signal.offer {}", id, signal);
+            logger.warn("({}) signal.offer {}", id, signal);
             if (inboundSignals.offer(signal)) {
                 tryExecute();
             }

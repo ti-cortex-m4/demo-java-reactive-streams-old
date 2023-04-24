@@ -174,7 +174,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             private final AtomicBoolean mutex = new AtomicBoolean(false);
 
             private void signal(Signal signal) {
-                logger.debug("signal.offer {}", signal);
+                logger.warn("signal.offer {}", signal);
                 if (inboundSignals.offer(signal)) {
                     tryExecute();
                 }
@@ -185,7 +185,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 if (mutex.get()) {
                     try {
                         Signal signal = inboundSignals.poll();
-                        logger.debug("signal.poll {}", signal);
+                        logger.warn("signal.poll {}", signal);
                         if (!terminated.get()) {
                             signal.run();
                         }
@@ -208,6 +208,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                             try {
                                 doError(new IllegalStateException(throwable));
                             } finally {
+                                inboundSignals.clear();
                                 mutex.set(false);
                             }
                         }
