@@ -48,7 +48,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
                 if (whenNext(element)) {
                     subscription.request(1);
                 } else {
-                    done();
+                    doDone();
                 }
             }
         }
@@ -94,7 +94,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
         completed.await();
     }
 
-    private void done() {
+    private void doDone() {
         logger.info("({}) subscriber.done", id);
         done = true;
         subscription.cancel();
@@ -107,31 +107,19 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
         logger.info("({}) subscriber.subscribe: {}", id, subscription);
-        if (subscription == null) {
-            throw new NullPointerException();
-        }
-
-        executorImpl.signal(new OnSubscribe(subscription));
+        executorImpl.signal(new OnSubscribe(Objects.requireNonNull(subscription)));
     }
 
     @Override
     public void onNext(T element) {
         logger.info("({}) subscriber.next: {}", id, element);
-        if (element == null) {
-            throw new NullPointerException();
-        }
-
-        executorImpl.signal(new OnNext(element));
+        executorImpl.signal(new OnNext(Objects.requireNonNull(element)));
     }
 
     @Override
     public void onError(Throwable throwable) {
         logger.error("({}) subscriber.error", id, throwable);
-        if (throwable == null) {
-            throw new NullPointerException();
-        }
-
-        executorImpl.signal(new OnError(throwable));
+        executorImpl.signal(new OnError(Objects.requireNonNull(throwable)));
     }
 
     @Override
@@ -177,7 +165,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
                 } catch (Throwable throwable) {
                     if (!done) {
                         try {
-                            done();
+                            doDone();
                         } finally {
                             inboundSignals.clear();
                             mutex.set(false);
