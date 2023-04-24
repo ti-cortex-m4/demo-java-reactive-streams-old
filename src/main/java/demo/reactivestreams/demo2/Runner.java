@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 public class Runner {
 
     public static void main(String[] args) throws InterruptedException {
-        ExecutorService executorService = Executors.newCachedThreadPool();
+        ExecutorService executorService = Executors.newFixedThreadPool(3);
 
         List<String> list = List.of("The quick brown fox jumps over the lazy dog.".split(" "));
         AsyncIteratorPublisher<String> publisher = new AsyncIteratorPublisher<>(() -> List.copyOf(list).iterator(), 1024, executorService);
