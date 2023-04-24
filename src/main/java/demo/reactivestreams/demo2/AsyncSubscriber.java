@@ -84,20 +84,21 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
 
     private void doError(Throwable throwable) {
         terminated.set(true);
+        whenError(throwable);
     }
 
     private void doComplete() {
         terminated.set(true);
-        completed.countDown();
+        whenComplete();
     }
 
     private final int id;
     private final Executor executor;
     private final ExecutorImpl executorImpl;
+    private final AtomicBoolean terminated = new AtomicBoolean(false);
     private final CountDownLatch completed = new CountDownLatch(1);
 
     private Flow.Subscription subscription;
-    private AtomicBoolean terminated = new AtomicBoolean(false);
 
     public AsyncSubscriber(int id, Executor executor) {
         this.id = id;
@@ -109,14 +110,21 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
         completed.await();
     }
 
+    protected boolean whenNext(T element) {
+        return true;
+    }
+
+    protected void whenError(Throwable throwable) {
+    }
+
+    protected void whenComplete() {
+        completed.countDown();
+    }
+
     private void doTerminate() {
         logger.warn("({}) subscriber.terminate", id);
         terminated.set(true);
         subscription.cancel();
-    }
-
-    protected boolean whenNext(T element) {
-        return true;
     }
 
     @Override

@@ -13,10 +13,10 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     private static final Logger logger = LoggerFactory.getLogger(SyncSubscriber.class);
 
     private final int id;
+    private final AtomicBoolean terminated = new AtomicBoolean(false);
     private final CountDownLatch completed = new CountDownLatch(1);
 
     private Flow.Subscription subscription;
-    private final AtomicBoolean terminated = new AtomicBoolean(false);
 
     public SyncSubscriber(int id) {
         this.id = id;
