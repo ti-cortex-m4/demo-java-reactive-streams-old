@@ -39,6 +39,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
         @Override
         public void request(long n) {
             logger.info("subscription.request: {}", n);
+
             if ((n < 1) && !terminated.get()) {
                 doTerminate();
                 subscriber.onError(new IllegalArgumentException("non-positive subscription request"));

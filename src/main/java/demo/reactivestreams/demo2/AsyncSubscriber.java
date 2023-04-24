@@ -14,6 +14,94 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(AsyncSubscriber.class);
 
+    private void doSubscribe(Flow.Subscription subscription) {
+        if (this.subscription != null) {
+            subscription.cancel();
+        } else {
+            this.subscription = subscription;
+            this.subscription.request(1);
+        }
+    }
+
+    private void doNext(T element) {
+        if (!terminated.get()) {
+            if (whenNext(element)) {
+                subscription.request(1);
+            } else {
+                doTerminate();
+            }
+        }
+    }
+
+    private void doError(Throwable throwable) {
+        terminated.set(true);
+        whenError(throwable);
+    }
+
+    private void doComplete() {
+        terminated.set(true);
+        whenComplete();
+    }
+
+    private final int id;
+    private final Executor executor;
+    private final ExecutorImpl executorImpl;
+    private final AtomicBoolean terminated = new AtomicBoolean(false);
+    private final CountDownLatch completed = new CountDownLatch(1);
+
+    private Flow.Subscription subscription;
+
+    public AsyncSubscriber(int id, Executor executor) {
+        this.id = id;
+        this.executor = Objects.requireNonNull(executor);
+        this.executorImpl = new ExecutorImpl();
+    }
+
+    @Override
+    public void onSubscribe(Flow.Subscription subscription) {
+        logger.info("({}) subscriber.subscribe: {}", id, subscription);
+        executorImpl.signal(new OnSubscribe(Objects.requireNonNull(subscription)));
+    }
+
+    @Override
+    public void onNext(T element) {
+        logger.info("({}) subscriber.next: {}", id, element);
+        executorImpl.signal(new OnNext(Objects.requireNonNull(element)));
+    }
+
+    @Override
+    public void onError(Throwable throwable) {
+        logger.error("({}) subscriber.error", id, throwable);
+        executorImpl.signal(new OnError(Objects.requireNonNull(throwable)));
+    }
+
+    @Override
+    public void onComplete() {
+        logger.info("({}) subscriber.complete", id);
+        executorImpl.signal(new OnComplete());
+    }
+
+    public void awaitCompletion() throws InterruptedException {
+        completed.await();
+    }
+
+    protected boolean whenNext(T element) {
+        return true;
+    }
+
+    protected void whenError(Throwable throwable) {
+    }
+
+    protected void whenComplete() {
+        completed.countDown();
+    }
+
+    private void doTerminate() {
+        logger.warn("({}) subscriber.terminate", id);
+        terminated.set(true);
+        subscription.cancel();
+    }
+
     private interface Signal extends Runnable {
     }
 
@@ -61,94 +149,6 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
         public void run() {
             doComplete();
         }
-    }
-
-    private void doSubscribe(Flow.Subscription subscription) {
-        if (this.subscription != null) {
-            subscription.cancel();
-        } else {
-            this.subscription = subscription;
-            this.subscription.request(1);
-        }
-    }
-
-    private void doNext(T element) {
-        if (!terminated.get()) {
-            if (whenNext(element)) {
-                subscription.request(1);
-            } else {
-                doTerminate();
-            }
-        }
-    }
-
-    private void doError(Throwable throwable) {
-        terminated.set(true);
-        whenError(throwable);
-    }
-
-    private void doComplete() {
-        terminated.set(true);
-        whenComplete();
-    }
-
-    private final int id;
-    private final Executor executor;
-    private final ExecutorImpl executorImpl;
-    private final AtomicBoolean terminated = new AtomicBoolean(false);
-    private final CountDownLatch completed = new CountDownLatch(1);
-
-    private Flow.Subscription subscription;
-
-    public AsyncSubscriber(int id, Executor executor) {
-        this.id = id;
-        this.executor = Objects.requireNonNull(executor);
-        this.executorImpl = new ExecutorImpl();
-    }
-
-    public void awaitCompletion() throws InterruptedException {
-        completed.await();
-    }
-
-    protected boolean whenNext(T element) {
-        return true;
-    }
-
-    protected void whenError(Throwable throwable) {
-    }
-
-    protected void whenComplete() {
-        completed.countDown();
-    }
-
-    private void doTerminate() {
-        logger.warn("({}) subscriber.terminate", id);
-        terminated.set(true);
-        subscription.cancel();
-    }
-
-    @Override
-    public void onSubscribe(Flow.Subscription subscription) {
-        logger.info("({}) subscriber.subscribe: {}", id, subscription);
-        executorImpl.signal(new OnSubscribe(Objects.requireNonNull(subscription)));
-    }
-
-    @Override
-    public void onNext(T element) {
-        logger.info("({}) subscriber.next: {}", id, element);
-        executorImpl.signal(new OnNext(Objects.requireNonNull(element)));
-    }
-
-    @Override
-    public void onError(Throwable throwable) {
-        logger.error("({}) subscriber.error", id, throwable);
-        executorImpl.signal(new OnError(Objects.requireNonNull(throwable)));
-    }
-
-    @Override
-    public void onComplete() {
-        logger.info("({}) subscriber.complete", id);
-        executorImpl.signal(new OnComplete());
     }
 
     private class ExecutorImpl implements Runnable {
