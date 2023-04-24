@@ -23,10 +23,6 @@ public class TckCompatibleSyncSubscriber<T> implements Flow.Subscriber<T> {
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
         logger.info("({}) subscriber.subscribe: {}", id, subscription);
-        if (subscription == null) {
-            throw new NullPointerException();
-        }
-
         if (this.subscription != null) {
             subscription.cancel();
         } else {
