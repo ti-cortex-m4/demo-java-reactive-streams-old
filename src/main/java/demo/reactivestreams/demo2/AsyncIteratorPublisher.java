@@ -67,7 +67,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 subscriber.onSubscribe(this);
 
                 if (!iterator.hasNext()) {
-                    doCancel();
+                    doTerminate();
                     subscriber.onComplete();
                 }
             }
@@ -91,7 +91,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 subscriber.onNext(iterator.next());
 
                 if (!iterator.hasNext()) {
-                    doCancel();
+                    doTerminate();
                     subscriber.onComplete();
                 }
             } while (!terminated && --batchLeft > 0 && --demand > 0);
@@ -102,12 +102,17 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         }
 
         private void doCancel() {
-            terminated = true;
+            doTerminate();
         }
 
         private void doError(Throwable throwable) {
-            terminated = true;
+            doTerminate();
             subscriber.onError(throwable);
+        }
+
+        private void doTerminate() {
+            logger.debug("subscription.terminate");
+            terminated = true;
         }
 
         private void doInit() {
@@ -169,6 +174,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             private final AtomicBoolean mutex = new AtomicBoolean(false);
 
             private void signal(Signal signal) {
+                logger.debug("signal.offer {}", signal);
                 if (inboundSignals.offer(signal)) {
                     tryExecute();
                 }
@@ -179,6 +185,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 if (mutex.get()) {
                     try {
                         Signal signal = inboundSignals.poll();
+                        logger.debug("signal.poll {}", signal);
                         if (!terminated) {
                             signal.run();
                         }
@@ -197,7 +204,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                         executor.execute(this);
                     } catch (Throwable throwable) {
                         if (!terminated) {
-                            doCancel();
+                            doTerminate();
                             try {
                                 doError(new IllegalStateException(throwable));
                             } finally {

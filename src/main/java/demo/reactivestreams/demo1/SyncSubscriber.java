@@ -75,7 +75,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     }
 
     private void doTerminate() {
-        logger.warn("({}) subscriber.terminate", id);
+        logger.debug("({}) subscriber.terminate", id);
         terminated.set(true);
         subscription.cancel();
     }
