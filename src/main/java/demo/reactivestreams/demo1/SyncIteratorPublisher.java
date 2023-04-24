@@ -39,8 +39,8 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
         @Override
         public void request(long n) {
             logger.info("subscription.request: {}", n);
-
-            if ((n < 1) && !doTerminate()) {
+            if ((n < 1) && !terminated.get()) {
+                doTerminate();
                 subscriber.onError(new IllegalArgumentException("non-positive subscription request"));
                 return;
             }
@@ -49,13 +49,15 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 try {
                     subscriber.onNext(iterator.next());
                 } catch (Throwable throwable) {
-                    if (!doTerminate()) {
+                    if (!terminated.get()) {
+                        doTerminate();
                         subscriber.onError(throwable);
                     }
                 }
             }
 
-            if (!iterator.hasNext() && !doTerminate()) {
+            if (!iterator.hasNext() && !terminated.get()) {
+                doTerminate();
                 subscriber.onComplete();
             }
         }
@@ -66,8 +68,9 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
             doTerminate();
         }
 
-        private boolean doTerminate() {
-            return terminated.getAndSet(true);
+        private void doTerminate() {
+            logger.warn("subscription.terminate");
+            terminated.set(true);
         }
     }
 }

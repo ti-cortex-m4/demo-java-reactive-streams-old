@@ -73,7 +73,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
     }
 
     private void doNext(T element) {
-        if (!terminated) {
+        if (!terminated.get()) {
             if (whenNext(element)) {
                 subscription.request(1);
             } else {
@@ -83,11 +83,11 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
     }
 
     private void doError(Throwable throwable) {
-        terminated = true;
+        terminated.set(true);
     }
 
     private void doComplete() {
-        terminated = true;
+        terminated.set(true);
         completed.countDown();
     }
 
@@ -97,7 +97,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
     private final CountDownLatch completed = new CountDownLatch(1);
 
     private Flow.Subscription subscription;
-    private boolean terminated = false;
+    private AtomicBoolean terminated = new AtomicBoolean(false);
 
     public AsyncSubscriber(int id, Executor executor) {
         this.id = id;
@@ -110,8 +110,8 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
     }
 
     private void doTerminate() {
-        logger.info("({}) subscriber.terminate", id);
-        terminated = true;
+        logger.warn("({}) subscriber.terminate", id);
+        terminated.set(true);
         subscription.cancel();
     }
 
@@ -154,7 +154,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
                 try {
                     Signal signal = inboundSignals.poll();
                     logger.debug("({}) subscriber.poll {}", id, signal);
-                    if (!terminated) {
+                    if (!terminated.get()) {
                         signal.run();
                     }
                 } finally {
@@ -178,7 +178,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
                 try {
                     executor.execute(this);
                 } catch (Throwable throwable) {
-                    if (!terminated) {
+                    if (!terminated.get()) {
                         try {
                             doTerminate();
                         } finally {

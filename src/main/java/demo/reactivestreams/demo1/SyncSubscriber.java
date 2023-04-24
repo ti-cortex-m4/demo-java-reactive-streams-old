@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 
@@ -15,7 +16,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     private final CountDownLatch completed = new CountDownLatch(1);
 
     private Flow.Subscription subscription;
-    private boolean terminated = false;
+    private final AtomicBoolean terminated = new AtomicBoolean(false);
 
     public SyncSubscriber(int id) {
         this.id = id;
@@ -35,11 +36,9 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     @Override
     public void onNext(T element) {
         logger.info("({}) subscriber.next: {}", id, element);
-        if (element == null) {
-            throw new NullPointerException();
-        }
+        Objects.requireNonNull(element);
 
-        if (!terminated) {
+        if (!terminated.get()) {
             if (whenNext(element)) {
                 subscription.request(1);
             } else {
@@ -76,8 +75,8 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     }
 
     private void doTerminate() {
-        logger.info("({}) subscriber.terminate", id);
-        terminated = true;
+        logger.warn("({}) subscriber.terminate", id);
+        terminated.set(true);
         subscription.cancel();
     }
 }
