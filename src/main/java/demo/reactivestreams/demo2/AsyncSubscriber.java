@@ -73,21 +73,21 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
     }
 
     private void doNext(T element) {
-        if (!done) {
+        if (!terminated) {
             if (whenNext(element)) {
                 subscription.request(1);
             } else {
-                doDone();
+                doTerminate();
             }
         }
     }
 
     private void doError(Throwable throwable) {
-        done = true;
+        terminated = true;
     }
 
     private void doComplete() {
-        done = true;
+        terminated = true;
         completed.countDown();
     }
 
@@ -97,7 +97,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
     private final CountDownLatch completed = new CountDownLatch(1);
 
     private Flow.Subscription subscription;
-    private boolean done = false;
+    private boolean terminated = false;
 
     public AsyncSubscriber(int id, Executor executor) {
         this.id = id;
@@ -109,9 +109,9 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
         completed.await();
     }
 
-    private void doDone() {
-        logger.info("({}) subscriber.done", id);
-        done = true;
+    private void doTerminate() {
+        logger.info("({}) subscriber.terminate", id);
+        terminated = true;
         subscription.cancel();
     }
 
@@ -154,7 +154,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
                 try {
                     Signal signal = inboundSignals.poll();
                     logger.debug("({}) subscriber.poll {}", id, signal);
-                    if (!done) {
+                    if (!terminated) {
                         signal.run();
                     }
                 } finally {
@@ -178,9 +178,9 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
                 try {
                     executor.execute(this);
                 } catch (Throwable throwable) {
-                    if (!done) {
+                    if (!terminated) {
                         try {
-                            doDone();
+                            doTerminate();
                         } finally {
                             inboundSignals.clear();
                             mutex.set(false);

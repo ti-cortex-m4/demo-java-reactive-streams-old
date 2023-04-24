@@ -30,7 +30,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
     @Override
     public void subscribe(Flow.Subscriber<? super T> subscriber) {
-        new SubscriptionImpl(subscriber).init();
+        new SubscriptionImpl(subscriber).doInit();
     }
 
     private class SubscriptionImpl implements Flow.Subscription {
@@ -40,7 +40,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
         private Iterator<T> iterator;
         private long demand = 0;
-        private boolean cancelled = false;
+        private boolean terminated = false;
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
             this.subscriber = Objects.requireNonNull(subscriber);
@@ -63,7 +63,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 doError(throwable);
             }
 
-            if (!cancelled) {
+            if (!terminated) {
                 subscriber.onSubscribe(this);
 
                 if (!iterator.hasNext()) {
@@ -94,23 +94,23 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     doCancel();
                     subscriber.onComplete();
                 }
-            } while (!cancelled && --batchLeft > 0 && --demand > 0);
+            } while (!terminated && --batchLeft > 0 && --demand > 0);
 
-            if (!cancelled && demand > 0) {
+            if (!terminated && demand > 0) {
                 executorImpl.signal(new Next());
             }
         }
 
         private void doCancel() {
-            cancelled = true;
+            terminated = true;
         }
 
         private void doError(Throwable throwable) {
-            cancelled = true;
+            terminated = true;
             subscriber.onError(throwable);
         }
 
-        void init() {
+        private void doInit() {
             executorImpl.signal(new Subscribe());
         }
 
@@ -179,7 +179,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 if (mutex.get()) {
                     try {
                         Signal signal = inboundSignals.poll();
-                        if (!cancelled) {
+                        if (!terminated) {
                             signal.run();
                         }
                     } finally {
@@ -196,7 +196,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     try {
                         executor.execute(this);
                     } catch (Throwable throwable) {
-                        if (!cancelled) {
+                        if (!terminated) {
                             doCancel();
                             try {
                                 doError(new IllegalStateException(throwable));

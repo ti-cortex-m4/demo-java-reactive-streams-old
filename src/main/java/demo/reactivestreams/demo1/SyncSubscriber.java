@@ -15,7 +15,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     private final CountDownLatch completed = new CountDownLatch(1);
 
     private Flow.Subscription subscription;
-    private boolean done = false;
+    private boolean terminated = false;
 
     public SyncSubscriber(int id) {
         this.id = id;
@@ -39,11 +39,11 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
             throw new NullPointerException();
         }
 
-        if (!done) {
+        if (!terminated) {
             if (whenNext(element)) {
                 subscription.request(1);
             } else {
-                done();
+                doTerminate();
             }
         }
     }
@@ -75,9 +75,9 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
         completed.countDown();
     }
 
-    private void done() {
-        logger.info("({}) subscriber.done", id);
-        done = true;
+    private void doTerminate() {
+        logger.info("({}) subscriber.terminate", id);
+        terminated = true;
         subscription.cancel();
     }
 }
