@@ -3,6 +3,7 @@ package demo.reactivestreams.demo1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
 
@@ -50,15 +51,13 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     @Override
     public void onError(Throwable throwable) {
         logger.error("({}) subscriber.error", id, throwable);
-        if (throwable == null) {
-            throw new NullPointerException();
-        }
+        whenError(Objects.requireNonNull(throwable));
     }
 
     @Override
     public void onComplete() {
         logger.info("({}) subscriber.complete", id);
-        completed.countDown();
+        whenComplete();
     }
 
     public void awaitCompletion() throws InterruptedException {
@@ -67,6 +66,13 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 
     protected boolean whenNext(T element) {
         return true;
+    }
+
+    protected void whenError(Throwable throwable) {
+    }
+
+    protected void whenComplete() {
+        completed.countDown();
     }
 
     private void done() {
