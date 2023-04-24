@@ -18,15 +18,15 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
     }
 
     private class OnSubscribe implements Signal {
-        private final Flow.Subscription s;
+        private final Flow.Subscription subscription;
 
-        OnSubscribe(Flow.Subscription s) {
-            this.s = s;
+        OnSubscribe(Flow.Subscription subscription) {
+            this.subscription = subscription;
         }
 
         @Override
         public void run() {
-            doSubscribe(s);
+            doSubscribe(subscription);
         }
     }
 
@@ -63,11 +63,11 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
         }
     }
 
-    private void doSubscribe(Flow.Subscription s) {
+    private void doSubscribe(Flow.Subscription subscription) {
         if (this.subscription != null) {
-            s.cancel();
+            subscription.cancel();
         } else {
-            this.subscription = s;
+            this.subscription = subscription;
             this.subscription.request(1);
         }
     }
