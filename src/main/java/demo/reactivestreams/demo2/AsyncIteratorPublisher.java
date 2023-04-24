@@ -15,15 +15,9 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(AsyncIteratorPublisher.class);
 
-    private final static int DEFAULT_BATCHSIZE = 1024;
-
     private final Supplier<Iterator<T>> iteratorSupplier;
     private final Executor executor;
     private final int batchSize;
-
-    public AsyncIteratorPublisher(Supplier<Iterator<T>> iteratorSupplier, final Executor executor) {
-        this(iteratorSupplier, DEFAULT_BATCHSIZE, executor);
-    }
 
     public AsyncIteratorPublisher(Supplier<Iterator<T>> iteratorSupplier, int batchSize, Executor executor) {
         if (batchSize < 1) {
@@ -70,8 +64,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             if (!cancelled) {
                 subscriber.onSubscribe(this);
 
-                boolean hasNext = iterator.hasNext();
-                if (!hasNext) {
+                if (!iterator.hasNext()) {
                     doCancel();
                     subscriber.onComplete();
                 }
@@ -93,11 +86,9 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         private void doNext() {
             int batchLeft = batchSize;
             do {
-                T item = iterator.next();
-                subscriber.onNext(item);
+                subscriber.onNext(iterator.next());
 
-                boolean hasNext = iterator.hasNext();
-                if (!hasNext) {
+                if (!iterator.hasNext()) {
                     doCancel();
                     subscriber.onComplete();
                 }

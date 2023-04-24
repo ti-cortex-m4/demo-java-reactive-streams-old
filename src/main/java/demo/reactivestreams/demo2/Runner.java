@@ -13,7 +13,7 @@ public class Runner {
         ExecutorService executorService = Executors.newFixedThreadPool(3);
 
         List<Integer> list = List.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-        AsyncIteratorPublisher<Integer> publisher = new AsyncIteratorPublisher<>(() -> List.copyOf(list).iterator(), executorService);
+        AsyncIteratorPublisher<Integer> publisher = new AsyncIteratorPublisher<>(() -> List.copyOf(list).iterator(), 1024, executorService);
 
         AsyncSubscriber<Integer> subscriber1 = new AsyncSubscriber<Integer>(1, executorService);
         publisher.subscribe(subscriber1);

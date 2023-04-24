@@ -37,6 +37,9 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
             if (subscriber == null) {
                 throw new NullPointerException();
             }
+            if (iteratorSupplier == null) {
+                throw new NullPointerException();
+            }
             this.subscriber = subscriber;
             this.iterator = iteratorSupplier.get();
         }
