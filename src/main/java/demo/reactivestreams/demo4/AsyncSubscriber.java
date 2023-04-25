@@ -104,6 +104,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
         subscription.cancel();
     }
 
+    // `Signal` represents the asynchronous protocol between the `Publisher` and `Subscriber`
     private interface Signal extends Runnable {
     }
 

@@ -145,6 +145,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             signal(new Cancel());
         }
 
+        // `Signal` represents the asynchronous protocol between the `Publisher` and `Subscriber`
         private interface Signal extends Runnable {
         }
 
