@@ -16,6 +16,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     private void doSubscribe(Flow.Subscription subscription) {
         if (this.subscription != null) {
+            // by rule 2.5, a `Subscriber` must cancel the given `Subscription` if it already has an active `Subscription`
             subscription.cancel();
         } else {
             this.subscription = subscription;
@@ -58,21 +59,21 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
         logger.info("({}) subscriber.subscribe: {}", id, subscription);
-        // by rule 2.13, a `Consumer` must throw a `java.lang.NullPointerException` if the `Subscription` is `null`
+        // by rule 2.13, a `Subscriber` must throw a `java.lang.NullPointerException` if the `Subscription` is `null`
         signal(new OnSubscribe(Objects.requireNonNull(subscription)));
     }
 
     @Override
     public void onNext(T item) {
         logger.info("({}) subscriber.next: {}", id, item);
-        // by rule 2.13, a `Consumer` must throw a `java.lang.NullPointerException` if the `item` is `null`
+        // by rule 2.13, a `Subscriber` must throw a `java.lang.NullPointerException` if the `item` is `null`
         signal(new OnNext(Objects.requireNonNull(item)));
     }
 
     @Override
     public void onError(Throwable throwable) {
         logger.error("({}) subscriber.error", id, throwable);
-        // by rule 2.13, a `Consumer` must throw a `java.lang.NullPointerException` if the `Throwable` is `null`
+        // by rule 2.13, a `Subscriber` must throw a `java.lang.NullPointerException` if the `Throwable` is `null`
         signal(new OnError(Objects.requireNonNull(throwable)));
     }
 
