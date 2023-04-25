@@ -10,6 +10,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
@@ -37,10 +38,9 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
     private class SubscriptionImpl implements Flow.Subscription, Runnable {
 
         private final Flow.Subscriber<? super T> subscriber;
+        private final AtomicReference<Iterator<T>> iterator = new AtomicReference<>();;
         private final AtomicLong demand = new AtomicLong(0);
         private final AtomicBoolean terminated = new AtomicBoolean(false);
-
-        private Iterator<T> iterator;
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
             this.subscriber = Objects.requireNonNull(subscriber);
@@ -48,7 +48,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
         private void doSubscribe() {
             try {
-                iterator = iteratorSupplier.get();
+                iterator.set(iteratorSupplier.get());
             } catch (Throwable throwable) {
                 subscriber.onSubscribe(new Flow.Subscription() {
                     @Override
@@ -65,7 +65,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             if (!terminated.get()) {
                 subscriber.onSubscribe(this);
 
-                if (!iterator.hasNext()) {
+                if (!iterator.get().hasNext()) {
                     doTerminate();
                     subscriber.onComplete();
                 }
@@ -87,9 +87,9 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         private void doNext() {
             int batchLeft = batchSize;
             do {
-                subscriber.onNext(iterator.next());
+                subscriber.onNext(iterator.get().next());
 
-                if (!iterator.hasNext()) {
+                if (!iterator.get().hasNext()) {
                     doTerminate();
                     subscriber.onComplete();
                 }
@@ -171,7 +171,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         private final AtomicBoolean mutex = new AtomicBoolean(false);
 
         private void signal(Signal signal) {
-            logger.warn("signal.offer {}", signal);
+            logger.debug("signal.offer {}", signal);
             if (inboundSignals.offer(signal)) {
                 tryExecute();
             }
@@ -182,7 +182,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             if (mutex.get()) {
                 try {
                     Signal signal = inboundSignals.poll();
-                    logger.warn("signal.poll {}", signal);
+                    logger.debug("signal.poll {}", signal);
                     if (!terminated.get()) {
                         signal.run();
                     }
