@@ -9,8 +9,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
@@ -38,9 +36,9 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
     private class SubscriptionImpl implements Flow.Subscription, Runnable {
 
         private final Flow.Subscriber<? super T> subscriber;
-        private final AtomicLong demand = new AtomicLong(0);
 
         private Iterator<T> iterator;
+        private long demand = 0;
         private boolean terminated = false;
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
@@ -83,11 +81,11 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         private void doRequest(long n) {
             if (n < 1) {
                 doError(new IllegalArgumentException("non-positive subscription request"));
-            } else if (demand.get() + n < 1) {
-                demand.set(Long.MAX_VALUE);
+            } else if (demand + n < 1) {
+                demand = Long.MAX_VALUE;
                 doNext();
             } else {
-                demand.addAndGet(n);
+                demand += n;
                 doNext();
             }
         }
@@ -110,9 +108,9 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     doTerminate();
                     subscriber.onComplete();
                 }
-            } while (!terminated && --batchLeft > 0 && demand.decrementAndGet() > 0);
+            } while (!terminated && --batchLeft > 0 && --demand > 0);
 
-            if (!terminated && demand.get() > 0) {
+            if (!terminated && demand > 0) {
                 signal(new Next());
             }
         }
