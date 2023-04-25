@@ -17,7 +17,7 @@ public class SyncIteratorPublisherTest extends FlowPublisherVerification<Integer
 
     @Override
     public Flow.Publisher<Integer> createFlowPublisher(long elements) {
-        return new demo.reactivestreams._part1.SyncIteratorPublisher<>(
+        return new SyncIteratorPublisher<>(
             () -> Stream
                 .iterate(0, UnaryOperator.identity())
                 .limit(elements)

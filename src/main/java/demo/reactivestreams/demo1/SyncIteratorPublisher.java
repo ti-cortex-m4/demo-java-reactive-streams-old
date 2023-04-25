@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
@@ -31,6 +32,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
         private final Flow.Subscriber<? super T> subscriber;
         private final Iterator<? extends T> iterator;
+        private final AtomicLong demand = new AtomicLong();
         private final AtomicReference<Throwable> error = new AtomicReference<>();
         private final AtomicBoolean terminated = new AtomicBoolean(false);
 
@@ -56,7 +58,26 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 return;
             }
 
-            for (long demand = n; demand > 0 && iterator.hasNext() && !terminated.get(); demand--) {
+            for (; ; ) {
+                long currentDemand = demand.getAcquire();
+                if (currentDemand == Long.MAX_VALUE) {
+                    return;
+                }
+
+                long adjustedDemand = currentDemand + n;
+                if (adjustedDemand < 0L) {
+                    adjustedDemand = Long.MAX_VALUE;
+                }
+
+                if (demand.compareAndSet(currentDemand, adjustedDemand)) {
+                    if (currentDemand > 0) {
+                        return;
+                    }
+                    break;
+                }
+            }
+
+            for (; demand.get() > 0 && iterator.hasNext() && !terminated.get(); demand.decrementAndGet()) {
                 try {
                     subscriber.onNext(iterator.next());
                 } catch (Throwable throwable) {
