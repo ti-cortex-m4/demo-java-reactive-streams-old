@@ -10,7 +10,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class AsyncSubscriber<T> implements Flow.Subscriber<T>,Runnable {
+public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(AsyncSubscriber.class);
 
@@ -149,48 +149,48 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>,Runnable {
         }
     }
 
-        private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<>();
-        private final AtomicBoolean mutex = new AtomicBoolean(false);
+    private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<>();
+    private final AtomicBoolean mutex = new AtomicBoolean(false);
 
-        @Override
-        public void run() {
-            if (mutex.get()) {
-                try {
-                    Signal signal = inboundSignals.poll();
-                    logger.warn("({}) signal.poll {}", id, signal);
-                    if (!terminated.get()) {
-                        signal.run();
-                    }
-                } finally {
-                    mutex.set(false);
-                    if (!inboundSignals.isEmpty()) {
-                        tryExecute();
-                    }
+    @Override
+    public void run() {
+        if (mutex.get()) {
+            try {
+                Signal signal = inboundSignals.poll();
+                logger.warn("({}) signal.poll {}", id, signal);
+                if (!terminated.get()) {
+                    signal.run();
+                }
+            } finally {
+                mutex.set(false);
+                if (!inboundSignals.isEmpty()) {
+                    tryExecute();
                 }
             }
         }
+    }
 
-        private void signal(Signal signal) {
-            logger.warn("({}) signal.offer {}", id, signal);
-            if (inboundSignals.offer(signal)) {
-                tryExecute();
-            }
+    private void signal(Signal signal) {
+        logger.warn("({}) signal.offer {}", id, signal);
+        if (inboundSignals.offer(signal)) {
+            tryExecute();
         }
+    }
 
-        private void tryExecute() {
-            if (mutex.compareAndSet(false, true)) {
-                try {
-                    executor.execute(this);
-                } catch (Throwable throwable) {
-                    if (!terminated.get()) {
-                        try {
-                            doTerminate();
-                        } finally {
-                            inboundSignals.clear();
-                            mutex.set(false);
-                        }
+    private void tryExecute() {
+        if (mutex.compareAndSet(false, true)) {
+            try {
+                executor.execute(this);
+            } catch (Throwable throwable) {
+                if (!terminated.get()) {
+                    try {
+                        doTerminate();
+                    } finally {
+                        inboundSignals.clear();
+                        mutex.set(false);
                     }
                 }
+            }
         }
     }
 }

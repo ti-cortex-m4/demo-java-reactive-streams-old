@@ -166,49 +166,49 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             }
         }
 
-            private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<>();
-            private final AtomicBoolean mutex = new AtomicBoolean(false);
+        private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<>();
+        private final AtomicBoolean mutex = new AtomicBoolean(false);
 
-            private void signal(Signal signal) {
-                logger.warn("signal.offer {}", signal);
-                if (inboundSignals.offer(signal)) {
-                    tryExecute();
-                }
+        private void signal(Signal signal) {
+            logger.warn("signal.offer {}", signal);
+            if (inboundSignals.offer(signal)) {
+                tryExecute();
             }
+        }
 
-            @Override
-            public void run() {
-                if (mutex.get()) {
-                    try {
-                        Signal signal = inboundSignals.poll();
-                        logger.warn("signal.poll {}", signal);
-                        if (!terminated.get()) {
-                            signal.run();
-                        }
-                    } finally {
-                        mutex.set(false);
-                        if (!inboundSignals.isEmpty()) {
-                            tryExecute();
-                        }
+        @Override
+        public void run() {
+            if (mutex.get()) {
+                try {
+                    Signal signal = inboundSignals.poll();
+                    logger.warn("signal.poll {}", signal);
+                    if (!terminated.get()) {
+                        signal.run();
+                    }
+                } finally {
+                    mutex.set(false);
+                    if (!inboundSignals.isEmpty()) {
+                        tryExecute();
                     }
                 }
             }
+        }
 
-            private void tryExecute() {
-                if (mutex.compareAndSet(false, true)) {
-                    try {
-                        executor.execute(this);
-                    } catch (Throwable throwable) {
-                        if (!terminated.get()) {
-                            doTerminate();
-                            try {
-                                doError(new IllegalStateException(throwable));
-                            } finally {
-                                inboundSignals.clear();
-                                mutex.set(false);
-                            }
+        private void tryExecute() {
+            if (mutex.compareAndSet(false, true)) {
+                try {
+                    executor.execute(this);
+                } catch (Throwable throwable) {
+                    if (!terminated.get()) {
+                        doTerminate();
+                        try {
+                            doError(new IllegalStateException(throwable));
+                        } finally {
+                            inboundSignals.clear();
+                            mutex.set(false);
                         }
                     }
+                }
             }
         }
     }
