@@ -25,6 +25,9 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
         logger.info("({}) subscriber.subscribe: {}", id, subscription);
+        // by rule 2.13, a `Consumer` must throw a `java.lang.NullPointerException` if the `Subscription` is `null`
+        Objects.requireNonNull(subscription);
+
         if (this.subscription != null) {
             subscription.cancel();
         } else {
@@ -65,13 +68,16 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
         completed.await();
     }
 
+    // This method is invoked when the OnNext signals arrive, Returns whether more elements are desired or not, and if no more elements are desired,
     protected boolean whenNext(T item) {
         return true;
     }
 
+    // This method is invoked if the OnError signal arrives, override this method to implement your own custom onError logic.
     protected void whenError(Throwable throwable) {
     }
 
+    // This method is invoked when the OnComplete signal arrives, override this method to implement your own custom onComplete logic.
     protected void whenComplete() {
         completed.countDown();
     }
