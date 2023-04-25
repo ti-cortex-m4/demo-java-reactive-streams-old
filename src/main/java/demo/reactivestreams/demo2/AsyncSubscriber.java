@@ -10,7 +10,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
+public class AsyncSubscriber<T> implements Flow.Subscriber<T>,Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(AsyncSubscriber.class);
 
@@ -45,7 +45,6 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
 
     private final int id;
     private final Executor executor;
-    private final ExecutorImpl executorImpl;
     private final AtomicBoolean terminated = new AtomicBoolean(false);
     private final CountDownLatch completed = new CountDownLatch(1);
 
@@ -54,31 +53,30 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
     public AsyncSubscriber(int id, Executor executor) {
         this.id = id;
         this.executor = Objects.requireNonNull(executor);
-        this.executorImpl = new ExecutorImpl();
     }
 
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
         logger.info("({}) subscriber.subscribe: {}", id, subscription);
-        executorImpl.signal(new OnSubscribe(Objects.requireNonNull(subscription)));
+        signal(new OnSubscribe(Objects.requireNonNull(subscription)));
     }
 
     @Override
     public void onNext(T element) {
         logger.info("({}) subscriber.next: {}", id, element);
-        executorImpl.signal(new OnNext(Objects.requireNonNull(element)));
+        signal(new OnNext(Objects.requireNonNull(element)));
     }
 
     @Override
     public void onError(Throwable throwable) {
         logger.error("({}) subscriber.error", id, throwable);
-        executorImpl.signal(new OnError(Objects.requireNonNull(throwable)));
+        signal(new OnError(Objects.requireNonNull(throwable)));
     }
 
     @Override
     public void onComplete() {
         logger.info("({}) subscriber.complete", id);
-        executorImpl.signal(new OnComplete());
+        signal(new OnComplete());
     }
 
     public void awaitCompletion() throws InterruptedException {
@@ -151,8 +149,6 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
         }
     }
 
-    private class ExecutorImpl implements Runnable {
-
         private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<>();
         private final AtomicBoolean mutex = new AtomicBoolean(false);
 
@@ -195,7 +191,6 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T> {
                         }
                     }
                 }
-            }
         }
     }
 }

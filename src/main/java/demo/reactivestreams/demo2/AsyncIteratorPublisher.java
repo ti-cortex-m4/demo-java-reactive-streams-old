@@ -33,10 +33,9 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         new SubscriptionImpl(subscriber).init();
     }
 
-    private class SubscriptionImpl implements Flow.Subscription {
+    private class SubscriptionImpl implements Flow.Subscription, Runnable {
 
         private final Flow.Subscriber<? super T> subscriber;
-        private final ExecutorImpl executorImpl;
         private final AtomicBoolean terminated = new AtomicBoolean(false);
 
         private Iterator<T> iterator;
@@ -44,7 +43,6 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
             this.subscriber = Objects.requireNonNull(subscriber);
-            this.executorImpl = new ExecutorImpl();
         }
 
         private void doSubscribe() {
@@ -97,7 +95,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             } while (!terminated.get() && --batchLeft > 0 && --demand > 0);
 
             if (!terminated.get() && demand > 0) {
-                executorImpl.signal(new Next());
+                signal(new Next());
             }
         }
 
@@ -116,19 +114,19 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         }
 
         private void init() {
-            executorImpl.signal(new Subscribe());
+            signal(new Subscribe());
         }
 
         @Override
         public void request(long n) {
             logger.info("subscription.request: {}", n);
-            executorImpl.signal(new Request(n));
+            signal(new Request(n));
         }
 
         @Override
         public void cancel() {
             logger.info("subscription.cancel");
-            executorImpl.signal(new Cancel());
+            signal(new Cancel());
         }
 
         private interface Signal extends Runnable {
@@ -167,8 +165,6 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 doCancel();
             }
         }
-
-        private class ExecutorImpl implements Runnable {
 
             private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<>();
             private final AtomicBoolean mutex = new AtomicBoolean(false);
@@ -213,7 +209,6 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                             }
                         }
                     }
-                }
             }
         }
     }
