@@ -13,10 +13,10 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     private static final Logger logger = LoggerFactory.getLogger(SyncSubscriber.class);
 
     private final int id;
-    private final AtomicBoolean terminated = new AtomicBoolean(false);
     private final CountDownLatch completed = new CountDownLatch(1);
 
     private Flow.Subscription subscription;
+    private boolean terminated = false;
 
     public SyncSubscriber(int id) {
         this.id = id;
@@ -38,7 +38,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
         logger.info("({}) subscriber.next: {}", id, element);
         Objects.requireNonNull(element);
 
-        if (!terminated.get()) {
+        if (!terminated) {
             if (whenNext(element)) {
                 subscription.request(1);
             } else {
@@ -76,7 +76,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 
     private void doTerminate() {
         logger.debug("({}) subscriber.terminate", id);
-        terminated.set(true);
+        terminated = true;
         subscription.cancel();
     }
 }

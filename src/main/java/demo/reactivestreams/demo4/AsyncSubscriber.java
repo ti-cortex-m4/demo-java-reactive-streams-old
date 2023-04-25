@@ -24,7 +24,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     private void doNext(T element) {
-        if (!terminated.get()) {
+        if (!terminated) {
             if (whenNext(element)) {
                 subscription.request(1);
             } else {
@@ -34,21 +34,21 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     private void doError(Throwable throwable) {
-        terminated.set(true);
+        terminated = true;
         whenError(throwable);
     }
 
     private void doComplete() {
-        terminated.set(true);
+        terminated = true;
         whenComplete();
     }
 
     private final int id;
     private final Executor executor;
-    private final AtomicBoolean terminated = new AtomicBoolean(false);
     private final CountDownLatch completed = new CountDownLatch(1);
 
     private Flow.Subscription subscription;
+    private boolean terminated = false;
 
     public AsyncSubscriber(int id, Executor executor) {
         this.id = id;
@@ -96,7 +96,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     private void doTerminate() {
         logger.warn("({}) subscriber.terminate", id);
-        terminated.set(true);
+        terminated = true;
         subscription.cancel();
     }
 
@@ -158,7 +158,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
             try {
                 Signal signal = inboundSignals.poll();
                 logger.debug("({}) signal.poll {}", id, signal);
-                if (!terminated.get()) {
+                if (!terminated) {
                     signal.run();
                 }
             } finally {
@@ -182,7 +182,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
             try {
                 executor.execute(this);
             } catch (Throwable throwable) {
-                if (!terminated.get()) {
+                if (!terminated) {
                     try {
                         doTerminate();
                     } finally {

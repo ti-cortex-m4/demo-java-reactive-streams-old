@@ -38,9 +38,10 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
     private class SubscriptionImpl implements Flow.Subscription, Runnable {
 
         private final Flow.Subscriber<? super T> subscriber;
-        private final AtomicReference<Iterator<T>> iterator = new AtomicReference<>();;
         private final AtomicLong demand = new AtomicLong(0);
-        private final AtomicBoolean terminated = new AtomicBoolean(false);
+
+        private Iterator<T> iterator;
+        private boolean terminated = false;
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
             this.subscriber = Objects.requireNonNull(subscriber);
@@ -48,7 +49,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
         private void doSubscribe() {
             try {
-                iterator.set(iteratorSupplier.get());
+                iterator = iteratorSupplier.get();
             } catch (Throwable throwable) {
                 subscriber.onSubscribe(new Flow.Subscription() {
                     @Override
@@ -62,12 +63,12 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 doError(throwable);
             }
 
-            if (!terminated.get()) {
+            if (!terminated) {
                 subscriber.onSubscribe(this);
 
                 boolean hasNext = false;
                 try {
-                    hasNext = iterator.get().hasNext();
+                    hasNext = iterator.hasNext();
                 } catch (Throwable throwable) {
                     doError(throwable);
                 }
@@ -97,8 +98,8 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 T next;
                 boolean hasNext;
                 try {
-                    next = iterator.get().next();
-                    hasNext = iterator.get().hasNext();
+                    next = iterator.next();
+                    hasNext = iterator.hasNext();
                 } catch (Throwable throwable) {
                     doError(throwable);
                     return;
@@ -109,9 +110,9 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     doTerminate();
                     subscriber.onComplete();
                 }
-            } while (!terminated.get() && --batchLeft > 0 && demand.decrementAndGet() > 0);
+            } while (!terminated && --batchLeft > 0 && demand.decrementAndGet() > 0);
 
-            if (!terminated.get() && demand.get() > 0) {
+            if (!terminated && demand.get() > 0) {
                 signal(new Next());
             }
         }
@@ -127,7 +128,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
         private void doTerminate() {
             logger.debug("subscription.terminate");
-            terminated.set(true);
+            terminated = true;
         }
 
         private void init() {
@@ -199,7 +200,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 try {
                     Signal signal = inboundSignals.poll();
                     logger.debug("signal.poll {}", signal);
-                    if (!terminated.get()) {
+                    if (!terminated) {
                         signal.run();
                     }
                 } finally {
@@ -216,7 +217,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 try {
                     executor.execute(this);
                 } catch (Throwable throwable) {
-                    if (!terminated.get()) {
+                    if (!terminated) {
                         doTerminate();
                         try {
                             doError(new IllegalStateException(throwable));
