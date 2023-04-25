@@ -13,15 +13,15 @@ import java.util.concurrent.TimeUnit;
 public class Runner {
 
     public static void main(String[] args) throws InterruptedException {
-        ExecutorService executorService = Executors.newFixedThreadPool(3);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
 
         List<String> list = List.of("The quick brown fox jumps over the lazy dog.".split(" "));
         AsyncIteratorPublisher<String> publisher = new AsyncIteratorPublisher<>(() -> List.copyOf(list).iterator(), 1024, executorService);
 
-        SyncSubscriber<String> subscriber1 = new SyncSubscriber<>(1, executorService);
+        SyncSubscriber<String> subscriber1 = new SyncSubscriber<>(1);
         publisher.subscribe(subscriber1);
 
-        SyncSubscriber<String> subscriber2 = new SyncSubscriber<>(2, executorService);
+        SyncSubscriber<String> subscriber2 = new SyncSubscriber<>(2);
         publisher.subscribe(subscriber2);
 
         subscriber1.awaitCompletion();
