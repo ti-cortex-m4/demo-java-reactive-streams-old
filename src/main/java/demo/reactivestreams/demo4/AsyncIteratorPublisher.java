@@ -65,7 +65,14 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             if (!terminated.get()) {
                 subscriber.onSubscribe(this);
 
-                if (!iterator.get().hasNext()) {
+                boolean hasNext = false;
+                try {
+                    hasNext = iterator.get().hasNext();
+                } catch (Throwable throwable) {
+                    doError(throwable);
+                }
+
+                if (!hasNext) {
                     doTerminate();
                     subscriber.onComplete();
                 }
@@ -87,9 +94,18 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         private void doNext() {
             int batchLeft = batchSize;
             do {
-                subscriber.onNext(iterator.get().next());
+                T next;
+                boolean hasNext;
+                try {
+                    next = iterator.get().next();
+                    hasNext = iterator.get().hasNext();
+                } catch (Throwable throwable) {
+                    doError(throwable);
+                    return;
+                }
+                subscriber.onNext(next);
 
-                if (!iterator.get().hasNext()) {
+                if (!hasNext) {
                     doTerminate();
                     subscriber.onComplete();
                 }
