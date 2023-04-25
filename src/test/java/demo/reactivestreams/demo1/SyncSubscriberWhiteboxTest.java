@@ -34,9 +34,9 @@ public class SyncSubscriberWhiteboxTest extends FlowSubscriberWhiteboxVerificati
             }
 
             @Override
-            public void onNext(Integer element) {
-                super.onNext(element);
-                probe.registerOnNext(element);
+            public void onNext(Integer item) {
+                super.onNext(item);
+                probe.registerOnNext(item);
             }
 
             @Override

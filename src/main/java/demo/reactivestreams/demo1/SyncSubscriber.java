@@ -34,12 +34,13 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     }
 
     @Override
-    public void onNext(T element) {
-        logger.info("({}) subscriber.next: {}", id, element);
-        Objects.requireNonNull(element);
+    public void onNext(T item) {
+        logger.info("({}) subscriber.next: {}", id, item);
+        // by rule 2.13, a `Consumer` must throw a `java.lang.NullPointerException` if the `item` is `null`
+        Objects.requireNonNull(item);
 
         if (!terminated) {
-            if (whenNext(element)) {
+            if (whenNext(item)) {
                 subscription.request(1);
             } else {
                 doTerminate();
@@ -50,6 +51,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     @Override
     public void onError(Throwable throwable) {
         logger.error("({}) subscriber.error", id, throwable);
+        // by rule 2.13, a `Consumer` must throw a `java.lang.NullPointerException` if the `Throwable` is `null`
         whenError(Objects.requireNonNull(throwable));
     }
 
@@ -63,7 +65,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
         completed.await();
     }
 
-    protected boolean whenNext(T element) {
+    protected boolean whenNext(T item) {
         return true;
     }
 
