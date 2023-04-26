@@ -56,12 +56,17 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     public void onError(Throwable throwable) {
         logger.error("({}) subscriber.error", id, throwable);
         // by rule 2.13, a `Subscriber` must throw a `java.lang.NullPointerException` if the `Throwable` is `null`
-        whenError(Objects.requireNonNull(throwable));
+        Objects.requireNonNull(throwable);
+        // by rule 2.4, Subscriber.onComplete() and Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
+        terminated = true;
+        whenError(throwable);
     }
 
     @Override
     public void onComplete() {
         logger.info("({}) subscriber.complete", id);
+        // by rule 2.4, Subscriber.onComplete() and Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
+        terminated = true;
         whenComplete();
     }
 
