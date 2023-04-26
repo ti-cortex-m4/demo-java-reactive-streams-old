@@ -15,7 +15,7 @@ https://github.com/reactive-streams/reactive-streams-jvm
 +   2.1     A Subscriber MUST signal demand via Subscription.request(long n) to receive onNext signals.
 2.2
 -   2.3     Subscriber.onComplete() and Subscriber.onError(Throwable t) MUST NOT call any methods on the Subscription or the Publisher.
-2.4
++   2.4     Subscriber.onComplete() and Subscriber.onError(Throwable t) MUST consider the Subscription cancelled after having received the signal.
 +   2.5     A Subscriber MUST call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
 +   2.6     A Subscriber MUST call Subscription.cancel() if the Subscription is no longer needed.
 2.7
