@@ -120,11 +120,11 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         }
 
         private void doCancel() {
-            doTerminate();
+            terminated = true;
         }
 
         private void doError(Throwable throwable) {
-            doTerminate();
+            terminated = true;
             subscriber.onError(throwable);
         }
 
