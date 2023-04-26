@@ -85,6 +85,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 // by rule 3.9, `Subscription.request` must signal `onError` with a `java.lang.IllegalArgumentException` if the argument is <= 0
                 doError(new IllegalArgumentException("non-positive subscription request"));
             } else if (demand + n <= 0) {
+                // by rule 3.17, a `Subscription` must support a demand up to `java.lang.Long.MAX_VALUE`
                 demand = Long.MAX_VALUE;
                 doNext();
             } else {

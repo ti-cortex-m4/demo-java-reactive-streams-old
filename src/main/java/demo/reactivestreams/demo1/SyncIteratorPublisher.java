@@ -68,6 +68,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
                 long adjustedDemand = currentDemand + n;
                 if (adjustedDemand < 0L) {
+                    // by rule 3.17, a `Subscription` must support a demand up to `java.lang.Long.MAX_VALUE`
                     adjustedDemand = Long.MAX_VALUE;
                 }
 
