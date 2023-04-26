@@ -1,6 +1,6 @@
 package demo.reactivestreams.demo4;
 
-import demo.reactivestreams.demo.demo4.AsyncIteratorPublisher;
+import demo.reactivestreams.demo.demo2.AsyncIteratorPublisher;
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowPublisherVerification;
 import org.testng.annotations.AfterClass;

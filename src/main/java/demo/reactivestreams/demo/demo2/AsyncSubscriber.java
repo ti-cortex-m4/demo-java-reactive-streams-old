@@ -1,4 +1,4 @@
-package demo.reactivestreams.demo.demo4;
+package demo.reactivestreams.demo.demo2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,21 +65,21 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
         logger.info("({}) subscriber.subscribe: {}", id, subscription);
-        // by rule 2.13, a `Subscriber` must throw a `java.lang.NullPointerException` if the `Subscription` is `null`
+        // by rule 2.13, calling xxx MUST throw a java.lang.NullPointerException when the given parameter is null.
         signal(new OnSubscribe(Objects.requireNonNull(subscription)));
     }
 
     @Override
     public void onNext(T item) {
         logger.info("({}) subscriber.next: {}", id, item);
-        // by rule 2.13, a `Subscriber` must throw a `java.lang.NullPointerException` if the `item` is `null`
+        // by rule 2.13, calling xxx MUST throw a java.lang.NullPointerException when the given parameter is null.
         signal(new OnNext(Objects.requireNonNull(item)));
     }
 
     @Override
     public void onError(Throwable throwable) {
         logger.error("({}) subscriber.error", id, throwable);
-        // by rule 2.13, a `Subscriber` must throw a `java.lang.NullPointerException` if the `Throwable` is `null`
+        // by rule 2.13, calling xxx MUST throw a java.lang.NullPointerException when the given parameter is null.
         signal(new OnError(Objects.requireNonNull(throwable)));
     }
 

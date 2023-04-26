@@ -18,13 +18,13 @@ https://github.com/reactive-streams/reactive-streams-jvm
 +   2.4     Subscriber.onComplete() and Subscriber.onError(Throwable t) MUST consider the Subscription cancelled after having received the signal.
 +   2.5     A Subscriber MUST call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
 +   2.6     A Subscriber MUST call Subscription.cancel() if the Subscription is no longer needed.
-2.7
-2.8
+2.7     A Subscriber MUST ensure that all calls on its Subscription's request and cancel methods are performed serially.
+2.8     A Subscriber MUST be prepared to receive one or more onNext signals after having called Subscription.cancel()
 -   2.9     A Subscriber MUST be prepared to receive an onComplete signal with or without a preceding Subscription.request(long n) call.
 -   2.10    A Subscriber MUST be prepared to receive an onError signal with or without a preceding Subscription.request(long n) call.
 2.11
-2.12
-2.13
+2.12    Subscriber.onSubscribe MUST be called at most once for a given Subscriber
+2.13    Calling onSubscribe, onNext, onError or onComplete MUST return normally except when any provided parameter is null in which case it MUST throw a java.lang.NullPointerException to the caller, for all other situations the only legal way for a Subscriber to signal failure is by cancelling its Subscription.
 
 -   3.1     Subscription.request and Subscription.cancel MUST only be called inside of its Subscriber context.
 3.2
