@@ -43,7 +43,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         private boolean cancelled = false;
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
-            // by rule 1.9, a `Publisher.subscribe` must throw a `java.lang.NullPointerException` if the `Subscriber` is `null`
+            // ??? by rule 1.9, a `Publisher.subscribe` must throw a `java.lang.NullPointerException` if the `Subscriber` is `null`
             this.subscriber = Objects.requireNonNull(subscriber);
         }
 
@@ -51,7 +51,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             try {
                 iterator = iteratorSupplier.get();
             } catch (Throwable throwable) {
-                // by rule 1.9, a `Subscription` must signal `onSubscribe` before `onError` if method `subscribe` fails
+                // ??? by rule 1.9, a `Subscription` must signal `onSubscribe` before `onError` if method `subscribe` fails
                 subscriber.onSubscribe(new Flow.Subscription() {
                     @Override
                     public void cancel() {

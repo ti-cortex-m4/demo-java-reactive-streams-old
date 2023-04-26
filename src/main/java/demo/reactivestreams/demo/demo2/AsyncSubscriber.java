@@ -65,21 +65,21 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
         logger.info("({}) subscriber.subscribe: {}", id, subscription);
-        // by rule 2.13, calling xxx MUST throw a java.lang.NullPointerException when the given parameter is null.
+        // by rule 2.13, calling onSubscribe MUST throw a java.lang.NullPointerException when the given parameter is null.
         signal(new OnSubscribe(Objects.requireNonNull(subscription)));
     }
 
     @Override
     public void onNext(T item) {
         logger.info("({}) subscriber.next: {}", id, item);
-        // by rule 2.13, calling xxx MUST throw a java.lang.NullPointerException when the given parameter is null.
+        // by rule 2.13, calling onNext MUST throw a java.lang.NullPointerException when the given parameter is null.
         signal(new OnNext(Objects.requireNonNull(item)));
     }
 
     @Override
     public void onError(Throwable throwable) {
         logger.error("({}) subscriber.error", id, throwable);
-        // by rule 2.13, calling xxx MUST throw a java.lang.NullPointerException when the given parameter is null.
+        // by rule 2.13, calling onError MUST throw a java.lang.NullPointerException when the given parameter is null.
         signal(new OnError(Objects.requireNonNull(throwable)));
     }
 
