@@ -20,15 +20,19 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
             subscription.cancel();
         } else {
             this.subscription = subscription;
+            // by rule 2.1, A Subscriber MUST signal demand via Subscription.request(long n) to receive onNext signals.
             this.subscription.request(1);
         }
     }
 
     private void doNext(T element) {
+        // by rule 3.6, After the Subscription is cancelled, additional Subscription.request(long n) MUST be NOPs.
         if (!terminated) {
             if (whenNext(element)) {
+                // by rule 2.1, A Subscriber MUST signal demand via Subscription.request(long n) to receive onNext signals.
                 subscription.request(1);
             } else {
+                // by rule 1.6, A Subscriber MUST call Subscription.cancel() if the Subscription is no longer needed.
                 doTerminate();
             }
         }
@@ -162,6 +166,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     @Override
     public void run() {
+        // by rule 1.3, onSubscribe, onNext, onError and onComplete signaled to a Subscriber MUST be signaled serially.
         if (mutex.get()) {
             try {
                 Signal signal = inboundSignals.poll();

@@ -37,7 +37,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
         private final AtomicBoolean terminated = new AtomicBoolean(false);
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
-            // by rule 1.9, a `Subscription` must throw a `java.lang.NullPointerException` if the `Subscriber` is `null`
+            // by rule 1.9, a `Publisher.subscribe` must throw a `java.lang.NullPointerException` if the `Subscriber` is `null`
             this.subscriber = Objects.requireNonNull(subscriber);
 
             Iterator<? extends T> iterator = null;
@@ -66,6 +66,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     return;
                 }
 
+                // by rule 3.8, While the Subscription is not cancelled, Subscription.request(long n) MUST register the given number of additional elements to be produced to the respective subscriber.
                 long adjustedDemand = currentDemand + n;
                 if (adjustedDemand < 0L) {
                     // by rule 3.17, a `Subscription` must support a demand up to `java.lang.Long.MAX_VALUE`
@@ -87,6 +88,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     if (!terminated.get()) {
                         // by rule 1.6, if a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription MUST be considered cancelled.
                         doTerminate();
+                        // by rule 1.4, If a Publisher fails it MUST signal an onError.
                         subscriber.onError(throwable);
                     }
                 }
@@ -110,6 +112,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
             Throwable throwable = error.get();
             if ((throwable != null) && !terminated.get()) {
                 doTerminate();
+                // by rule 1.4, If a Publisher fails it MUST signal an onError.
                 subscriber.onError(throwable);
             }
         }

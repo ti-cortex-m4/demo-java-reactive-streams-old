@@ -42,7 +42,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         private boolean terminated = false;
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
-            // by rule 1.9, a `Subscription` must throw a `java.lang.NullPointerException` if the `Subscriber` is `null`
+            // by rule 1.9, a `Publisher.subscribe` must throw a `java.lang.NullPointerException` if the `Subscriber` is `null`
             this.subscriber = Objects.requireNonNull(subscriber);
         }
 
@@ -60,6 +60,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     public void request(long n) {
                     }
                 });
+                // by rule 1.4, If a Publisher fails it MUST signal an onError.
                 doError(throwable);
             }
 
@@ -70,6 +71,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 try {
                     hasNext = iterator.hasNext();
                 } catch (Throwable throwable) {
+                    // by rule 1.4, If a Publisher fails it MUST signal an onError.
                     doError(throwable);
                 }
 
@@ -89,6 +91,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 demand = Long.MAX_VALUE;
                 doNext();
             } else {
+                // by rule 3.8, While the Subscription is not cancelled, Subscription.request(long n) MUST register the given number of additional elements to be produced to the respective subscriber.
                 demand += n;
                 doNext();
             }
@@ -103,6 +106,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     next = iterator.next();
                     hasNext = iterator.hasNext();
                 } catch (Throwable throwable) {
+                    // by rule 1.4, If a Publisher fails it MUST signal an onError.
                     doError(throwable);
                     return;
                 }
@@ -203,6 +207,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
         @Override
         public void run() {
+            // by rule 1.7, A Subscriber MUST ensure that all calls on its Subscription's request and cancel methods are performed serially.
             if (mutex.get()) {
                 try {
                     Signal signal = inboundSignals.poll();
@@ -227,6 +232,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     if (!terminated) {
                         doTerminate();
                         try {
+                            // by rule 1.4, If a Publisher fails it MUST signal an onError.
                             doError(new IllegalStateException(throwable));
                         } finally {
                             inboundSignals.clear();
