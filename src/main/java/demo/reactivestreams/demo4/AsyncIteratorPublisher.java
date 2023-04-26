@@ -187,6 +187,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             }
         }
 
+        // unbounded thread-safe queue for passing signals to be executed on other threads
         private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<>();
         private final AtomicBoolean mutex = new AtomicBoolean(false);
 
