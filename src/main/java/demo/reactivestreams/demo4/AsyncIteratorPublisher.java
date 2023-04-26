@@ -42,6 +42,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         private boolean terminated = false;
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
+            // by rule 1.9, a `Subscription` must throw a `java.lang.NullPointerException` if the `Subscriber` is `null`
             this.subscriber = Objects.requireNonNull(subscriber);
         }
 
@@ -49,6 +50,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             try {
                 iterator = iteratorSupplier.get();
             } catch (Throwable throwable) {
+                // by rule 1.9, a `Subscription` must signal `onSubscribe` before `onError` if method `subscribe` fails
                 subscriber.onSubscribe(new Flow.Subscription() {
                     @Override
                     public void cancel() {
@@ -80,7 +82,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
         private void doRequest(long n) {
             if (n < 1) {
-                doError(new IllegalArgumentException("non-positive subscription request"));
+                doError(new IllegalArgumentException("non-positive subscription request")); // by rule 3.9
             } else if (demand + n < 1) {
                 demand = Long.MAX_VALUE;
                 doNext();
