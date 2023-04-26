@@ -24,15 +24,15 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
         logger.info("({}) subscriber.subscribe: {}", id, subscription);
-        // by rule 2.13, calling onSubscribe MUST throw a java.lang.NullPointerException when the given parameter is null.
+        // by rule 2.13, calling onSubscribe must throw a java.lang.NullPointerException when the given parameter is null.
         Objects.requireNonNull(subscription);
 
         if (this.subscription != null) {
-            // by rule 2.5, A Subscriber MUST call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
+            // by rule 2.5, A Subscriber must call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
             subscription.cancel();
         } else {
             this.subscription = subscription;
-            // by rule 2.1, A Subscriber MUST signal demand via Subscription.request(long n) to receive onNext signals.
+            // by rule 2.1, A Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
             this.subscription.request(1);
         }
     }
@@ -40,15 +40,15 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     @Override
     public void onNext(T item) {
         logger.info("({}) subscriber.next: {}", id, item);
-        // by rule 2.13, calling onNext MUST throw a java.lang.NullPointerException when the given parameter is null.
+        // by rule 2.13, calling onNext must throw a java.lang.NullPointerException when the given parameter is null.
         Objects.requireNonNull(item);
 
         if (!cancelled) {
             if (whenNext(item)) {
-                // by rule 2.1, A Subscriber MUST signal demand via Subscription.request(long n) to receive onNext signals.
+                // by rule 2.1, A Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
                 subscription.request(1);
             } else {
-                // by rule 2.6, A Subscriber MUST call Subscription.cancel() if the Subscription is no longer needed.
+                // by rule 2.6, A Subscriber must call Subscription.cancel() if the Subscription is no longer needed.
                 doCancel();
             }
         }
@@ -57,7 +57,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     @Override
     public void onError(Throwable throwable) {
         logger.error("({}) subscriber.error", id, throwable);
-        // by rule 2.13, calling onError MUST throw a java.lang.NullPointerException when the given parameter is null.
+        // by rule 2.13, calling onError must throw a java.lang.NullPointerException when the given parameter is null.
         Objects.requireNonNull(throwable);
         // by rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
         cancelled = true;

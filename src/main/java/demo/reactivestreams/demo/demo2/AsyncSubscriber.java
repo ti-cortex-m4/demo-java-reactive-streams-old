@@ -16,23 +16,23 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     private void doSubscribe(Flow.Subscription subscription) {
         if (this.subscription != null) {
-            // by rule 2.5, A Subscriber MUST call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
+            // by rule 2.5, A Subscriber must call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
             subscription.cancel();
         } else {
             this.subscription = subscription;
-            // by rule 2.1, A Subscriber MUST signal demand via Subscription.request(long n) to receive onNext signals.
+            // by rule 2.1, A Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
             this.subscription.request(1);
         }
     }
 
     private void doNext(T element) {
-        // by rule 3.6, After the Subscription is cancelled, additional Subscription.request(long n) MUST be NOPs.
+        // by rule 3.6, After the Subscription is cancelled, additional Subscription.request(long n) must be NOPs.
         if (!cancelled) {
             if (whenNext(element)) {
-                // by rule 2.1, A Subscriber MUST signal demand via Subscription.request(long n) to receive onNext signals.
+                // by rule 2.1, A Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
                 subscription.request(1);
             } else {
-                // by rule 2.6, A Subscriber MUST call Subscription.cancel() if the Subscription is no longer needed.
+                // by rule 2.6, A Subscriber must call Subscription.cancel() if the Subscription is no longer needed.
                 doCancel();
             }
         }
@@ -65,21 +65,21 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
         logger.info("({}) subscriber.subscribe: {}", id, subscription);
-        // by rule 2.13, calling onSubscribe MUST throw a java.lang.NullPointerException when the given parameter is null.
+        // by rule 2.13, calling onSubscribe must throw a java.lang.NullPointerException when the given parameter is null.
         signal(new OnSubscribe(Objects.requireNonNull(subscription)));
     }
 
     @Override
     public void onNext(T item) {
         logger.info("({}) subscriber.next: {}", id, item);
-        // by rule 2.13, calling onNext MUST throw a java.lang.NullPointerException when the given parameter is null.
+        // by rule 2.13, calling onNext must throw a java.lang.NullPointerException when the given parameter is null.
         signal(new OnNext(Objects.requireNonNull(item)));
     }
 
     @Override
     public void onError(Throwable throwable) {
         logger.error("({}) subscriber.error", id, throwable);
-        // by rule 2.13, calling onError MUST throw a java.lang.NullPointerException when the given parameter is null.
+        // by rule 2.13, calling onError must throw a java.lang.NullPointerException when the given parameter is null.
         signal(new OnError(Objects.requireNonNull(throwable)));
     }
 
@@ -166,7 +166,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     @Override
     public void run() {
-        // by rule 1.3, onSubscribe, onNext, onError and onComplete signaled to a Subscriber MUST be signaled serially.
+        // by rule 1.3, onSubscribe, onNext, onError and onComplete signaled to a Subscriber must be signaled serially.
         if (mutex.get()) {
             try {
                 Signal signal = inboundSignals.poll();
