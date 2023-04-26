@@ -53,7 +53,8 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
         public void request(long n) {
             logger.info("subscription.request: {}", n);
 
-            if ((n < 1) && !terminated.get()) {
+            // by rule 3.9, `Subscription.request` must signal `onError` with a `java.lang.IllegalArgumentException` if the argument is <= 0
+            if ((n <= 0) && !terminated.get()) {
                 doTerminate();
                 subscriber.onError(new IllegalArgumentException("non-positive subscription request"));
                 return;
