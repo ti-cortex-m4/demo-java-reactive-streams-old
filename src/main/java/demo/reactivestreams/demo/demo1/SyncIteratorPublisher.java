@@ -88,7 +88,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     if (!terminated.get()) {
                         // by rule 1.6, if a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription MUST be considered cancelled.
                         doTerminate();
-                        // by rule 1.4, If a Publisher fails it MUST signal an onError.
+                        // by rule 1.4, if a Publisher fails it must signal an onError.
                         subscriber.onError(throwable);
                     }
                 }
@@ -112,7 +112,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
             Throwable throwable = error.get();
             if ((throwable != null) && !terminated.get()) {
                 doTerminate();
-                // by rule 1.4, If a Publisher fails it MUST signal an onError.
+                // by rule 1.4, if a Publisher fails it must signal an onError.
                 subscriber.onError(throwable);
             }
         }
