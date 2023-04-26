@@ -1,5 +1,6 @@
 package demo.reactivestreams.demo1;
 
+import demo.reactivestreams.demo.demo1.SyncSubscriber;
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowSubscriberWhiteboxVerification;
 import org.testng.annotations.Test;

@@ -1,5 +1,6 @@
 package demo.reactivestreams.demo4;
 
+import demo.reactivestreams.demo.demo4.AsyncSubscriber;
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowSubscriberBlackboxVerification;
 import org.testng.annotations.AfterClass;

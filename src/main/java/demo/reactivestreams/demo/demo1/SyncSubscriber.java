@@ -1,4 +1,4 @@
-package demo.reactivestreams.demo1;
+package demo.reactivestreams.demo.demo1;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 

@@ -1,5 +1,6 @@
 package demo.reactivestreams.demo1;
 
+import demo.reactivestreams.demo.demo1.SyncIteratorPublisher;
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowPublisherVerification;
 import org.testng.annotations.Test;

@@ -1,4 +1,4 @@
-package demo.reactivestreams.demo1;
+package demo.reactivestreams.demo.demo1;
 
 import java.util.List;
 
