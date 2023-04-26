@@ -203,7 +203,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
         @Override
         public void run() {
-            // by rule 1.7, A Subscriber MUST ensure that all calls on its Subscription's request and cancel methods are performed serially.
+            // by rule 2.7, A Subscriber MUST ensure that all calls on its Subscription's request and cancel methods are performed serially.
             if (mutex.get()) {
                 try {
                     Signal signal = inboundSignals.poll();
