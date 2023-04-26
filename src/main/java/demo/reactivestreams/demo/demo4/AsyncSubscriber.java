@@ -32,7 +32,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
                 // by rule 2.1, A Subscriber MUST signal demand via Subscription.request(long n) to receive onNext signals.
                 subscription.request(1);
             } else {
-                // by rule 1.6, A Subscriber MUST call Subscription.cancel() if the Subscription is no longer needed.
+                // by rule 2.6, A Subscriber MUST call Subscription.cancel() if the Subscription is no longer needed.
                 doCancel();
             }
         }

@@ -5,7 +5,7 @@ https://github.com/reactive-streams/reactive-streams-jvm
 1.3
 +   1.4     If a Publisher fails it MUST signal an onError.
 +   1.5     If a Publisher terminates successfully (finite stream) it MUST signal an onComplete.
-1.6
+1.6 	If a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription MUST be considered cancelled.
 1.7
 1.8
 1.9

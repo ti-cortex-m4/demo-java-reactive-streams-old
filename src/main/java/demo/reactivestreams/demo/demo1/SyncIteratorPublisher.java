@@ -34,7 +34,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
         private final Iterator<? extends T> iterator;
         private final AtomicLong demand = new AtomicLong();
         private final AtomicReference<Throwable> error = new AtomicReference<>();
-        private final AtomicBoolean terminated = new AtomicBoolean(false);
+        private final AtomicBoolean cancelled = new AtomicBoolean(false);
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
             // by rule 1.9, a `Publisher.subscribe` must throw a `java.lang.NullPointerException` if the `Subscriber` is `null`
@@ -54,8 +54,8 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
             logger.info("subscription.request: {}", n);
 
             // by rule 3.9, `Subscription.request` must signal `onError` with a `java.lang.IllegalArgumentException` if the argument is <= 0
-            if ((n <= 0) && !terminated.get()) {
-                doTerminate();
+            if ((n <= 0) && !cancelled.get()) {
+                doCancel();
                 subscriber.onError(new IllegalArgumentException("non-positive subscription request"));
                 return;
             }
@@ -81,22 +81,22 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 }
             }
 
-            for (; demand.get() > 0 && iterator.hasNext() && !terminated.get(); demand.decrementAndGet()) {
+            for (; demand.get() > 0 && iterator.hasNext() && !cancelled.get(); demand.decrementAndGet()) {
                 try {
                     subscriber.onNext(iterator.next());
                 } catch (Throwable throwable) {
-                    if (!terminated.get()) {
-                        // by rule 1.6, if a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription MUST be considered cancelled.
-                        doTerminate();
+                    if (!cancelled.get()) {
+                        // by rule 1.6, If a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription MUST be considered cancelled.
+                        doCancel();
                         // by rule 1.4, if a Publisher fails it must signal an onError.
                         subscriber.onError(throwable);
                     }
                 }
             }
 
-            if (!iterator.hasNext() && !terminated.get()) {
-                // by rule 1.6, if a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription MUST be considered cancelled.
-                doTerminate();
+            if (!iterator.hasNext() && !cancelled.get()) {
+                // by rule 1.6, If a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription MUST be considered cancelled.
+                doCancel();
                 // by rule 1.5, If a Publisher terminates successfully it MUST signal an onComplete.
                 subscriber.onComplete();
             }
@@ -105,21 +105,21 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
         @Override
         public void cancel() {
             logger.info("subscription.cancel");
-            doTerminate();
+            doCancel();
         }
 
         void onSubscribed() {
             Throwable throwable = error.get();
-            if ((throwable != null) && !terminated.get()) {
-                doTerminate();
+            if ((throwable != null) && !cancelled.get()) {
+                doCancel();
                 // by rule 1.4, if a Publisher fails it must signal an onError.
                 subscriber.onError(throwable);
             }
         }
 
-        private void doTerminate() {
+        private void doCancel() {
             logger.warn("subscription.terminate");
-            terminated.set(true);
+            cancelled.set(true);
         }
     }
 }
