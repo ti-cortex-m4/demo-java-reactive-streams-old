@@ -16,7 +16,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     private void doSubscribe(Flow.Subscription subscription) {
         if (this.subscription != null) {
-            // by rule 2.5, a `Subscriber` must cancel the given `Subscription` if it already has an active `Subscription`
+            // by rule 2.5, A Subscriber MUST call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
             subscription.cancel();
         } else {
             this.subscription = subscription;

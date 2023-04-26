@@ -14,9 +14,9 @@ https://github.com/reactive-streams/reactive-streams-jvm
 
 2.1
 2.2
-2.3
+-   2.3     Subscriber.onComplete() and Subscriber.onError(Throwable t) MUST NOT call any methods on the Subscription or the Publisher.
 2.4
-2.5
++   2.5     A Subscriber MUST call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
 2.6
 2.7
 2.8
