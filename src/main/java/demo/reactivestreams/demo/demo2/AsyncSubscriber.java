@@ -105,7 +105,6 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     private void doCancel() {
-        //logger.warn("({}) subscriber.terminate", id);
         cancelled = true;
         subscription.cancel();
     }

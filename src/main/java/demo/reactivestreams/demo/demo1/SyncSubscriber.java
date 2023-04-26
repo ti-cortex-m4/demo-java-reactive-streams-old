@@ -91,7 +91,6 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     }
 
     private void doCancel() {
-//        logger.debug("({}) subscriber.cancel", id);
         cancelled = true;
         subscription.cancel();
     }
