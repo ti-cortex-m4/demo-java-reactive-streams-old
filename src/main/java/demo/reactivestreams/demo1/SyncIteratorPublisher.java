@@ -85,6 +85,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     subscriber.onNext(iterator.next());
                 } catch (Throwable throwable) {
                     if (!terminated.get()) {
+                        // by rule 1.6, if a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription MUST be considered cancelled.
                         doTerminate();
                         subscriber.onError(throwable);
                     }
@@ -92,7 +93,9 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
             }
 
             if (!iterator.hasNext() && !terminated.get()) {
+                // by rule 1.6, if a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription MUST be considered cancelled.
                 doTerminate();
+                // by rule 1.5, if a Publisher terminates successfully finite stream it must signal an onComplete.
                 subscriber.onComplete();
             }
         }
