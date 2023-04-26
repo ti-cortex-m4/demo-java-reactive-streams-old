@@ -28,11 +28,11 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
         Objects.requireNonNull(subscription);
 
         if (this.subscription != null) {
-            // by rule 2.5, A Subscriber must call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
+            // by rule 2.5, a Subscriber must call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
             subscription.cancel();
         } else {
             this.subscription = subscription;
-            // by rule 2.1, A Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+            // by rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
             this.subscription.request(1);
         }
     }
@@ -45,10 +45,10 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 
         if (!cancelled) {
             if (whenNext(item)) {
-                // by rule 2.1, A Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+                // by rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
                 subscription.request(1);
             } else {
-                // by rule 2.6, A Subscriber must call Subscription.cancel() if the Subscription is no longer needed.
+                // by rule 2.6, a Subscriber must call Subscription.cancel() if the Subscription is no longer needed.
                 doCancel();
             }
         }
