@@ -1,16 +1,16 @@
 https://github.com/reactive-streams/reactive-streams-jvm
 
-1.1
-1.2
+1.1     The total number of onNext´s signalled by a Publisher to a Subscriber MUST be less than or equal to the total number of elements requested by that Subscriber´s Subscription at all times.
+1.2     A Publisher MAY signal fewer onNext than requested and terminate the Subscription by calling onComplete or onError.
 +   1.3     onSubscribe, onNext, onError and onComplete signaled to a Subscriber MUST be signaled serially.
 +   1.4     If a Publisher fails it MUST signal an onError.
 +   1.5     If a Publisher terminates successfully (finite stream) it MUST signal an onComplete.
 +   1.6 	If a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription MUST be considered cancelled.
 -   1.7     Once a terminal state has been signaled (onError, onComplete) it is REQUIRED that no further signals occur.
-1.8
+1.8     If a Subscription is cancelled its Subscriber MUST eventually stop being signaled.
 1.9
 -   1.10    Publisher.subscribe MAY be called as many times as wanted but MUST be with a different Subscriber each time
-1.11
++   1.11    A Publisher MAY support multiple Subscribers and decides whether each Subscription is unicast or multicast.
 
 +   2.1     A Subscriber MUST signal demand via Subscription.request(long n) to receive onNext signals.
 -   2.2     If a Subscriber suspects that its processing of signals will negatively impact its Publisher´s responsivity, it is RECOMMENDED that it asynchronously dispatches its signals.
@@ -28,7 +28,7 @@ https://github.com/reactive-streams/reactive-streams-jvm
 
 -   3.1     Subscription.request and Subscription.cancel MUST only be called inside of its Subscriber context.
 3.2
-3.3
+    3.3     Subscription.request MUST place an upper bound on possible synchronous recursion between Publisher and Subscriber.
 3.4
 3.5
 3.6

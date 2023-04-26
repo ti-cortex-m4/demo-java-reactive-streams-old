@@ -30,6 +30,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
     @Override
     public void subscribe(Flow.Subscriber<? super T> subscriber) {
+        // by rule 1.11, A Publisher MAY support multiple Subscribers and decides whether each Subscription is unicast or multicast (unicast).
         new SubscriptionImpl(subscriber).init();
     }
 
