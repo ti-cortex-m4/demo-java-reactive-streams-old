@@ -15,7 +15,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     private final CountDownLatch completed = new CountDownLatch(1);
 
     private Flow.Subscription subscription;
-    private boolean terminated = false;
+    private boolean cancelled = false;
 
     public SyncSubscriber(int id) {
         this.id = id;
@@ -43,13 +43,13 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
         // by rule 2.13, a `Subscriber` must throw a `java.lang.NullPointerException` if the `item` is `null`
         Objects.requireNonNull(item);
 
-        if (!terminated) {
+        if (!cancelled) {
             if (whenNext(item)) {
                 // by rule 2.1, A Subscriber MUST signal demand via Subscription.request(long n) to receive onNext signals.
                 subscription.request(1);
             } else {
                 // by rule 1.6, A Subscriber MUST call Subscription.cancel() if the Subscription is no longer needed.
-                doTerminate();
+                doCancel();
             }
         }
     }
@@ -60,7 +60,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
         // by rule 2.13, a `Subscriber` must throw a `java.lang.NullPointerException` if the `Throwable` is `null`
         Objects.requireNonNull(throwable);
         // by rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
-        terminated = true;
+        cancelled = true;
         whenError(throwable);
     }
 
@@ -68,7 +68,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     public void onComplete() {
         logger.info("({}) subscriber.complete", id);
         // by rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled after having received the signal.
-        terminated = true;
+        cancelled = true;
         whenComplete();
     }
 
@@ -90,9 +90,9 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
         completed.countDown();
     }
 
-    private void doTerminate() {
-        logger.debug("({}) subscriber.terminate", id);
-        terminated = true;
+    private void doCancel() {
+//        logger.debug("({}) subscriber.terminate", id);
+        cancelled = true;
         subscription.cancel();
     }
 }

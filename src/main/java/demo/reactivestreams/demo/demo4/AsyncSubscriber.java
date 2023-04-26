@@ -27,26 +27,26 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     private void doNext(T element) {
         // by rule 3.6, After the Subscription is cancelled, additional Subscription.request(long n) MUST be NOPs.
-        if (!terminated) {
+        if (!cancelled) {
             if (whenNext(element)) {
                 // by rule 2.1, A Subscriber MUST signal demand via Subscription.request(long n) to receive onNext signals.
                 subscription.request(1);
             } else {
                 // by rule 1.6, A Subscriber MUST call Subscription.cancel() if the Subscription is no longer needed.
-                doTerminate();
+                doCancel();
             }
         }
     }
 
     private void doError(Throwable throwable) {
         // by rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
-        terminated = true;
+        cancelled = true;
         whenError(throwable);
     }
 
     private void doComplete() {
         // by rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled after having received the signal.
-        terminated = true;
+        cancelled = true;
         whenComplete();
     }
 
@@ -55,7 +55,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     private final CountDownLatch completed = new CountDownLatch(1);
 
     private Flow.Subscription subscription;
-    private boolean terminated = false;
+    private boolean cancelled = false;
 
     public AsyncSubscriber(int id, Executor executor) {
         this.id = id;
@@ -104,9 +104,9 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
         completed.countDown();
     }
 
-    private void doTerminate() {
-        logger.warn("({}) subscriber.terminate", id);
-        terminated = true;
+    private void doCancel() {
+        //logger.warn("({}) subscriber.terminate", id);
+        cancelled = true;
         subscription.cancel();
     }
 
@@ -171,7 +171,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
             try {
                 Signal signal = inboundSignals.poll();
                 logger.debug("({}) signal.poll {}", id, signal);
-                if (!terminated) {
+                if (!cancelled) {
                     signal.run();
                 }
             } finally {
@@ -195,9 +195,9 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
             try {
                 executor.execute(this);
             } catch (Throwable throwable) {
-                if (!terminated) {
+                if (!cancelled) {
                     try {
-                        doTerminate();
+                        doCancel();
                     } finally {
                         inboundSignals.clear();
                         mutex.set(false);
