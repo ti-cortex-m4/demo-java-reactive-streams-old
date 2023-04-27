@@ -27,17 +27,17 @@ https://github.com/reactive-streams/reactive-streams-jvm
 +   2.13    Calling onSubscribe, onNext, onError or onComplete MUST return normally except when any provided parameter is null in which case it MUST throw a java.lang.NullPointerException to the caller, for all other situations the only legal way for a Subscriber to signal failure is by cancelling its Subscription.
 
 -   3.1     Subscription.request and Subscription.cancel MUST only be called inside of its Subscriber context.
-3.2     The Subscription MUST allow the Subscriber to call Subscription.request synchronously from within onNext or onSubscribe.
-    3.3     Subscription.request MUST place an upper bound on possible synchronous recursion between Publisher and Subscriber.
+-   3.2     The Subscription MUST allow the Subscriber to call Subscription.request synchronously from within onNext or onSubscribe.
+-   3.3     Subscription.request MUST place an upper bound on possible synchronous recursion between Publisher and Subscriber.
 -   3.4     Subscription.request SHOULD respect the responsivity of its caller by returning in a timely manner.
-3.5    	Subscription.cancel MUST respect the responsivity of its caller by returning in a timely manner, MUST be idempotent and MUST be thread-safe.
+-   3.5    	Subscription.cancel MUST respect the responsivity of its caller by returning in a timely manner, MUST be idempotent and MUST be thread-safe.
 3.6     After the Subscription is cancelled, additional Subscription.request(long n) MUST be NOPs.
 3.7     After the Subscription is cancelled, additional Subscription.cancel() MUST be NOPs.
 +   3.8     While the Subscription is not cancelled, Subscription.request(long n) MUST register the given number of additional elements to be produced to the respective subscriber.
 +   3.9     While the Subscription is not cancelled, Subscription.request(long n) MUST signal onError with a java.lang.IllegalArgumentException if the argument is <= 0.
 -   3.10    While the Subscription is not cancelled, Subscription.request(long n) MAY synchronously call onNext on this (or other) subscriber(s).
 -   3.11    While the Subscription is not cancelled, Subscription.request(long n) MAY synchronously call onComplete or onError on this (or other) subscriber(s).
-3.12    While the Subscription is not cancelled, Subscription.cancel() MUST request the Publisher to eventually stop signaling its Subscriber. The operation is NOT REQUIRED to affect the Subscription immediately.
+-   3.12    While the Subscription is not cancelled, Subscription.cancel() MUST request the Publisher to eventually stop signaling its Subscriber. The operation is NOT REQUIRED to affect the Subscription immediately.
 -   3.13    While the Subscription is not cancelled, Subscription.cancel() MUST request the Publisher to eventually drop any references to the corresponding subscriber.
 -   3.14    While the Subscription is not cancelled, calling Subscription.cancel MAY cause the Publisher, if stateful, to transition into the shut-down state if no other Subscription exists at this point [see 1.9].
 -   3.15    Calling Subscription.cancel MUST return normally.
