@@ -42,4 +42,4 @@ https://github.com/reactive-streams/reactive-streams-jvm
 -   3.14    While the Subscription is not cancelled, calling Subscription.cancel MAY cause the Publisher, if stateful, to transition into the shut-down state if no other Subscription exists at this point [see 1.9].
 -   3.15    Calling Subscription.cancel MUST return normally.
 -   3.16    Calling Subscription.request MUST return normally.
-3.17    A Subscription MUST support an unbounded number of calls to request and MUST support a demand up to 2^63-1 (java.lang.Long.MAX_VALUE). A demand equal or greater than 2^63-1 (java.lang.Long.MAX_VALUE) MAY be considered by the Publisher as “effectively unbounded”.
++   3.17    A Subscription MUST support an unbounded number of calls to request and MUST support a demand up to 2^63-1 (java.lang.Long.MAX_VALUE). A demand equal or greater than 2^63-1 (java.lang.Long.MAX_VALUE) MAY be considered by the Publisher as “effectively unbounded”.

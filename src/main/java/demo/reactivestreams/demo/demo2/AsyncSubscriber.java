@@ -26,7 +26,6 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     private void doNext(T element) {
-        // by rule 3.6, After the Subscription is cancelled, additional Subscription.request(long n) must be NOPs.
         if (!cancelled) {
             if (whenNext(element)) {
                 // by rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
