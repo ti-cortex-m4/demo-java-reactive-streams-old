@@ -114,9 +114,9 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 subscriber.onNext(next);
 
                 if (!hasNext) {
-                    // by rule 1.6, If a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription must be considered cancelled.
+                    // by rule 1.6, if a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription must be considered cancelled.
                     doCancel();
-                    // by rule 1.5, If a Publisher terminates successfully it must signal an onComplete.
+                    // by rule 1.5, if a Publisher terminates successfully it must signal an onComplete.
                     subscriber.onComplete();
                 }
             } while (!cancelled && --batchLeft > 0 && --demand > 0);
@@ -132,7 +132,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         }
 
         private void doError(Throwable throwable) {
-            // by rule 1.6, If a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription must be considered cancelled.
+            // by rule 1.6, if a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription must be considered cancelled.
             cancelled = true;
             subscriber.onError(throwable);
         }
