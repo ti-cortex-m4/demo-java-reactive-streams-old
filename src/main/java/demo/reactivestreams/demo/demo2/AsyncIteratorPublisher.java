@@ -43,7 +43,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         private boolean cancelled = false;
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
-            // ??? by rule 1.9, a `Publisher.subscribe` must throw a `java.lang.NullPointerException` if the `Subscriber` is `null`
+            // by rule 1.9, calling Publisher.subscribe must throw a java.lang.NullPointerException when the given parameter is null.
             this.subscriber = Objects.requireNonNull(subscriber);
         }
 

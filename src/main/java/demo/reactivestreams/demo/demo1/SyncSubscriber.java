@@ -59,6 +59,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
         logger.error("({}) subscriber.error", id, throwable);
         // by rule 2.13, calling onError must throw a java.lang.NullPointerException when the given parameter is null.
         Objects.requireNonNull(throwable);
+
         // by rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
         cancelled = true;
         whenError(throwable);
@@ -67,6 +68,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     @Override
     public void onComplete() {
         logger.info("({}) subscriber.complete", id);
+
         // by rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled after having received the signal.
         cancelled = true;
         whenComplete();

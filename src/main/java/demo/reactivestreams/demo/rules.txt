@@ -8,7 +8,7 @@ https://github.com/reactive-streams/reactive-streams-jvm
 +   1.6 	If a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription MUST be considered cancelled.
 -   1.7     Once a terminal state has been signaled (onError, onComplete) it is REQUIRED that no further signals occur.
 1.8     If a Subscription is cancelled its Subscriber MUST eventually stop being signaled.
-1.9     A Subscriber MUST be prepared to receive an onComplete signal with or without a preceding Subscription.request(long n) call.
++   1.9     Publisher.subscribe MUST call onSubscribe on the provided Subscriber prior to any other signals to that Subscriber and MUST return normally, except when the provided Subscriber is null in which case it MUST throw a java.lang.NullPointerException to the caller, for all other situations the only legal way to signal failure (or reject the Subscriber) is by calling onError (after calling onSubscribe).
 -   1.10    Publisher.subscribe MAY be called as many times as wanted but MUST be with a different Subscriber each time
 +   1.11    A Publisher MAY support multiple Subscribers and decides whether each Subscription is unicast or multicast.
 
