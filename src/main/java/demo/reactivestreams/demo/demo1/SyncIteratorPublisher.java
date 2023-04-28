@@ -25,6 +25,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
     public void subscribe(Flow.Subscriber<? super T> subscriber) {
         // by rule 1.11, a Publisher MAY support multiple Subscribers and decides whether each Subscription is unicast or multicast (unicast).
         SubscriptionImpl subscription = new SubscriptionImpl(subscriber);
+        // by rule 1.9, a Publisher MUST call onSubscribe prior onError if method subscribe fails.
         subscriber.onSubscribe(subscription);
         subscription.onSubscribed();
     }
