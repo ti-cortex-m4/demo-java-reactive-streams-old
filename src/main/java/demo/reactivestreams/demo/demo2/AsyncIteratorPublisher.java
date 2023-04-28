@@ -88,7 +88,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 // by rule 3.9, While the Subscription is not cancelled, Subscription.request(long n) must signal onError with a java.lang.IllegalArgumentException if the argument is <= 0.
                 doError(new IllegalArgumentException("non-positive subscription request"));
             } else if (demand + n <= 0) {
-                // by rule 3.17, a Subscription MUST support a demand up to java.lang.Long.MAX_VALUE.
+                // by rule 3.17, a Subscription must support a demand up to java.lang.Long.MAX_VALUE.
                 demand = Long.MAX_VALUE;
                 doNext();
             } else {
@@ -154,7 +154,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             signal(new Cancel());
         }
 
-        // `Signal` represents the asynchronous protocol between the `Publisher` and `Subscriber`
+        // to represents the asynchronous signals
         private interface Signal extends Runnable {
         }
 
@@ -193,31 +193,31 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         }
 
         // to track signals in a thread-safe way
-        private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<>();
+        private final ConcurrentLinkedQueue<Signal> signalsQueue = new ConcurrentLinkedQueue<>();
 
         // to establish the happens-before relationship between asynchronous signal calls
         private final AtomicBoolean mutex = new AtomicBoolean(false);
 
         private void signal(Signal signal) {
             logger.debug("signal.offer {}", signal);
-            if (inboundSignals.offer(signal)) {
+            if (signalsQueue.offer(signal)) {
                 tryExecute();
             }
         }
 
         @Override
         public void run() {
-            // by rule 1.3, A Subscriber MUST ensure that all calls on its Subscriber's onSubscribe, onNext, onError and onComplete signaled to a Subscriber MUST be signaled serially.
+            // by rule 1.3, A Subscriber must ensure that all calls on its Subscriber's onSubscribe, onNext, onError and onComplete signaled to a Subscriber must be signaled serially.
             if (mutex.get()) {
                 try {
-                    Signal signal = inboundSignals.poll();
+                    Signal signal = signalsQueue.poll();
                     logger.debug("signal.poll {}", signal);
                     if (!cancelled) {
                         signal.run();
                     }
                 } finally {
                     mutex.set(false);
-                    if (!inboundSignals.isEmpty()) {
+                    if (!signalsQueue.isEmpty()) {
                         tryExecute();
                     }
                 }
@@ -235,7 +235,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                             // by rule 1.4, if a Publisher fails it must signal an onError.
                             doError(new IllegalStateException(throwable));
                         } finally {
-                            inboundSignals.clear();
+                            signalsQueue.clear();
                             mutex.set(false);
                         }
                     }

@@ -26,7 +26,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     private void doNext(T element) {
-        // by rule 2.8, A Subscriber MUST be prepared to receive one or more onNext signals after having called Subscription.cancel()
+        // by rule 2.8, A Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
         if (!cancelled) {
             if (whenNext(element)) {
                 // by rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
@@ -109,7 +109,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
         subscription.cancel();
     }
 
-    // `Signal` represents the asynchronous protocol between the `Publisher` and `Subscriber`
+    // to represents the asynchronous signals
     private interface Signal extends Runnable {
     }
 
@@ -160,24 +160,24 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     // to track signals in a thread-safe way
-    private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<Signal> signalsQueue = new ConcurrentLinkedQueue<>();
 
     // to establish the happens-before relationship between asynchronous signal calls
     private final AtomicBoolean mutex = new AtomicBoolean(false);
 
     @Override
     public void run() {
-        // by rule 2.7, A Subscriber MUST ensure that all calls on its Subscription's request and cancel methods are performed serially.
+        // by rule 2.7, A Subscriber must ensure that all calls on its Subscription's request and cancel methods are performed serially.
         if (mutex.get()) {
             try {
-                Signal signal = inboundSignals.poll();
+                Signal signal = signalsQueue.poll();
                 logger.debug("({}) signal.poll {}", id, signal);
                 if (!cancelled) {
                     signal.run();
                 }
             } finally {
                 mutex.set(false);
-                if (!inboundSignals.isEmpty()) {
+                if (!signalsQueue.isEmpty()) {
                     tryExecute();
                 }
             }
@@ -186,7 +186,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     private void signal(Signal signal) {
         logger.debug("({}) signal.offer {}", id, signal);
-        if (inboundSignals.offer(signal)) {
+        if (signalsQueue.offer(signal)) {
             tryExecute();
         }
     }
@@ -200,7 +200,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
                     try {
                         doCancel();
                     } finally {
-                        inboundSignals.clear();
+                        signalsQueue.clear();
                         mutex.set(false);
                     }
                 }

@@ -70,7 +70,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 // by rule 3.8, While the Subscription is not cancelled, Subscription.request(long n) must register the given number of additional elements to be produced to the respective subscriber.
                 long adjustedDemand = currentDemand + n;
                 if (adjustedDemand < 0L) {
-                    // by rule 3.17, a Subscription MUST support a demand up to java.lang.Long.MAX_VALUE.
+                    // by rule 3.17, a Subscription must support a demand up to java.lang.Long.MAX_VALUE.
                     adjustedDemand = Long.MAX_VALUE;
                 }
 
