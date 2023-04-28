@@ -82,6 +82,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 }
             }
 
+            // by rule 1.2, A Publisher MAY signal fewer onNext than requested and terminate the Subscription by calling onComplete or onError.
             for (; demand.get() > 0 && iterator.hasNext() && !cancelled.get(); demand.decrementAndGet()) {
                 try {
                     subscriber.onNext(iterator.next());

@@ -98,6 +98,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             }
         }
 
+        // by rule 1.2, A Publisher MAY signal fewer onNext than requested and terminate the Subscription by calling onComplete or onError.
         private void doNext() {
             int batchLeft = batchSize;
             do {
