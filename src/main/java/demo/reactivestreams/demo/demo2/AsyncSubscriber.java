@@ -159,8 +159,10 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
         }
     }
 
-    // unbounded thread-safe queue for passing signals to be executed on other threads
+    // to track signals in a thread-safe way
     private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<>();
+
+    // to establish the happens-before relationship between asynchronous signal calls
     private final AtomicBoolean mutex = new AtomicBoolean(false);
 
     @Override

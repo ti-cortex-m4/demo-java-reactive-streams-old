@@ -192,8 +192,10 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             }
         }
 
-        // unbounded thread-safe queue for passing signals to be executed on other threads
+        // to track signals in a thread-safe way
         private final ConcurrentLinkedQueue<Signal> inboundSignals = new ConcurrentLinkedQueue<>();
+
+        // to establish the happens-before relationship between asynchronous signal calls
         private final AtomicBoolean mutex = new AtomicBoolean(false);
 
         private void signal(Signal signal) {
@@ -205,7 +207,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
         @Override
         public void run() {
-            // by rule 1.3, A Subscriber MUST ensure ensure that all calls on its Subscriber's onSubscribe, onNext, onError and onComplete signaled to a Subscriber MUST be signaled serially.
+            // by rule 1.3, A Subscriber MUST ensure that all calls on its Subscriber's onSubscribe, onNext, onError and onComplete signaled to a Subscriber MUST be signaled serially.
             if (mutex.get()) {
                 try {
                     Signal signal = inboundSignals.poll();
