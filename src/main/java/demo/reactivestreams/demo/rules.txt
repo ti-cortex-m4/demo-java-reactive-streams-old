@@ -18,8 +18,8 @@ https://github.com/reactive-streams/reactive-streams-jvm
 +   2.4     Subscriber.onComplete() and Subscriber.onError(Throwable t) MUST consider the Subscription cancelled after having received the signal.
 +   2.5     A Subscriber MUST call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
 +   2.6     A Subscriber MUST call Subscription.cancel() if the Subscription is no longer needed.
-2.7     A Subscriber MUST ensure that all calls on its Subscription's request and cancel methods are performed serially.
-2.8     A Subscriber MUST be prepared to receive one or more onNext signals after having called Subscription.cancel()
++   2.7     A Subscriber MUST ensure that all calls on its Subscription's request and cancel methods are performed serially.
++   2.8     A Subscriber MUST be prepared to receive one or more onNext signals after having called Subscription.cancel()
 -   2.9     A Subscriber MUST be prepared to receive an onComplete signal with or without a preceding Subscription.request(long n) call.
 -   2.10    A Subscriber MUST be prepared to receive an onError signal with or without a preceding Subscription.request(long n) call.
 2.11    A Subscriber MUST make sure that all calls on its signal methods happen-before the processing of the respective signals. I.e. the Subscriber must take care of properly publishing the signal to its processing logic.
@@ -31,8 +31,8 @@ https://github.com/reactive-streams/reactive-streams-jvm
 -   3.3     Subscription.request MUST place an upper bound on possible synchronous recursion between Publisher and Subscriber.
 -   3.4     Subscription.request SHOULD respect the responsivity of its caller by returning in a timely manner.
 -   3.5    	Subscription.cancel MUST respect the responsivity of its caller by returning in a timely manner, MUST be idempotent and MUST be thread-safe.
-3.6     After the Subscription is cancelled, additional Subscription.request(long n) MUST be NOPs.
-3.7     After the Subscription is cancelled, additional Subscription.cancel() MUST be NOPs.
+-   3.6     After the Subscription is cancelled, additional Subscription.request(long n) MUST be NOPs.
+-   3.7     After the Subscription is cancelled, additional Subscription.cancel() MUST be NOPs.
 +   3.8     While the Subscription is not cancelled, Subscription.request(long n) MUST register the given number of additional elements to be produced to the respective subscriber.
 +   3.9     While the Subscription is not cancelled, Subscription.request(long n) MUST signal onError with a java.lang.IllegalArgumentException if the argument is <= 0.
 -   3.10    While the Subscription is not cancelled, Subscription.request(long n) MAY synchronously call onNext on this (or other) subscriber(s).

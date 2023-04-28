@@ -204,7 +204,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
         @Override
         public void run() {
-            // by rule 2.7, a Subscriber must ensure that all calls on its Subscription's request and cancel methods are performed serially.
+            // by rule 1.3, A Subscriber MUST ensure ensure that all calls on its Subscriber's onSubscribe, onNext, onError and onComplete signaled to a Subscriber MUST be signaled serially.
             if (mutex.get()) {
                 try {
                     Signal signal = inboundSignals.poll();

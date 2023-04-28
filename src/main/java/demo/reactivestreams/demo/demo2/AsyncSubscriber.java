@@ -26,6 +26,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     private void doNext(T element) {
+        // by rule 2.8, A Subscriber MUST be prepared to receive one or more onNext signals after having called Subscription.cancel()
         if (!cancelled) {
             if (whenNext(element)) {
                 // by rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
@@ -164,7 +165,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     @Override
     public void run() {
-        // by rule 1.3, onSubscribe, onNext, onError and onComplete signaled to a Subscriber must be signaled serially.
+        // by rule 2.7, A Subscriber MUST ensure that all calls on its Subscription's request and cancel methods are performed serially.
         if (mutex.get()) {
             try {
                 Signal signal = inboundSignals.poll();
