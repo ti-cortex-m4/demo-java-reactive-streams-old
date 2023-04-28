@@ -79,16 +79,13 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
         completed.await();
     }
 
-    // This method is invoked when the `OnNext` signals arrive and returns whether more elements are desired or not, intended to be overridden.
     protected boolean whenNext(T item) {
         return true;
     }
 
-    // This method is invoked if the `OnError` signal arrives, intended to be overridden.
     protected void whenError(Throwable throwable) {
     }
 
-    // This method is invoked when the `OnComplete` signal arrives, intended to be overridden.
     protected void whenComplete() {
         completed.countDown();
     }
