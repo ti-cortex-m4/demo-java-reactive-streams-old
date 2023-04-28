@@ -30,7 +30,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
     @Override
     public void subscribe(Flow.Subscriber<? super T> subscriber) {
-        // by rule 1.11, A Publisher MAY support multiple Subscribers and decides whether each Subscription is unicast or multicast (unicast).
+        // by rule 1.11, a Publisher MAY support multiple Subscribers and decides whether each Subscription is unicast or multicast (unicast).
         new SubscriptionImpl(subscriber).init();
     }
 
@@ -98,7 +98,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             }
         }
 
-        // by rule 1.2, A Publisher MAY signal fewer onNext than requested and terminate the Subscription by calling onComplete or onError.
+        // by rule 1.2, a Publisher MAY signal fewer onNext than requested and terminate the Subscription by calling onComplete or onError.
         private void doNext() {
             int batchLeft = batchSize;
             do {
@@ -207,7 +207,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
         @Override
         public void run() {
-            // by rule 1.3, A Subscriber must ensure that all calls on its Subscriber's onSubscribe, onNext, onError and onComplete signaled to a Subscriber must be signaled serially.
+            // by rule 1.3, a Subscriber must ensure that all calls on its Subscriber's onSubscribe, onNext, onError and onComplete signaled to a Subscriber must be signaled serially.
             if (mutex.get()) {
                 try {
                     Signal signal = signalsQueue.poll();

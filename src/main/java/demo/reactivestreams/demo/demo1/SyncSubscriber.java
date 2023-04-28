@@ -43,7 +43,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
         // by rule 2.13, calling onNext must throw a java.lang.NullPointerException when the given parameter is null.
         Objects.requireNonNull(item);
 
-        // by rule 2.8, A Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
+        // by rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
         if (!cancelled) {
             if (whenNext(item)) {
                 // by rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
