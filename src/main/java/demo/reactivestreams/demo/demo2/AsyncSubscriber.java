@@ -14,42 +14,6 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(AsyncSubscriber.class);
 
-    private void doSubscribe(Flow.Subscription subscription) {
-        if (this.subscription != null) {
-            // By rule 2.5, a Subscriber must call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
-            subscription.cancel();
-        } else {
-            this.subscription = subscription;
-            // By rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
-            this.subscription.request(1);
-        }
-    }
-
-    private void doNext(T element) {
-        // By rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
-        if (!cancelled) {
-            if (whenNext(element)) {
-                // By rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
-                subscription.request(1);
-            } else {
-                // By rule 2.6, a Subscriber must call Subscription.cancel() if the Subscription is no longer needed.
-                doCancel();
-            }
-        }
-    }
-
-    private void doError(Throwable throwable) {
-        // By rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
-        cancelled = true;
-        whenError(throwable);
-    }
-
-    private void doComplete() {
-        // By rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled after having received the signal.
-        cancelled = true;
-        whenComplete();
-    }
-
     private final int id;
     private final CountDownLatch completed = new CountDownLatch(1);
     private final Executor executor;
@@ -107,12 +71,48 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
         completed.countDown();
     }
 
+    private void doSubscribe(Flow.Subscription subscription) {
+        if (this.subscription != null) {
+            // By rule 2.5, a Subscriber must call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
+            subscription.cancel();
+        } else {
+            this.subscription = subscription;
+            // By rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+            this.subscription.request(1);
+        }
+    }
+
+    private void doNext(T element) {
+        // By rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
+        if (!cancelled) {
+            if (whenNext(element)) {
+                // By rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+                subscription.request(1);
+            } else {
+                // By rule 2.6, a Subscriber must call Subscription.cancel() if the Subscription is no longer needed.
+                doCancel();
+            }
+        }
+    }
+
+    private void doError(Throwable throwable) {
+        // By rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
+        cancelled = true;
+        whenError(throwable);
+    }
+
+    private void doComplete() {
+        // By rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled after having received the signal.
+        cancelled = true;
+        whenComplete();
+    }
+
     private void doCancel() {
         cancelled = true;
         subscription.cancel();
     }
 
-    // to represents the asynchronous signals
+    // These classes represent the asynchronous signals.
     private interface Signal extends Runnable {
     }
 
@@ -162,15 +162,15 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
         }
     }
 
-    // to track signals in a thread-safe way
+    // The non-blocking queue to transmit signals in a thread-safe way.
     private final ConcurrentLinkedQueue<Signal> signalsQueue = new ConcurrentLinkedQueue<>();
 
-    // to establish the happens-before relationship between asynchronous signal calls
+    // The mutex to establish the happens-before relationship between asynchronous signal calls.
     private final AtomicBoolean mutex = new AtomicBoolean(false);
 
     @Override
     public void run() {
-        // By_rule 2.7, a Subscriber must ensure that all calls on its Subscription's request and cancel methods are performed serially.
+        // By rule 2.7, a Subscriber must ensure that all calls on its Subscription's request, cancel methods are performed serially.
         if (mutex.get()) {
             try {
                 Signal signal = signalsQueue.poll();

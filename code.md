@@ -5,7 +5,7 @@
 
 The following code example demonstrates a synchronous _cold_ Producer that sends a finite sequence of items from a given Iterator.
 
-The following code sample demonstrates a synchronous Consumer that _pulls_ items one by one and logs received events. The comments show which code fragments are responsible for implementing which rules of the Reactive Streams specification. The GitHub repository also has blackbox and whitebox unit tests to verify that this consumer meets the specification using its TCK.
+The following code sample demonstrates a synchronous Consumer that _pulls_ items one by one and logs received events. The comments show which code fragments are responsible for implementing which rules of the Reactive Streams specification. This synchronous consumer executes its methods onSubscribe, onNext, onError, onComplete in a Producer’s thread. The GitHub repository also has blackbox and whitebox unit tests to verify that this consumer meets the specification using its TCK.
 
 
 ```
@@ -24,15 +24,15 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
    @Override
    public void onSubscribe(Flow.Subscription subscription) {
        logger.info("({}) subscriber.subscribe: {}", id, subscription);
-       // by rule 2.13, calling onSubscribe must throw a NullPointerException when the given parameter is null.
+       // By rule 2.13, calling onSubscribe must throw a NullPointerException when the given parameter is null.
        Objects.requireNonNull(subscription);
 
        if (this.subscription != null) {
-           // by_rule 2.5, a Subscriber must call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
+           // By rule 2.5, a Subscriber must call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
            subscription.cancel();
        } else {
            this.subscription = subscription;
-           // by_rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+           // By rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
            this.subscription.request(1);
        }
    }
@@ -40,16 +40,16 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
    @Override
    public void onNext(T item) {
        logger.info("({}) subscriber.next: {}", id, item);
-       // by rule 2.13, calling onNext must throw a NullPointerException when the given parameter is null.
+       // By rule 2.13, calling onNext must throw a NullPointerException when the given parameter is null.
        Objects.requireNonNull(item);
 
-       // by_rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
+       // By rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
        if (!cancelled) {
            if (whenNext(item)) {
-               // by_rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+               // By rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
                subscription.request(1);
            } else {
-               // by_rule 2.6, a Subscriber must call Subscription.cancel() if the Subscription is no longer needed.
+               // By rule 2.6, a Subscriber must call Subscription.cancel() if the Subscription is no longer needed.
                doCancel();
            }
        }
@@ -58,10 +58,10 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
    @Override
    public void onError(Throwable throwable) {
        logger.error("({}) subscriber.error", id, throwable);
-       // by rule 2.13, calling onError must throw a NullPointerException when the given parameter is null.
+       // By rule 2.13, calling onError must throw a NullPointerException when the given parameter is null.
        Objects.requireNonNull(throwable);
 
-       // by_rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
+       // By rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
        cancelled = true;
        whenError(throwable);
    }
@@ -70,7 +70,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
    public void onComplete() {
        logger.info("({}) subscriber.complete", id);
 
-       // by_rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled after having received the signal.
+       // By rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled after having received the signal.
        cancelled = true;
        whenComplete();
    }
@@ -79,16 +79,16 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
        completed.await();
    }
 
-   // this method is invoked when OnNext signals arrive and returns whether more elements are desired or not, intended to be overridden.
+   // This method is invoked when OnNext signals arrive and returns whether more elements are desired or not (is intended to override).
    protected boolean whenNext(T item) {
        return true;
    }
 
-   // this method is invoked when an OnError signal arrives, intended to be overridden.
+   // This method is invoked when an OnError signal arrives (is intended to override).
    protected void whenError(Throwable throwable) {
    }
 
-   // this method is invoked when an OnComplete signal arrives, intended to be overridden.
+   // This method is invoked when an OnComplete signal arrives (is intended to override).
    protected void whenComplete() {
        completed.countDown();
    }
@@ -175,7 +175,211 @@ The following log demonstrates that the synchronous Producer sends a sequence of
 
 The following code example demonstrates an asynchronous _cold_ Producer that sends a finite sequence of items from a given Iterator.
 
-The following code sample demonstrates an asynchronous Consumer that _pulls_ items one by one and logs received events. The comments show which code fragments are responsible for implementing which rules of the Reactive Streams specification. The GitHub repository also has blackbox and whitebox unit tests to verify that this consumer meets the specification using its TCK.
+The following code sample demonstrates an asynchronous Consumer that _pulls_ items one by one and logs received events. The comments show which code fragments are responsible for implementing which rules of the Reactive Streams specification. This asynchronous consumer executes its methods onSubscribe, onNext, onError, onComplete in a separate thread. The thread-safe, non-blocking ConcurrentLinkedQueue transfers the signals from the Producer’s thread to the Consumer’s thread. The AtomicBoolean mutex ensures that the signals are executed _serially_ even if they are executed asynchronously. The GitHub repository also has blackbox and whitebox unit tests to verify that this consumer meets the specification using its TCK.
+
+
+```
+public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
+
+   private final int id;
+   private final CountDownLatch completed = new CountDownLatch(1);
+   private final Executor executor;
+
+   private Flow.Subscription subscription;
+   private boolean cancelled = false;
+
+   public AsyncSubscriber(int id, Executor executor) {
+       this.id = id;
+       this.executor = Objects.requireNonNull(executor);
+   }
+
+   @Override
+   public void onSubscribe(Flow.Subscription subscription) {
+       logger.info("({}) subscriber.subscribe: {}", id, subscription);
+       // By rule 2.13, calling onSubscribe must throw a NullPointerException when the given parameter is null.
+       signal(new OnSubscribe(Objects.requireNonNull(subscription)));
+   }
+
+   @Override
+   public void onNext(T item) {
+       logger.info("({}) subscriber.next: {}", id, item);
+       // By rule 2.13, calling onNext must throw a NullPointerException when the given parameter is null.
+       signal(new OnNext(Objects.requireNonNull(item)));
+   }
+
+   @Override
+   public void onError(Throwable throwable) {
+       logger.error("({}) subscriber.error", id, throwable);
+       // By rule 2.13, calling onError must throw a NullPointerException when the given parameter is null.
+       signal(new OnError(Objects.requireNonNull(throwable)));
+   }
+
+   @Override
+   public void onComplete() {
+       logger.info("({}) subscriber.complete", id);
+       signal(new OnComplete());
+   }
+
+   public void awaitCompletion() throws InterruptedException {
+       completed.await();
+   }
+
+   // This method is invoked when OnNext signals arrive and returns whether more elements are desired or not (is intended to override).
+   protected boolean whenNext(T item) {
+       return true;
+   }
+
+   // This method is invoked when an OnError signal arrives (is intended to override).
+   protected void whenError(Throwable throwable) {
+   }
+
+   // This method is invoked when an OnComplete signal arrives (is intended to override).
+   protected void whenComplete() {
+       completed.countDown();
+   }
+
+   private void doSubscribe(Flow.Subscription subscription) {
+       if (this.subscription != null) {
+           // By rule 2.5, a Subscriber must call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
+           subscription.cancel();
+       } else {
+           this.subscription = subscription;
+           // By rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+           this.subscription.request(1);
+       }
+   }
+
+   private void doNext(T element) {
+       // By rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
+       if (!cancelled) {
+           if (whenNext(element)) {
+               // By rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+               subscription.request(1);
+           } else {
+               // By rule 2.6, a Subscriber must call Subscription.cancel() if the Subscription is no longer needed.
+               doCancel();
+           }
+       }
+   }
+
+   private void doError(Throwable throwable) {
+       // By rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
+       cancelled = true;
+       whenError(throwable);
+   }
+
+   private void doComplete() {
+       // By rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled after having received the signal.
+       cancelled = true;
+       whenComplete();
+   }
+
+   private void doCancel() {
+       cancelled = true;
+       subscription.cancel();
+   }
+
+   // These classes represent the asynchronous signals.
+   private interface Signal extends Runnable {
+   }
+
+   private class OnSubscribe implements Signal {
+       private final Flow.Subscription subscription;
+
+       OnSubscribe(Flow.Subscription subscription) {
+           this.subscription = subscription;
+       }
+
+       @Override
+       public void run() {
+           doSubscribe(subscription);
+       }
+   }
+
+   private class OnNext implements Signal {
+       private final T element;
+
+       OnNext(T element) {
+           this.element = element;
+       }
+
+       @Override
+       public void run() {
+           doNext(element);
+       }
+   }
+
+   private class OnError implements Signal {
+       private final Throwable throwable;
+
+       OnError(Throwable throwable) {
+           this.throwable = throwable;
+       }
+
+       @Override
+       public void run() {
+           doError(throwable);
+       }
+   }
+
+   private class OnComplete implements Signal {
+       @Override
+       public void run() {
+           doComplete();
+       }
+   }
+
+   // The non-blocking queue to transmit signals in a thread-safe way.
+   private final ConcurrentLinkedQueue<Signal> signalsQueue = new ConcurrentLinkedQueue<>();
+
+   // The mutex to establish the happens-before relationship between asynchronous signal calls.
+   private final AtomicBoolean mutex = new AtomicBoolean(false);
+
+   @Override
+   public void run() {
+       // By rule 2.7, a Subscriber must ensure that all calls on its Subscription's request, cancel methods are performed serially.
+       if (mutex.get()) {
+           try {
+               Signal signal = signalsQueue.poll();
+               logger.debug("({}) signal.poll {}", id, signal);
+               if (!cancelled) {
+                   signal.run();
+               }
+           } finally {
+               mutex.set(false);
+               if (!signalsQueue.isEmpty()) {
+                   tryExecute();
+               }
+           }
+       }
+   }
+
+   private void signal(Signal signal) {
+       logger.debug("({}) signal.offer {}", id, signal);
+       if (signalsQueue.offer(signal)) {
+           tryExecute();
+       }
+   }
+
+   private void tryExecute() {
+       if (mutex.compareAndSet(false, true)) {
+           try {
+               executor.execute(this);
+           } catch (Throwable throwable) {
+               if (!cancelled) {
+                   try {
+                       doCancel();
+                   } finally {
+                       signalsQueue.clear();
+                       mutex.set(false);
+                   }
+               }
+           }
+       }
+   }
+}
+```
+
 
 The following code example demonstrates that the _multicast_ Producer sends the same sequence of events (the same pangram) to multiple Subscribers.
 
