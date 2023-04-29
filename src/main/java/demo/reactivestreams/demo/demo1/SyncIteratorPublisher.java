@@ -26,29 +26,43 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
         // by_rule 1.11, a Publisher MAY support multiple Subscribers and decides whether each Subscription is unicast or multicast (unicast).
         SubscriptionImpl subscription = new SubscriptionImpl(subscriber);
         // by_rule 1.9, a Publisher MUST call onSubscribe prior onError if method subscribe fails.
-        subscriber.onSubscribe(subscription);
-        subscription.onSubscribed();
+        //subscriber.onSubscribe(subscription);
+        //subscription.onSubscribed();
     }
 
     private class SubscriptionImpl implements Flow.Subscription {
 
         private final Flow.Subscriber<? super T> subscriber;
-        private final Iterator<? extends T> iterator;
         private final AtomicLong demand = new AtomicLong();
-        private final AtomicReference<Throwable> error = new AtomicReference<>();
+        //private final AtomicReference<Throwable> error = new AtomicReference<>();
         private final AtomicBoolean cancelled = new AtomicBoolean(false);
+
+        private Iterator<? extends T> iterator;
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
             // by_rule 1.9, calling Publisher.subscribe must throw a java.lang.NullPointerException when the given parameter is null.
             this.subscriber = Objects.requireNonNull(subscriber);
 
-            Iterator<? extends T> iterator = null;
             try {
                 iterator = iteratorSupplier.get();
             } catch (Throwable throwable) {
-                error.set(throwable);
+                // by_rule 1.9, a Publisher MUST call onSubscribe prior onError if method subscribe fails.
+                subscriber.onSubscribe(new Flow.Subscription() {
+                    @Override
+                    public void cancel() {
+                    }
+
+                    @Override
+                    public void request(long n) {
+                    }
+                });
+                // by_rule 1.4, if a Publisher fails it must signal an onError.
+                doError(throwable);
             }
-            this.iterator = iterator;
+
+            if (!cancelled.get()) {
+                subscriber.onSubscribe(this);
+            }
         }
 
         @Override
@@ -112,7 +126,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
             logger.info("subscription.cancel");
             doCancel();
         }
-
+/*
         void onSubscribed() {
             Throwable throwable = error.get();
             if ((throwable != null) && !cancelled.get()) {
@@ -121,10 +135,16 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 subscriber.onError(throwable);
             }
         }
-
+*/
         private void doCancel() {
             logger.warn("subscription.terminate");
             cancelled.set(true);
+        }
+
+        private void doError(Throwable throwable) {
+            // by_rule 1.6, if a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription must be considered cancelled.
+            cancelled.set(true);
+            subscriber.onError(throwable);
         }
     }
 }
