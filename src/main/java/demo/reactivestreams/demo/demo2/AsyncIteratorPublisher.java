@@ -30,7 +30,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
     @Override
     public void subscribe(Flow.Subscriber<? super T> subscriber) {
-        // By_rule 1.11, a Publisher may support multiple Subscribers and decide whether each Subscription is unicast or multicast (unicast).
+        // By rule 1.11, a Publisher may support multiple Subscribers and decide whether each Subscription is unicast or multicast.
         new SubscriptionImpl(subscriber).init();
     }
 
@@ -154,7 +154,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             signal(new Cancel());
         }
 
-        // to represents the asynchronous signals
+        // These classes represent the asynchronous signals.
         private interface Signal extends Runnable {
         }
 
@@ -192,10 +192,10 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             }
         }
 
-        // to track signals in a thread-safe way
+        // The non-blocking queue to transmit signals in a thread-safe way.
         private final ConcurrentLinkedQueue<Signal> signalsQueue = new ConcurrentLinkedQueue<>();
 
-        // to establish the happens-before relationship between asynchronous signal calls
+        // The mutex to establish the happens-before relationship between asynchronous signal calls.
         private final AtomicBoolean mutex = new AtomicBoolean(false);
 
         private void signal(Signal signal) {
@@ -207,7 +207,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
         @Override
         public void run() {
-            // By_rule 1.3, a Subscriber must ensure that all calls on its Subscriber's onSubscribe, onNext, onError and onComplete signaled to a Subscriber must be signaled serially.
+            // By rule 1.3, a Subscriber must ensure that all calls on its Subscriber's onSubscribe, onNext, onError, onComplete signaled to a Subscriber must be signaled serially.
             if (mutex.get()) {
                 try {
                     Signal signal = signalsQueue.poll();
