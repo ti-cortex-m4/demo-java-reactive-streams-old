@@ -3,9 +3,9 @@
 
 ### Synchronous publisher and subscriber
 
-The following code example demonstrates a synchronous _cold_ Producer that sends a finite sequence of items from a given Iterator.
+The following code example demonstrates a synchronous _cold_ Publisher that sends a finite sequence of items from a given Iterator.
 
-The following code sample demonstrates a synchronous Consumer that _pulls_ items one by one and logs received events. The comments show which code fragments are responsible for implementing which rules of the Reactive Streams specification. This synchronous consumer executes its methods onSubscribe, onNext, onError, onComplete in a Producer’s thread. The GitHub repository also has blackbox and whitebox unit tests to verify that this consumer meets the specification using its TCK.
+The following code sample demonstrates a synchronous Subscriber that _pulls_ items one by one and logs received events. The comments show which code fragments are responsible for implementing which rules of the Reactive Streams specification. This synchronous Subscriber executes its methods onSubscribe, onNext, onError, onComplete in a Publisher’s thread. The GitHub repository also has blackbox and whitebox unit tests to verify that this Subscriber meets the specification using its TCK.
 
 
 ```
@@ -101,7 +101,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 ```
 
 
-The following code example demonstrates that the _multicast_ Producer sends the same sequence of events (_[The quick brown fox jumps over the lazy dog](https://en.wikipedia.org/wiki/The_quick_brown_fox_jumps_over_the_lazy_dog)_ pangram) to multiple Subscribers.
+The following code example demonstrates that the _multicast_ Publisher sends the same sequence of events (_[The quick brown fox jumps over the lazy dog](https://en.wikipedia.org/wiki/The_quick_brown_fox_jumps_over_the_lazy_dog)_ pangram) to multiple Subscribers.
 
 
 ```
@@ -119,7 +119,7 @@ subscriber2.awaitCompletion();
 ```
 
 
-The following log demonstrates that the synchronous Producer sends a sequence of events in the caller's thread, and the synchronous Consumers receive the sequence of events in the Producer's thread _in sequence_.
+The following log demonstrates that the synchronous Publisher sends a sequence of events in the caller's thread, and the synchronous Subscribers receive the sequence of events in the Publisher's thread _in sequence_.
 
 
 ```
@@ -173,9 +173,9 @@ The following log demonstrates that the synchronous Producer sends a sequence of
 
 ### Asynchronous publisher and subscriber
 
-The following code example demonstrates an asynchronous _cold_ Producer that sends a finite sequence of items from a given Iterator.
+The following code example demonstrates an asynchronous _cold_ Publisher that sends a finite sequence of items from a given Iterator.
 
-The following code sample demonstrates an asynchronous Consumer that _pulls_ items one by one and logs received events. The comments show which code fragments are responsible for implementing which rules of the Reactive Streams specification. This asynchronous consumer executes its methods onSubscribe, onNext, onError, onComplete in a separate thread. The thread-safe, non-blocking ConcurrentLinkedQueue transfers the signals from the Producer’s thread to the Consumer’s thread. The AtomicBoolean mutex ensures that the signals are executed _serially_ even if they are executed asynchronously. The GitHub repository also has blackbox and whitebox unit tests to verify that this consumer meets the specification using its TCK.
+The following code sample demonstrates an asynchronous Subscriber that _pulls_ items one by one and logs received events. The comments show which code fragments are responsible for implementing which rules of the Reactive Streams specification. This asynchronous Subscriber executes its methods onSubscribe, onNext, onError, onComplete in a separate thread. The thread-safe, non-blocking ConcurrentLinkedQueue transfers the signals from the Publisher’s thread to the Subscriber’s thread. The AtomicBoolean mutex ensures that the signals are executed _serially_ even if they are executed asynchronously. The GitHub repository also has blackbox and whitebox unit tests to verify that this Subscriber meets the specification using its TCK.
 
 
 ```
@@ -278,7 +278,13 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
        cancelled = true;
        subscription.cancel();
    }
+```
 
+
+
+
+
+```
    // These classes represent the asynchronous signals.
    private interface Signal extends Runnable {
    }
@@ -328,7 +334,13 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
            doComplete();
        }
    }
+```
 
+
+
+
+
+```
    // The non-blocking queue to transmit signals in a thread-safe way.
    private final ConcurrentLinkedQueue<Signal> signalsQueue = new ConcurrentLinkedQueue<>();
 
@@ -381,7 +393,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 ```
 
 
-The following code example demonstrates that the _multicast_ Producer sends the same sequence of events (the same pangram) to multiple Subscribers.
+The following code example demonstrates that the _multicast_ Publisher sends the same sequence of events (the same pangram) to multiple Subscribers.
 
 
 ```
@@ -404,7 +416,7 @@ executorService.awaitTermination(60, TimeUnit.SECONDS);
 ```
 
 
-The following log shows that an asynchronous Producer sends a sequence of events in a separate thread, and that asynchronous Consumers receive a sequence of events in a separate thread _in parallel_.
+The following log shows that an asynchronous Publisher sends a sequence of events in a separate thread, and that asynchronous Subscribers receive a sequence of events in a separate thread _in parallel_.
 
 
 ```
@@ -453,4 +465,4 @@ The following log shows that an asynchronous Producer sends a sequence of events
 ```
 
 
-The GitHub repository also has examples of how a synchronous Producer sends events to asynchronous Consumers and how an asynchronous Producer sends events to synchronous Consumers.
+The GitHub repository also has examples of how a synchronous Publisher sends events to asynchronous Subscribers and how an asynchronous Publisher sends events to synchronous Subscribers.

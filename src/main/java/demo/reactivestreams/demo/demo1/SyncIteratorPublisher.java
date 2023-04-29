@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
@@ -25,7 +24,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
     public void subscribe(Flow.Subscriber<? super T> subscriber) {
         // By_rule 1.11, a Publisher MAY support multiple Subscribers and decides whether each Subscription is unicast or multicast (unicast).
         SubscriptionImpl subscription = new SubscriptionImpl(subscriber);
-        // By_rule 1.9, a Publisher MUST call onSubscribe prior onError if method subscribe fails.
+        // By_rule 1.9, a Publisher must call onSubscribe prior onError if method subscribe fails.
         //subscriber.onSubscribe(subscription);
         //subscription.onSubscribed();
     }
@@ -46,7 +45,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
             try {
                 iterator = iteratorSupplier.get();
             } catch (Throwable throwable) {
-                // By_rule 1.9, a Publisher MUST call onSubscribe prior onError if method subscribe fails.
+                // By_rule 1.9, a Publisher must call onSubscribe prior onError if method subscribe fails.
                 subscriber.onSubscribe(new Flow.Subscription() {
                     @Override
                     public void cancel() {
@@ -76,7 +75,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 return;
             }
 
-            for (; ; ) {
+            for (;;) {
                 long currentDemand = demand.getAcquire();
                 if (currentDemand == Long.MAX_VALUE) {
                     return;
@@ -89,7 +88,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     adjustedDemand = Long.MAX_VALUE;
                 }
 
-                // By_rule 3.3, Subscription.request MUST place an upper bound on possible synchronous recursion between Publisher and Subscriber.
+                // By_rule 3.3, Subscription.request must place an upper bound on possible synchronous recursion between Publisher and Subscriber.
                 if (demand.compareAndSet(currentDemand, adjustedDemand)) {
                     if (currentDemand > 0) {
                         return;
@@ -126,16 +125,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
             logger.info("subscription.cancel");
             doCancel();
         }
-/*
-        void onSubscribed() {
-            Throwable throwable = error.get();
-            if ((throwable != null) && !cancelled.get()) {
-                doCancel();
-                // By rule 1.04, if a Publisher fails it must signal an onError.
-                subscriber.onError(throwable);
-            }
-        }
-*/
+
         private void doCancel() {
             logger.warn("subscription.terminate");
             cancelled.set(true);

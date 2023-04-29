@@ -51,7 +51,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             try {
                 iterator = iteratorSupplier.get();
             } catch (Throwable throwable) {
-                // By_rule 1.9, a Publisher MUST call onSubscribe prior onError if method subscribe fails.
+                // By_rule 1.9, a Publisher must call onSubscribe prior onError if method subscribe fails.
                 subscriber.onSubscribe(new Flow.Subscription() {
                     @Override
                     public void cancel() {
