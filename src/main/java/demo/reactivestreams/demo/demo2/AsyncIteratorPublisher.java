@@ -61,7 +61,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     public void request(long n) {
                     }
                 });
-                // by_rule 1.4, if a Publisher fails it must signal an onError.
+                // by rule 1.04, if a Publisher fails it must signal an onError.
                 doError(throwable);
             }
 
@@ -72,7 +72,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 try {
                     hasNext = iterator.hasNext();
                 } catch (Throwable throwable) {
-                    // by_rule 1.4, if a Publisher fails it must signal an onError.
+                    // by rule 1.04, if a Publisher fails it must signal an onError.
                     doError(throwable);
                 }
 
@@ -108,7 +108,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     next = iterator.next();
                     hasNext = iterator.hasNext();
                 } catch (Throwable throwable) {
-                    // by_rule 1.4, if a Publisher fails it must signal an onError.
+                    // by rule 1.04, if a Publisher fails it must signal an onError.
                     doError(throwable);
                     return;
                 }
@@ -232,7 +232,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     if (!cancelled) {
                         doCancel();
                         try {
-                            // by_rule 1.4, if a Publisher fails it must signal an onError.
+                            // by rule 1.04, if a Publisher fails it must signal an onError.
                             doError(new IllegalStateException(throwable));
                         } finally {
                             signalsQueue.clear();
