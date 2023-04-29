@@ -1,5 +1,7 @@
 ## Code examples
 
+According to the Reactive Streams specification, their stages (producers, processors, consumers) can be synchronous (executed in the thread of the previous stage) or asynchronous (executed in another thread). Below are code examples of synchronous and asynchronous producers and consumers working in pairs. (The GitHub repository also has examples of how a _synchronous_ publisher works with _asynchronous_ subscribers and how an _asynchronous_ publisher works with _synchronous_ subscribers). The comments in the code examples show which code fragments are responsible for implementing which rules of the Reactive Streams specification.
+
 
 ### Synchronous publisher and subscriber
 
@@ -132,7 +134,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
 ```
 
 
-The following code sample demonstrates a synchronous Subscriber that _pulls_ items one by one and logs received events. The comments show which code fragments are responsible for implementing which rules of the Reactive Streams specification. This synchronous Subscriber executes its methods onSubscribe, onNext, onError, onComplete in a Publisher’s thread. The GitHub repository also has blackbox and whitebox unit tests to verify that this Subscriber meets the specification using its TCK.
+The following code sample demonstrates a synchronous Subscriber that _pulls_ items one by one and logs received events. This synchronous Subscriber executes its methods onSubscribe, onNext, onError, onComplete in a Publisher’s thread. The GitHub repository also has blackbox and whitebox unit tests to verify that this Subscriber meets the specification using its TCK.
 
 
 ```
@@ -302,7 +304,7 @@ The following log demonstrates that the synchronous Publisher sends a sequence o
 
 The following code example demonstrates an asynchronous _cold_ Publisher that sends a finite sequence of items from a given Iterator.
 
-The following code sample demonstrates an asynchronous Subscriber that _pulls_ items one by one and logs received events. The comments show which code fragments are responsible for implementing which rules of the Reactive Streams specification. This asynchronous Subscriber executes its methods onSubscribe, onNext, onError, onComplete in a separate thread. The thread-safe, non-blocking ConcurrentLinkedQueue transfers the signals from the Publisher’s thread to the Subscriber’s thread. The AtomicBoolean mutex ensures that the signals are executed _serially_ even if they are executed asynchronously. The GitHub repository also has blackbox and whitebox unit tests to verify that this Subscriber meets the specification using its TCK.
+The following code sample demonstrates an asynchronous Subscriber that _pulls_ items one by one and logs received events. This asynchronous Subscriber executes its methods onSubscribe, onNext, onError, onComplete in a separate thread. The thread-safe, non-blocking ConcurrentLinkedQueue transfers the signals from the Publisher’s thread to the Subscriber’s thread. The AtomicBoolean mutex ensures that the signals are executed _serially_ even if they are executed asynchronously. The GitHub repository also has blackbox and whitebox unit tests to verify that this Subscriber meets the specification using its TCK.
 
 
 ```
@@ -589,7 +591,3 @@ The following log shows that an asynchronous Publisher sends a sequence of event
 11:33:22.094  pool-1-thread-1  subscription.request: 1
 11:33:22.094  pool-1-thread-1  subscription.request: 1
 11:33:22.094  pool-1-thread-3  (1) subscriber.complete
-```
-
-
-The GitHub repository also has examples of how a synchronous Publisher sends events to asynchronous Subscribers and how an asynchronous Publisher sends events to synchronous Subscribers.
