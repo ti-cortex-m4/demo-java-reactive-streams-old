@@ -15,11 +15,11 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(AsyncIteratorPublisher.class);
 
-    private final Supplier<Iterator<T>> iteratorSupplier;
+    private final Supplier<Iterator<? extends T>> iteratorSupplier;
     private final Executor executor;
     private final int batchSize;
 
-    public AsyncIteratorPublisher(Supplier<Iterator<T>> iteratorSupplier, int batchSize, Executor executor) {
+    public AsyncIteratorPublisher(Supplier<Iterator<? extends T>> iteratorSupplier, int batchSize, Executor executor) {
         if (batchSize < 1) {
             throw new IllegalArgumentException();
         }
@@ -38,7 +38,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
         private final Flow.Subscriber<? super T> subscriber;
 
-        private Iterator<T> iterator;
+        private Iterator<? extends T> iterator;
         private long demand = 0;
         private boolean cancelled = false;
 
