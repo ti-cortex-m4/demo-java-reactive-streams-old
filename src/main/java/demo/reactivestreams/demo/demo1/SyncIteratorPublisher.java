@@ -22,7 +22,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
     @Override
     public void subscribe(Flow.Subscriber<? super T> subscriber) {
-        // By rule 1.11, a Publisher may support multiple Subscribers and decides whether each Subscription is unicast or multicast.
+        // By rule 1.11, a Publisher may support multiple Subscribers and decide whether each Subscription is unicast or multicast.
         new SubscriptionImpl(subscriber);
     }
 
@@ -72,21 +72,21 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
             }
 
             for (;;) {
-                long currentDemand = demand.getAcquire();
-                if (currentDemand == Long.MAX_VALUE) {
+                long oldDemand = demand.getAcquire();
+                if (oldDemand == Long.MAX_VALUE) {
                     return;
                 }
 
-                // By_rule 3.8, while the Subscription is not cancelled, Subscription.request(long n) must register the given number of additional elements to be produced to the respective subscriber.
-                long adjustedDemand = currentDemand + n;
-                if (adjustedDemand < 0L) {
+                // By rule 3.8, while the Subscription is not cancelled, Subscription.request(long n) must register the given number of additional elements to be produced to the respective Subscriber.
+                long newDemand = oldDemand + n;
+                if (newDemand < 0L) {
                     // By rule 3.17, a Subscription must support a demand up to Long.MAX_VALUE.
-                    adjustedDemand = Long.MAX_VALUE;
+                    newDemand = Long.MAX_VALUE;
                 }
 
                 // By rule 3.3, Subscription.request must place an upper bound on possible synchronous recursion between Publisher and Subscriber.
-                if (demand.compareAndSet(currentDemand, adjustedDemand)) {
-                    if (currentDemand > 0) {
+                if (demand.compareAndSet(oldDemand, newDemand)) {
+                    if (oldDemand > 0) {
                         return;
                     }
                     break;

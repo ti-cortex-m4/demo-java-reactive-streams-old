@@ -30,7 +30,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
     @Override
     public void subscribe(Flow.Subscriber<? super T> subscriber) {
-        // By_rule 1.11, a Publisher may support multiple Subscribers and decides whether each Subscription is unicast or multicast (unicast).
+        // By_rule 1.11, a Publisher may support multiple Subscribers and decide whether each Subscription is unicast or multicast (unicast).
         new SubscriptionImpl(subscriber).init();
     }
 
@@ -92,7 +92,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 demand = Long.MAX_VALUE;
                 doNext();
             } else {
-                // By_rule 3.8, while the Subscription is not cancelled, Subscription.request(long n) must register the given number of additional elements to be produced to the respective subscriber.
+                // By rule 3.8, while the Subscription is not cancelled, Subscription.request(long n) must register the given number of additional elements to be produced to the respective Subscriber.
                 demand += n;
                 doNext();
             }
