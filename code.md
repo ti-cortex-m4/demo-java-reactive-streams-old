@@ -55,7 +55,7 @@ The following log demonstrates that the synchronous Producer sends a sequence of
 
 
 ```
-11:32:37.310  main             (1) subscriber.subscribe: demo.reactivestreams.demo.demo1.SyncIteratorPublisher$SubscriptionImpl@1f28c152
+11:32:37.310  main             (1) subscriber.subscribe: SyncIteratorPublisher$SubscriptionImpl@1f28c152
 11:32:37.313  main             subscription.request: 1
 11:32:37.313  main             (1) subscriber.next: The
 11:32:37.313  main             subscription.request: 1
@@ -77,7 +77,7 @@ The following log demonstrates that the synchronous Producer sends a sequence of
 11:32:37.314  main             subscription.request: 1
 11:32:37.314  main             subscription.terminate
 11:32:37.314  main             (1) subscriber.complete
-11:32:37.314  main             (2) subscriber.subscribe: demo.reactivestreams.demo.demo1.SyncIteratorPublisher$SubscriptionImpl@3dd4520b
+11:32:37.314  main             (2) subscriber.subscribe: SyncIteratorPublisher$SubscriptionImpl@3dd4520b
 11:32:37.314  main             subscription.request: 1
 11:32:37.314  main             (2) subscriber.next: The
 11:32:37.314  main             subscription.request: 1
