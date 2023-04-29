@@ -23,9 +23,9 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
     @Override
     public void subscribe(Flow.Subscriber<? super T> subscriber) {
-        // by_rule 1.11, a Publisher MAY support multiple Subscribers and decides whether each Subscription is unicast or multicast (unicast).
+        // By_rule 1.11, a Publisher MAY support multiple Subscribers and decides whether each Subscription is unicast or multicast (unicast).
         SubscriptionImpl subscription = new SubscriptionImpl(subscriber);
-        // by_rule 1.9, a Publisher MUST call onSubscribe prior onError if method subscribe fails.
+        // By_rule 1.9, a Publisher MUST call onSubscribe prior onError if method subscribe fails.
         //subscriber.onSubscribe(subscription);
         //subscription.onSubscribed();
     }
@@ -40,13 +40,13 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
         private Iterator<? extends T> iterator;
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
-            // by_rule 1.9, calling Publisher.subscribe must throw a NullPointerException when the given parameter is null.
+            // By_rule 1.9, calling Publisher.subscribe must throw a NullPointerException when the given parameter is null.
             this.subscriber = Objects.requireNonNull(subscriber);
 
             try {
                 iterator = iteratorSupplier.get();
             } catch (Throwable throwable) {
-                // by_rule 1.9, a Publisher MUST call onSubscribe prior onError if method subscribe fails.
+                // By_rule 1.9, a Publisher MUST call onSubscribe prior onError if method subscribe fails.
                 subscriber.onSubscribe(new Flow.Subscription() {
                     @Override
                     public void cancel() {
@@ -56,7 +56,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     public void request(long n) {
                     }
                 });
-                // by rule 1.04, if a Publisher fails it must signal an onError.
+                // By rule 1.04, if a Publisher fails it must signal an onError.
                 doError(throwable);
             }
 
@@ -69,7 +69,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
         public void request(long n) {
             logger.info("subscription.request: {}", n);
 
-            // by_rule 3.9, while the Subscription is not cancelled, Subscription.request(long n) must signal onError with a IllegalArgumentException if the argument is <= 0.
+            // By_rule 3.9, while the Subscription is not cancelled, Subscription.request(long n) must signal onError with a IllegalArgumentException if the argument is <= 0.
             if ((n <= 0) && !cancelled.get()) {
                 doCancel();
                 subscriber.onError(new IllegalArgumentException("non-positive subscription request"));
@@ -82,14 +82,14 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     return;
                 }
 
-                // by_rule 3.8, while the Subscription is not cancelled, Subscription.request(long n) must register the given number of additional elements to be produced to the respective subscriber.
+                // By_rule 3.8, while the Subscription is not cancelled, Subscription.request(long n) must register the given number of additional elements to be produced to the respective subscriber.
                 long adjustedDemand = currentDemand + n;
                 if (adjustedDemand < 0L) {
-                    // by_rule 3.17, a Subscription must support a demand up to Long.MAX_VALUE.
+                    // By_rule 3.17, a Subscription must support a demand up to Long.MAX_VALUE.
                     adjustedDemand = Long.MAX_VALUE;
                 }
 
-                // by_rule 3.3, Subscription.request MUST place an upper bound on possible synchronous recursion between Publisher and Subscriber.
+                // By_rule 3.3, Subscription.request MUST place an upper bound on possible synchronous recursion between Publisher and Subscriber.
                 if (demand.compareAndSet(currentDemand, adjustedDemand)) {
                     if (currentDemand > 0) {
                         return;
@@ -98,25 +98,25 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 }
             }
 
-            // by_rule 1.2, a Publisher may signal fewer onNext than requested and terminate the Subscription by calling onError.
+            // By_rule 1.2, a Publisher may signal fewer onNext than requested and terminate the Subscription by calling onError.
             for (; demand.get() > 0 && iterator.hasNext() && !cancelled.get(); demand.decrementAndGet()) {
                 try {
                     subscriber.onNext(iterator.next());
                 } catch (Throwable throwable) {
                     if (!cancelled.get()) {
-                        // by_rule 1.6, if a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription must be considered cancelled.
+                        // By_rule 1.6, if a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription must be considered cancelled.
                         doCancel();
-                        // by rule 1.04, if a Publisher fails it must signal an onError.
+                        // By rule 1.04, if a Publisher fails it must signal an onError.
                         subscriber.onError(throwable);
                     }
                 }
             }
 
-            // by_rule 1.2, a Publisher may signal fewer onNext than requested and terminate the Subscription by calling onComplete.
+            // By_rule 1.2, a Publisher may signal fewer onNext than requested and terminate the Subscription by calling onComplete.
             if (!iterator.hasNext() && !cancelled.get()) {
-                // by_rule 1.6, if a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription must be considered cancelled.
+                // By_rule 1.6, if a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription must be considered cancelled.
                 doCancel();
-                // by rule 1.05, if a Publisher terminates successfully it must signal an onComplete.
+                // By rule 1.05, if a Publisher terminates successfully it must signal an onComplete.
                 subscriber.onComplete();
             }
         }
@@ -131,7 +131,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
             Throwable throwable = error.get();
             if ((throwable != null) && !cancelled.get()) {
                 doCancel();
-                // by rule 1.04, if a Publisher fails it must signal an onError.
+                // By rule 1.04, if a Publisher fails it must signal an onError.
                 subscriber.onError(throwable);
             }
         }
@@ -142,7 +142,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
         }
 
         private void doError(Throwable throwable) {
-            // by_rule 1.6, if a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription must be considered cancelled.
+            // By_rule 1.6, if a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription must be considered cancelled.
             cancelled.set(true);
             subscriber.onError(throwable);
         }
