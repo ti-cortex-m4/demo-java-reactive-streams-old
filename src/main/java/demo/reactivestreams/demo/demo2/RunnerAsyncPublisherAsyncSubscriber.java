@@ -1,20 +1,17 @@
-package demo.reactivestreams.demo.demo3;
-
-import demo.reactivestreams.demo.demo1.SyncIteratorPublisher;
-import demo.reactivestreams.demo.demo2.AsyncSubscriber;
+package demo.reactivestreams.demo.demo2;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class Runner {
+public class RunnerAsyncPublisherAsyncSubscriber {
 
     public static void main(String[] args) throws InterruptedException {
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        ExecutorService executorService = Executors.newFixedThreadPool(3);
 
         List<String> list = List.of("The quick brown fox jumps over the lazy dog.".split(" "));
-        SyncIteratorPublisher<String> publisher = new SyncIteratorPublisher<>(() -> List.copyOf(list).iterator());
+        AsyncIteratorPublisher<String> publisher = new AsyncIteratorPublisher<>(() -> List.copyOf(list).iterator(), 1024, executorService);
 
         AsyncSubscriber<String> subscriber1 = new AsyncSubscriber<>(1, executorService);
         publisher.subscribe(subscriber1);

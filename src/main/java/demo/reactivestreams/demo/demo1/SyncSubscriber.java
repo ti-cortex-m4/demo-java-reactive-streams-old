@@ -24,7 +24,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
         logger.info("({}) subscriber.subscribe: {}", id, subscription);
-        // by_rule 2.13, calling onSubscribe must throw a java.lang.NullPointerException when the given parameter is null.
+        // by rule 2.13, calling onSubscribe must throw a NullPointerException when the given parameter is null.
         Objects.requireNonNull(subscription);
 
         if (this.subscription != null) {
@@ -40,7 +40,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     @Override
     public void onNext(T item) {
         logger.info("({}) subscriber.next: {}", id, item);
-        // by_rule 2.13, calling onNext must throw a java.lang.NullPointerException when the given parameter is null.
+        // by rule 2.13, calling onNext must throw a NullPointerException when the given parameter is null.
         Objects.requireNonNull(item);
 
         // by_rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
@@ -58,7 +58,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     @Override
     public void onError(Throwable throwable) {
         logger.error("({}) subscriber.error", id, throwable);
-        // by_rule 2.13, calling onError must throw a java.lang.NullPointerException when the given parameter is null.
+        // by rule 2.13, calling onError must throw a NullPointerException when the given parameter is null.
         Objects.requireNonNull(throwable);
 
         // by_rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.

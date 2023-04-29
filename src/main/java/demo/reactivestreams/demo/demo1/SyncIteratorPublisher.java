@@ -40,7 +40,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
         private Iterator<? extends T> iterator;
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
-            // by_rule 1.9, calling Publisher.subscribe must throw a java.lang.NullPointerException when the given parameter is null.
+            // by_rule 1.9, calling Publisher.subscribe must throw a NullPointerException when the given parameter is null.
             this.subscriber = Objects.requireNonNull(subscriber);
 
             try {
@@ -69,7 +69,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
         public void request(long n) {
             logger.info("subscription.request: {}", n);
 
-            // by_rule 3.9, while the Subscription is not cancelled, Subscription.request(long n) must signal onError with a java.lang.IllegalArgumentException if the argument is <= 0.
+            // by_rule 3.9, while the Subscription is not cancelled, Subscription.request(long n) must signal onError with a IllegalArgumentException if the argument is <= 0.
             if ((n <= 0) && !cancelled.get()) {
                 doCancel();
                 subscriber.onError(new IllegalArgumentException("non-positive subscription request"));
@@ -85,7 +85,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 // by_rule 3.8, while the Subscription is not cancelled, Subscription.request(long n) must register the given number of additional elements to be produced to the respective subscriber.
                 long adjustedDemand = currentDemand + n;
                 if (adjustedDemand < 0L) {
-                    // by_rule 3.17, a Subscription must support a demand up to java.lang.Long.MAX_VALUE.
+                    // by_rule 3.17, a Subscription must support a demand up to Long.MAX_VALUE.
                     adjustedDemand = Long.MAX_VALUE;
                 }
 

@@ -43,7 +43,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         private boolean cancelled = false;
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
-            // by_rule 1.9, calling Publisher.subscribe must throw a java.lang.NullPointerException when the given parameter is null.
+            // by_rule 1.9, calling Publisher.subscribe must throw a NullPointerException when the given parameter is null.
             this.subscriber = Objects.requireNonNull(subscriber);
         }
 
@@ -85,10 +85,10 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
         private void doRequest(long n) {
             if (n <= 0) {
-                // by_rule 3.9, while the Subscription is not cancelled, Subscription.request(long n) must signal onError with a java.lang.IllegalArgumentException if the argument is <= 0.
+                // by_rule 3.9, while the Subscription is not cancelled, Subscription.request(long n) must signal onError with a IllegalArgumentException if the argument is <= 0.
                 doError(new IllegalArgumentException("non-positive subscription request"));
             } else if (demand + n <= 0) {
-                // by_rule 3.17, a Subscription must support a demand up to java.lang.Long.MAX_VALUE.
+                // by_rule 3.17, a Subscription must support a demand up to Long.MAX_VALUE.
                 demand = Long.MAX_VALUE;
                 doNext();
             } else {
