@@ -75,6 +75,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     adjustedDemand = Long.MAX_VALUE;
                 }
 
+                // by_rule 3.3, Subscription.request MUST place an upper bound on possible synchronous recursion between Publisher and Subscriber.
                 if (demand.compareAndSet(currentDemand, adjustedDemand)) {
                     if (currentDemand > 0) {
                         return;
