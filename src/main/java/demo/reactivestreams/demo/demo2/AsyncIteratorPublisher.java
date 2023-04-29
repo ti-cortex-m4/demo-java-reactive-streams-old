@@ -43,7 +43,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         private boolean cancelled = false;
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
-            // By_rule 1.9, calling Publisher.subscribe must throw a NullPointerException when the given parameter is null.
+            // By rule 1.9, calling Publisher.subscribe must throw a NullPointerException when the given parameter is null.
             this.subscriber = Objects.requireNonNull(subscriber);
         }
 
@@ -61,7 +61,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     public void request(long n) {
                     }
                 });
-                // By rule 1.04, if a Publisher fails it must signal an onError.
+                // By rule 1.4, if a Publisher fails it must signal an onError.
                 doError(throwable);
             }
 
@@ -72,7 +72,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 try {
                     hasNext = iterator.hasNext();
                 } catch (Throwable throwable) {
-                    // By rule 1.04, if a Publisher fails it must signal an onError.
+                    // By rule 1.4, if a Publisher fails it must signal an onError.
                     doError(throwable);
                 }
 
@@ -85,10 +85,10 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
         private void doRequest(long n) {
             if (n <= 0) {
-                // By_rule 3.9, while the Subscription is not cancelled, Subscription.request(long n) must signal onError with a IllegalArgumentException if the argument is <= 0.
+                // By rule 3.9, while the Subscription is not cancelled, Subscription.request(long n) must signal onError with a IllegalArgumentException if the argument is <= 0.
                 doError(new IllegalArgumentException("non-positive subscription request"));
             } else if (demand + n <= 0) {
-                // By_rule 3.17, a Subscription must support a demand up to Long.MAX_VALUE.
+                // By rule 3.17, a Subscription must support a demand up to Long.MAX_VALUE.
                 demand = Long.MAX_VALUE;
                 doNext();
             } else {
@@ -108,7 +108,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     next = iterator.next();
                     hasNext = iterator.hasNext();
                 } catch (Throwable throwable) {
-                    // By rule 1.04, if a Publisher fails it must signal an onError.
+                    // By rule 1.4, if a Publisher fails it must signal an onError.
                     doError(throwable);
                     return;
                 }
@@ -117,7 +117,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 if (!hasNext) {
                     // By_rule 1.6, if a Publisher signals either onError or onComplete on a Subscriber, that Subscriber’s Subscription must be considered cancelled.
                     doCancel();
-                    // By rule 1.05, if a Publisher terminates successfully it must signal an onComplete.
+                    // By rule 1.5, if a Publisher terminates successfully it must signal an onComplete.
                     subscriber.onComplete();
                 }
             } while (!cancelled && --batchLeft > 0 && --demand > 0);
@@ -232,7 +232,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     if (!cancelled) {
                         doCancel();
                         try {
-                            // By rule 1.04, if a Publisher fails it must signal an onError.
+                            // By rule 1.4, if a Publisher fails it must signal an onError.
                             doError(new IllegalStateException(throwable));
                         } finally {
                             signalsQueue.clear();
