@@ -16,7 +16,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     private void doSubscribe(Flow.Subscription subscription) {
         if (this.subscription != null) {
-            // By_rule 2.5, a Subscriber must call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
+            // By rule 2.5, a Subscriber must call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
             subscription.cancel();
         } else {
             this.subscription = subscription;
@@ -26,7 +26,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     private void doNext(T element) {
-        // By_rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
+        // By rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
         if (!cancelled) {
             if (whenNext(element)) {
                 // By rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
@@ -51,8 +51,8 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     private final int id;
-    private final Executor executor;
     private final CountDownLatch completed = new CountDownLatch(1);
+    private final Executor executor;
 
     private Flow.Subscription subscription;
     private boolean cancelled = false;
@@ -93,16 +93,16 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
         completed.await();
     }
 
-    // this method is invoked when OnNext signals arrive and returns whether more elements are desired or not (is intended to override).
+    // This method is invoked when OnNext signals arrive and returns whether more elements are desired or not (is intended to override).
     protected boolean whenNext(T item) {
         return true;
     }
 
-    // this method is invoked when an OnError signal arrives (is intended to override).
+    // This method is invoked when an OnError signal arrives (is intended to override).
     protected void whenError(Throwable throwable) {
     }
 
-    // this method is invoked when an OnComplete signal arrives (is intended to override).
+    // This method is invoked when an OnComplete signal arrives (is intended to override).
     protected void whenComplete() {
         completed.countDown();
     }
