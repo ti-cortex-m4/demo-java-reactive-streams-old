@@ -22,9 +22,9 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
     @Override
     public void subscribe(Flow.Subscriber<? super T> subscriber) {
-        // By_rule 1.11, a Publisher MAY support multiple Subscribers and decides whether each Subscription is unicast or multicast (unicast).
-        SubscriptionImpl subscription = new SubscriptionImpl(subscriber);
-        // By_rule 1.9, a Publisher must call onSubscribe prior onError if method subscribe fails.
+        // By rule 1.11, a Publisher may support multiple Subscribers and decides whether each Subscription is unicast or multicast.
+        new SubscriptionImpl(subscriber);
+        // By rule 1.9, a Publisher must call onSubscribe prior onError if Publisher.subscribe(Subscriber subscriber) fails.
         //subscriber.onSubscribe(subscription);
         //subscription.onSubscribed();
     }
@@ -45,7 +45,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
             try {
                 iterator = iteratorSupplier.get();
             } catch (Throwable throwable) {
-                // By_rule 1.9, a Publisher must call onSubscribe prior onError if method subscribe fails.
+                // By rule 1.9, a Publisher must call onSubscribe prior onError if Publisher.subscribe(Subscriber subscriber) fails.
                 subscriber.onSubscribe(new Flow.Subscription() {
                     @Override
                     public void cancel() {
@@ -127,7 +127,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
         }
 
         private void doCancel() {
-            logger.warn("subscription.terminate");
+            logger.warn("subscription.cancelled");
             cancelled.set(true);
         }
 

@@ -30,7 +30,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
     @Override
     public void subscribe(Flow.Subscriber<? super T> subscriber) {
-        // By_rule 1.11, a Publisher MAY support multiple Subscribers and decides whether each Subscription is unicast or multicast (unicast).
+        // By_rule 1.11, a Publisher may support multiple Subscribers and decides whether each Subscription is unicast or multicast (unicast).
         new SubscriptionImpl(subscriber).init();
     }
 
@@ -51,7 +51,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             try {
                 iterator = iteratorSupplier.get();
             } catch (Throwable throwable) {
-                // By_rule 1.9, a Publisher must call onSubscribe prior onError if method subscribe fails.
+                // By rule 1.9, a Publisher must call onSubscribe prior onError if Publisher.subscribe(Subscriber subscriber) fails.
                 subscriber.onSubscribe(new Flow.Subscription() {
                     @Override
                     public void cancel() {
@@ -98,7 +98,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             }
         }
 
-        // By_rule 1.2, a Publisher MAY signal fewer onNext than requested and terminate the Subscription by calling onComplete or onError.
+        // By_rule 1.2, a Publisher may signal fewer onNext than requested and terminate the Subscription by calling onComplete or onError.
         private void doNext() {
             int batchLeft = batchSize;
             do {
@@ -128,7 +128,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         }
 
         private void doCancel() {
-            logger.debug("subscription.cancel");
+            logger.debug("subscription.cancelled");
             cancelled = true;
         }
 
