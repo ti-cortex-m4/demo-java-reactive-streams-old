@@ -123,7 +123,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
         }
 
         private void doCancel() {
-            logger.warn("subscription.cancelled");
+            logger.info("subscription.cancelled");
             cancelled.set(true);
         }
 
