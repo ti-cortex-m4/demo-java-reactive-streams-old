@@ -20,7 +20,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
             subscription.cancel();
         } else {
             this.subscription = subscription;
-            // by_rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+            // by rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
             this.subscription.request(1);
         }
     }
@@ -29,23 +29,23 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
         // by_rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
         if (!cancelled) {
             if (whenNext(element)) {
-                // by_rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+                // by rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
                 subscription.request(1);
             } else {
-                // by_rule 2.6, a Subscriber must call Subscription.cancel() if the Subscription is no longer needed.
+                // by rule 2.6, a Subscriber must call Subscription.cancel() if the Subscription is no longer needed.
                 doCancel();
             }
         }
     }
 
     private void doError(Throwable throwable) {
-        // by_rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
+        // by rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
         cancelled = true;
         whenError(throwable);
     }
 
     private void doComplete() {
-        // by_rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled after having received the signal.
+        // by rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled after having received the signal.
         cancelled = true;
         whenComplete();
     }

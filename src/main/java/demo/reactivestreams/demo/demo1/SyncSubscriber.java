@@ -32,7 +32,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
             subscription.cancel();
         } else {
             this.subscription = subscription;
-            // by_rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+            // by rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
             this.subscription.request(1);
         }
     }
@@ -46,10 +46,10 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
         // by_rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
         if (!cancelled) {
             if (whenNext(item)) {
-                // by_rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+                // by rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
                 subscription.request(1);
             } else {
-                // by_rule 2.6, a Subscriber must call Subscription.cancel() if the Subscription is no longer needed.
+                // by rule 2.6, a Subscriber must call Subscription.cancel() if the Subscription is no longer needed.
                 doCancel();
             }
         }
@@ -61,7 +61,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
         // by rule 2.13, calling onError must throw a NullPointerException when the given parameter is null.
         Objects.requireNonNull(throwable);
 
-        // by_rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
+        // by rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
         cancelled = true;
         whenError(throwable);
     }
@@ -70,7 +70,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     public void onComplete() {
         logger.info("({}) subscriber.complete", id);
 
-        // by_rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled after having received the signal.
+        // by rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled after having received the signal.
         cancelled = true;
         whenComplete();
     }
