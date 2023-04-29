@@ -1,39 +1,107 @@
-<!-- Output copied to clipboard! -->
-
-<!-----
-
-Yay, no errors, warnings, or alerts!
-
-Conversion time: 0.511 seconds.
-
-
-Using this Markdown file:
-
-1. Paste this output into your source file.
-2. See the notes and action items below regarding this conversion run.
-3. Check the rendered output (headings, lists, code blocks, tables) for proper
-   formatting and use a linkchecker before you publish this page.
-
-Conversion notes:
-
-* Docs to Markdown version 1.0β34
-* Sat Apr 29 2023 01:39:05 GMT-0700 (PDT)
-* Source doc: #3
-* This is a partial selection. Check to make sure intra-doc links work.
------>
-
-
-
 ## Code examples
 
 
 ### Synchronous publisher and subscriber
 
-The following code example demonstrates a synchronous Producer that sends a finite sequence of items from a given Iterator.
+The following code example demonstrates a synchronous _cold_ Producer that sends a finite sequence of items from a given Iterator.
 
-The following code sample demonstrates a synchronous Consumer that _pulls_ items one by one and logs received events.
+The following code sample demonstrates a synchronous Consumer that _pulls_ items one by one and logs received events. The comments show which code fragments are responsible for implementing which rules of the Reactive Streams specification. The GitHub repository also has blackbox and whitebox unit tests to verify that this consumer meets the specification using its TCK.
 
-The following code example demonstrates that the multicast Producer sends the same sequence of events (_[The quick brown fox jumps over the lazy dog](https://en.wikipedia.org/wiki/The_quick_brown_fox_jumps_over_the_lazy_dog)_ pangram) to multiple Subscribers.
+
+```
+public class SyncSubscriber<T> implements Flow.Subscriber<T> {
+
+   private final int id;
+   private final CountDownLatch completed = new CountDownLatch(1);
+
+   private Flow.Subscription subscription;
+   private boolean cancelled = false;
+
+   public SyncSubscriber(int id) {
+       this.id = id;
+   }
+
+   @Override
+   public void onSubscribe(Flow.Subscription subscription) {
+       logger.info("({}) subscriber.subscribe: {}", id, subscription);
+       // by rule 2.13, calling onSubscribe must throw a NullPointerException when the given parameter is null.
+       Objects.requireNonNull(subscription);
+
+       if (this.subscription != null) {
+           // by_rule 2.5, a Subscriber must call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
+           subscription.cancel();
+       } else {
+           this.subscription = subscription;
+           // by_rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+           this.subscription.request(1);
+       }
+   }
+
+   @Override
+   public void onNext(T item) {
+       logger.info("({}) subscriber.next: {}", id, item);
+       // by rule 2.13, calling onNext must throw a NullPointerException when the given parameter is null.
+       Objects.requireNonNull(item);
+
+       // by_rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
+       if (!cancelled) {
+           if (whenNext(item)) {
+               // by_rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+               subscription.request(1);
+           } else {
+               // by_rule 2.6, a Subscriber must call Subscription.cancel() if the Subscription is no longer needed.
+               doCancel();
+           }
+       }
+   }
+
+   @Override
+   public void onError(Throwable throwable) {
+       logger.error("({}) subscriber.error", id, throwable);
+       // by rule 2.13, calling onError must throw a NullPointerException when the given parameter is null.
+       Objects.requireNonNull(throwable);
+
+       // by_rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
+       cancelled = true;
+       whenError(throwable);
+   }
+
+   @Override
+   public void onComplete() {
+       logger.info("({}) subscriber.complete", id);
+
+       // by_rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled after having received the signal.
+       cancelled = true;
+       whenComplete();
+   }
+
+   public void awaitCompletion() throws InterruptedException {
+       completed.await();
+   }
+
+   // this method is invoked when OnNext signals arrive and returns whether more elements are desired or not, intended to be overridden.
+   protected boolean whenNext(T item) {
+       return true;
+   }
+
+   // this method is invoked when an OnError signal arrives, intended to be overridden.
+   protected void whenError(Throwable throwable) {
+   }
+
+   // this method is invoked when an OnComplete signal arrives, intended to be overridden.
+   protected void whenComplete() {
+       completed.countDown();
+   }
+
+   private void doCancel() {
+       cancelled = true;
+       subscription.cancel();
+   }
+}
+```
+
+
+The following code example demonstrates that the _multicast_ Producer sends the same sequence of events (_[The quick brown fox jumps over the lazy dog](https://en.wikipedia.org/wiki/The_quick_brown_fox_jumps_over_the_lazy_dog)_ pangram) to multiple Subscribers.
 
 
 ```
@@ -105,11 +173,11 @@ The following log demonstrates that the synchronous Producer sends a sequence of
 
 ### Asynchronous publisher and subscriber
 
-The following code example demonstrates an asynchronous Producer that sends a finite sequence of items from a given Iterator.
+The following code example demonstrates an asynchronous _cold_ Producer that sends a finite sequence of items from a given Iterator.
 
-The following code sample demonstrates an asynchronous Consumer that _pulls_ items one by one and logs received events.
+The following code sample demonstrates an asynchronous Consumer that _pulls_ items one by one and logs received events. The comments show which code fragments are responsible for implementing which rules of the Reactive Streams specification. The GitHub repository also has blackbox and whitebox unit tests to verify that this consumer meets the specification using its TCK.
 
-The following code example demonstrates that the multicast Producer sends the same sequence of events (_[The quick brown fox jumps over the lazy dog](https://en.wikipedia.org/wiki/The_quick_brown_fox_jumps_over_the_lazy_dog)_ pangram) to multiple Subscribers.
+The following code example demonstrates that the _multicast_ Producer sends the same sequence of events (the same pangram) to multiple Subscribers.
 
 
 ```
