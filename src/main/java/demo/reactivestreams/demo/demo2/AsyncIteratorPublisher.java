@@ -47,6 +47,22 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             this.subscriber = Objects.requireNonNull(subscriber);
         }
 
+        private void init() {
+            signal(new Subscribe());
+        }
+
+        @Override
+        public void request(long n) {
+            logger.info("subscription.request: {}", n);
+            signal(new Request(n));
+        }
+
+        @Override
+        public void cancel() {
+            logger.info("subscription.cancel");
+            signal(new Cancel());
+        }
+
         private void doSubscribe() {
             try {
                 iterator = iteratorSupplier.get();
@@ -136,22 +152,6 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             // By rule 1.6, if a Publisher signals onError on a Subscriber, that Subscriber’s Subscription must be considered cancelled.
             cancelled = true;
             subscriber.onError(throwable);
-        }
-
-        private void init() {
-            signal(new Subscribe());
-        }
-
-        @Override
-        public void request(long n) {
-            logger.info("subscription.request: {}", n);
-            signal(new Request(n));
-        }
-
-        @Override
-        public void cancel() {
-            logger.info("subscription.cancel");
-            signal(new Cancel());
         }
 
         // These classes represent the asynchronous signals.
