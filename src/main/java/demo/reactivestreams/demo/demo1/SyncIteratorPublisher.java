@@ -29,7 +29,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
     private class SubscriptionImpl implements Flow.Subscription {
 
         private final Flow.Subscriber<? super T> subscriber;
-        private final AtomicLong demand = new AtomicLong();
+        private final AtomicLong demand = new AtomicLong(0);
         private final AtomicBoolean cancelled = new AtomicBoolean(false);
 
         private Iterator<? extends T> iterator;
@@ -79,7 +79,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
                 // By rule 3.8, while the Subscription is not cancelled, Subscription.request(long n) must register the given number of additional elements to be produced to the respective Subscriber.
                 long newDemand = oldDemand + n;
-                if (newDemand < 0L) {
+                if (newDemand < 0) {
                     // By rule 3.17, a Subscription must support a demand up to Long.MAX_VALUE.
                     newDemand = Long.MAX_VALUE;
                 }

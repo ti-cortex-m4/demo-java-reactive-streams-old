@@ -1,4 +1,4 @@
-package demo.reactivestreams.demo4;
+package demo.reactivestreams.demo2;
 
 import demo.reactivestreams.demo.demo2.AsyncIteratorPublisher;
 import org.reactivestreams.tck.TestEnvironment;

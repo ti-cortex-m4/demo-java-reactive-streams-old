@@ -1,9 +1,8 @@
 package demo.reactivestreams._part8;
 
+import demo.reactivestreams.demo.demo1.SyncSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import demo.reactivestreams._part1.SyncSubscriber;
 
 import java.util.concurrent.SubmissionPublisher;
 

@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
 public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
@@ -37,10 +38,10 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
     private class SubscriptionImpl implements Flow.Subscription, Runnable {
 
         private final Flow.Subscriber<? super T> subscriber;
+        private final AtomicLong demand = new AtomicLong(0);
+        private boolean cancelled = false;
 
         private Iterator<? extends T> iterator;
-        private long demand = 0;
-        private boolean cancelled = false;
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
             // By rule 1.9, calling Publisher.subscribe must throw a NullPointerException when the given parameter is null.
@@ -103,13 +104,13 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             if (n <= 0) {
                 // By rule 3.9, while the Subscription is not cancelled, Subscription.request(long n) must signal onError with a IllegalArgumentException if the argument is <= 0.
                 doError(new IllegalArgumentException("non-positive subscription request"));
-            } else if (demand + n <= 0) {
+            } else if (demand.get() + n <= 0) {
                 // By rule 3.17, a Subscription must support a demand up to Long.MAX_VALUE.
-                demand = Long.MAX_VALUE;
+                demand.set(Long.MAX_VALUE);
                 doNext();
             } else {
                 // By rule 3.8, while the Subscription is not cancelled, Subscription.request(long n) must register the given number of additional elements to be produced to the respective Subscriber.
-                demand += n;
+                demand.addAndGet(n);
                 doNext();
             }
         }
@@ -136,9 +137,9 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     // By rule 1.5, if a Publisher terminates successfully it must signal an onComplete.
                     subscriber.onComplete();
                 }
-            } while (!cancelled && --batchLeft > 0 && --demand > 0);
+            } while (!cancelled && --batchLeft > 0 && demand.decrementAndGet() > 0);
 
-            if (!cancelled && demand > 0) {
+            if (!cancelled && demand.get() > 0) {
                 signal(new Next());
             }
         }
