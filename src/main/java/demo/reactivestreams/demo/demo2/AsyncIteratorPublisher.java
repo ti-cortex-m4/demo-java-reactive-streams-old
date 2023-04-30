@@ -39,7 +39,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
         private final Flow.Subscriber<? super T> subscriber;
         private final AtomicLong demand = new AtomicLong(0);
-        private boolean cancelled = false;
+        private final AtomicBoolean cancelled = new AtomicBoolean(false);
 
         private Iterator<? extends T> iterator;
 
@@ -82,7 +82,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 doError(throwable);
             }
 
-            if (!cancelled) {
+            if (!cancelled.get()) {
                 subscriber.onSubscribe(this);
 
                 boolean hasNext = false;
@@ -137,21 +137,21 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     // By rule 1.5, if a Publisher terminates successfully it must signal an onComplete.
                     subscriber.onComplete();
                 }
-            } while (!cancelled && --batchLeft > 0 && demand.decrementAndGet() > 0);
+            } while (!cancelled.get() && --batchLeft > 0 && demand.decrementAndGet() > 0);
 
-            if (!cancelled && demand.get() > 0) {
+            if (!cancelled.get() && demand.get() > 0) {
                 signal(new Next());
             }
         }
 
         private void doCancel() {
             logger.info("subscription.cancelled");
-            cancelled = true;
+            cancelled.set(true);
         }
 
         private void doError(Throwable throwable) {
             // By rule 1.6, if a Publisher signals onError on a Subscriber, that Subscriber’s Subscription must be considered cancelled.
-            cancelled = true;
+            cancelled.set(true);
             subscriber.onError(throwable);
         }
 
@@ -213,7 +213,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 try {
                     Signal signal = signalsQueue.poll();
                     logger.debug("signal.poll {}", signal);
-                    if (!cancelled) {
+                    if (!cancelled.get()) {
                         signal.run();
                     }
                 } finally {
@@ -230,7 +230,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 try {
                     executor.execute(this);
                 } catch (Throwable throwable) {
-                    if (!cancelled) {
+                    if (!cancelled.get()) {
                         doCancel();
                         try {
                             // By rule 1.4, if a Publisher fails it must signal an onError.
