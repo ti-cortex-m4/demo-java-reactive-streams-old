@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
@@ -194,7 +195,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         }
 
         // The non-blocking queue to transmit signals in a thread-safe way.
-        private final ConcurrentLinkedQueue<Signal> signalsQueue = new ConcurrentLinkedQueue<>();
+        private final Queue<Signal> signalsQueue = new ConcurrentLinkedQueue<>();
 
         // The mutex to establish the happens-before relationship between asynchronous signal calls.
         private final AtomicBoolean mutex = new AtomicBoolean(false);

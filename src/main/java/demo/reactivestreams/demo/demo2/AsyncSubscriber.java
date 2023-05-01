@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -163,7 +164,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     // The non-blocking queue to transmit signals in a thread-safe way.
-    private final ConcurrentLinkedQueue<Signal> signalsQueue = new ConcurrentLinkedQueue<>();
+    private final Queue<Signal> signalsQueue = new ConcurrentLinkedQueue<>();
 
     // The mutex to establish the happens-before relationship between asynchronous signal calls.
     private final AtomicBoolean mutex = new AtomicBoolean(false);
