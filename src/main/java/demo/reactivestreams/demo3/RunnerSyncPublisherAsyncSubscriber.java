@@ -1,4 +1,4 @@
-package demo.reactivestreams.demo.demo3;
+package demo.reactivestreams.demo3;
 
 import demo.reactivestreams.demo.demo1.SyncIteratorPublisher;
 import demo.reactivestreams.demo.demo2.AsyncSubscriber;
