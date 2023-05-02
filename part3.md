@@ -26,7 +26,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
    private class SubscriptionImpl implements Flow.Subscription {
 
        private final Flow.Subscriber<? super T> subscriber;
-       private final AtomicLong demand = new AtomicLong();
+       private final AtomicLong demand = new AtomicLong(0);
        private final AtomicBoolean cancelled = new AtomicBoolean(false);
 
        private Iterator<? extends T> iterator;
@@ -37,7 +37,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
            try {
                iterator = iteratorSupplier.get();
-           } catch (Throwable throwable) {
+           } catch (Throwable t) {
                // By rule 1.9, a Publisher must call onSubscribe prior onError if Publisher.subscribe(Subscriber subscriber) fails.
                subscriber.onSubscribe(new Flow.Subscription() {
                    @Override
@@ -49,7 +49,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                    }
                });
                // By rule 1.4, if a Publisher fails it must signal an onError.
-               doError(throwable);
+               doError(t);
            }
 
            if (!cancelled.get()) {
@@ -71,12 +71,13 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
            for (;;) {
                long oldDemand = demand.getAcquire();
                if (oldDemand == Long.MAX_VALUE) {
+                   // By rule 3.17, a demand equal or greater than Long.MAX_VALUE may be considered by the Publisher as "effectively unbounded".
                    return;
                }
 
                // By rule 3.8, while the Subscription is not cancelled, Subscription.request(long n) must register the given number of additional elements to be produced to the respective Subscriber.
                long newDemand = oldDemand + n;
-               if (newDemand < 0L) {
+               if (newDemand < 0) {
                    // By rule 3.17, a Subscription must support a demand up to Long.MAX_VALUE.
                    newDemand = Long.MAX_VALUE;
                }
@@ -94,12 +95,12 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
            for (; demand.get() > 0 && iterator.hasNext() && !cancelled.get(); demand.decrementAndGet()) {
                try {
                    subscriber.onNext(iterator.next());
-               } catch (Throwable throwable) {
+               } catch (Throwable t) {
                    if (!cancelled.get()) {
                        // By rule 1.6, if a Publisher signals onError on a Subscriber, that Subscriber's Subscription must be considered cancelled.
                        doCancel();
                        // By rule 1.4, if a Publisher fails it must signal an onError.
-                       subscriber.onError(throwable);
+                       subscriber.onError(t);
                    }
                }
            }
@@ -124,10 +125,10 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
            cancelled.set(true);
        }
 
-       private void doError(Throwable throwable) {
+       private void doError(Throwable t) {
            // By rule 1.6, if a Publisher signals onError on a Subscriber, that Subscriber's Subscription must be considered cancelled.
            cancelled.set(true);
-           subscriber.onError(throwable);
+           subscriber.onError(t);
        }
    }
 }
@@ -143,10 +144,9 @@ The following code example demonstrates a synchronous Subscriber that _pulls_ it
 public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 
    private final int id;
-   private final CountDownLatch completed = new CountDownLatch(1);
-
    private Flow.Subscription subscription;
-   private boolean cancelled = false;
+   private final AtomicBoolean cancelled = new AtomicBoolean(false);
+   private final CountDownLatch completed = new CountDownLatch(1);
 
    public SyncSubscriber(int id) {
        this.id = id;
@@ -175,7 +175,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
        Objects.requireNonNull(item);
 
        // By rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
-       if (!cancelled) {
+       if (!cancelled.get()) {
            if (whenNext(item)) {
                // By rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
                subscription.request(1);
@@ -187,14 +187,14 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
    }
 
    @Override
-   public void onError(Throwable throwable) {
-       logger.error("({}) subscriber.error", id, throwable);
+   public void onError(Throwable t) {
+       logger.error("({}) subscriber.error", id, t);
        // By rule 2.13, calling onError must throw a NullPointerException when the given parameter is null.
-       Objects.requireNonNull(throwable);
+       Objects.requireNonNull(t);
 
        // By rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
-       cancelled = true;
-       whenError(throwable);
+       cancelled.set(true);
+       whenError(t);
    }
 
    @Override
@@ -202,7 +202,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
        logger.info("({}) subscriber.complete", id);
 
        // By rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled after having received the signal.
-       cancelled = true;
+       cancelled.set(true);
        whenComplete();
    }
 
@@ -216,7 +216,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
    }
 
    // This method is invoked when an OnError signal arrives (is intended to override).
-   protected void whenError(Throwable throwable) {
+   protected void whenError(Throwable t) {
    }
 
    // This method is invoked when an OnComplete signal arrives (is intended to override).
@@ -225,7 +225,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
    }
 
    private void doCancel() {
-       cancelled = true;
+       cancelled.set(true);
        subscription.cancel();
    }
 }
@@ -236,8 +236,8 @@ The following code example demonstrates that the _multicast_ synchronous Publish
 
 
 ```
-List<String> list = List.of("The quick brown fox jumps over the lazy dog.".split(" "));
-SyncIteratorPublisher<String> publisher = new SyncIteratorPublisher<>(() -> List.copyOf(list).iterator());
+List<String> words = List.of("The quick brown fox jumps over the lazy dog.".split(" "));
+SyncIteratorPublisher<String> publisher = new SyncIteratorPublisher<>(() -> List.copyOf(words).iterator());
 
 SyncSubscriber<String> subscriber1 = new SyncSubscriber<>(1);
 publisher.subscribe(subscriber1);
@@ -782,8 +782,8 @@ The following code example demonstrates that the _multicast_ asynchronous Publis
 ```
 ExecutorService executorService = Executors.newFixedThreadPool(3);
 
-List<String> list = List.of("The quick brown fox jumps over the lazy dog.".split(" "));
-AsyncIteratorPublisher<String> publisher = new AsyncIteratorPublisher<>(() -> List.copyOf(list).iterator(), 1024, executorService);
+List<String> words = List.of("The quick brown fox jumps over the lazy dog.".split(" "));
+AsyncIteratorPublisher<String> publisher = new AsyncIteratorPublisher<>(() -> List.copyOf(words).iterator(), 1024, executorService);
 
 AsyncSubscriber<String> subscriber1 = new AsyncSubscriber<>(1, executorService);
 publisher.subscribe(subscriber1);

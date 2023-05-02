@@ -16,11 +16,10 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     private static final Logger logger = LoggerFactory.getLogger(AsyncSubscriber.class);
 
     private final int id;
+    private Flow.Subscription subscription;
+    private final AtomicBoolean cancelled = new AtomicBoolean(false);
     private final CountDownLatch completed = new CountDownLatch(1);
     private final Executor executor;
-
-    private Flow.Subscription subscription;
-    private boolean cancelled = false;
 
     public AsyncSubscriber(int id, Executor executor) {
         this.id = id;
@@ -85,7 +84,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     private void doNext(T element) {
         // By rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
-        if (!cancelled) {
+        if (!cancelled.get()) {
             if (whenNext(element)) {
                 // By rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
                 subscription.request(1);
@@ -98,18 +97,18 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     private void doError(Throwable t) {
         // By rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
-        cancelled = true;
+        cancelled.set(true);
         whenError(t);
     }
 
     private void doComplete() {
         // By rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled after having received the signal.
-        cancelled = true;
+        cancelled.set(true);
         whenComplete();
     }
 
     private void doCancel() {
-        cancelled = true;
+        cancelled.set(true);
         subscription.cancel();
     }
 
@@ -176,7 +175,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
             try {
                 Signal signal = signalsQueue.poll();
                 logger.debug("({}) signal.poll {}", id, signal);
-                if (!cancelled) {
+                if (!cancelled.get()) {
                     signal.run();
                 }
             } finally {
@@ -200,7 +199,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
             try {
                 executor.execute(this);
             } catch (Throwable t) {
-                if (!cancelled) {
+                if (!cancelled.get()) {
                     try {
                         doCancel();
                     } finally {
