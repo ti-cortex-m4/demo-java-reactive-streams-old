@@ -20,13 +20,13 @@ public class Runner {
             processor.subscribe(subscriber);
             publisher.subscribe(processor);
 
-            IntStream.range(0, 10).forEach(i -> {
-                logger.info("publisher.submit: {}", i);
-                publisher.submit(i);
-            });
-
-            logger.info("publisher.close");
-            publisher.close();
+//            IntStream.range(0, 10).forEach(i -> {
+//                logger.info("publisher.submit: {}", i);
+//                publisher.submit(i);
+//            });
+//
+//            logger.info("publisher.close");
+//            publisher.close();
 
             subscriber.awaitCompletion();
         }
