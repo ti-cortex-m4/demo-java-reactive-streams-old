@@ -1,7 +1,7 @@
 package demo.reactivestreams.part4;
 
-import demo.reactivestreams.demo.demo1.SyncSubscriber;
-import demo.reactivestreams.demo.demo2.AsyncIteratorPublisher;
+import demo.reactivestreams.part1.SyncSubscriber;
+import demo.reactivestreams.part2.AsyncIteratorPublisher;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;

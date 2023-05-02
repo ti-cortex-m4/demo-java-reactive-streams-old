@@ -40,7 +40,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
             try {
                 iterator = iteratorSupplier.get();
-            } catch (Throwable throwable) {
+            } catch (Throwable t) {
                 // By rule 1.9, a Publisher must call onSubscribe prior onError if Publisher.subscribe(Subscriber subscriber) fails.
                 subscriber.onSubscribe(new Flow.Subscription() {
                     @Override
@@ -52,7 +52,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     }
                 });
                 // By rule 1.4, if a Publisher fails it must signal an onError.
-                doError(throwable);
+                doError(t);
             }
 
             if (!cancelled.get()) {
@@ -98,12 +98,12 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
             for (; demand.get() > 0 && iterator.hasNext() && !cancelled.get(); demand.decrementAndGet()) {
                 try {
                     subscriber.onNext(iterator.next());
-                } catch (Throwable throwable) {
+                } catch (Throwable t) {
                     if (!cancelled.get()) {
                         // By rule 1.6, if a Publisher signals onError on a Subscriber, that Subscriber’s Subscription must be considered cancelled.
                         doCancel();
                         // By rule 1.4, if a Publisher fails it must signal an onError.
-                        subscriber.onError(throwable);
+                        subscriber.onError(t);
                     }
                 }
             }
@@ -128,10 +128,10 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
             cancelled.set(true);
         }
 
-        private void doError(Throwable throwable) {
+        private void doError(Throwable t) {
             // By rule 1.6, if a Publisher signals onError on a Subscriber, that Subscriber’s Subscription must be considered cancelled.
             cancelled.set(true);
-            subscriber.onError(throwable);
+            subscriber.onError(t);
         }
     }
 }

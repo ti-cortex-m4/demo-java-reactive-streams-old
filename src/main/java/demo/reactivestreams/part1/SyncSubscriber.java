@@ -56,14 +56,14 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     }
 
     @Override
-    public void onError(Throwable throwable) {
-        logger.error("({}) subscriber.error", id, throwable);
+    public void onError(Throwable t) {
+        logger.error("({}) subscriber.error", id, t);
         // By rule 2.13, calling onError must throw a NullPointerException when the given parameter is null.
-        Objects.requireNonNull(throwable);
+        Objects.requireNonNull(t);
 
         // By rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
         cancelled = true;
-        whenError(throwable);
+        whenError(t);
     }
 
     @Override
@@ -85,7 +85,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     }
 
     // This method is invoked when an OnError signal arrives (is intended to override).
-    protected void whenError(Throwable throwable) {
+    protected void whenError(Throwable t) {
     }
 
     // This method is invoked when an OnComplete signal arrives (is intended to override).
