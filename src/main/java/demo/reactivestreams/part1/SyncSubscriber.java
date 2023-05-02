@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 
@@ -15,7 +16,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     private final CountDownLatch completed = new CountDownLatch(1);
 
     private Flow.Subscription subscription;
-    private boolean cancelled = false;
+    private AtomicBoolean cancelled = new AtomicBoolean(false);
 
     public SyncSubscriber(int id) {
         this.id = id;
@@ -44,7 +45,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
         Objects.requireNonNull(item);
 
         // By rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
-        if (!cancelled) {
+        if (!cancelled.get()) {
             if (whenNext(item)) {
                 // By rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
                 subscription.request(1);
@@ -62,7 +63,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
         Objects.requireNonNull(t);
 
         // By rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
-        cancelled = true;
+        cancelled.set(true);
         whenError(t);
     }
 
@@ -71,7 +72,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
         logger.info("({}) subscriber.complete", id);
 
         // By rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled after having received the signal.
-        cancelled = true;
+        cancelled.set(true);
         whenComplete();
     }
 
@@ -94,7 +95,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
     }
 
     private void doCancel() {
-        cancelled = true;
+        cancelled.set(true);
         subscription.cancel();
     }
 }
