@@ -11,7 +11,7 @@ public class Runner {
     private static final Logger logger = LoggerFactory.getLogger(Runner.class);
 
     public static void main(String[] args) throws InterruptedException {
-        try (SubmissionPublisher<FolderWatchEvent> publisher = new FolderWatchServicePublisher(System.getProperty("user.home"))) {
+        try (SubmissionPublisher<FolderWatchEvent> publisher = new FolderWatchServiceSubmissionPublisher(System.getProperty("user.home"))) {
 
             SyncSubscriber<FolderWatchEvent> subscriber1 = new SyncSubscriber<>(1);
             publisher.subscribe(subscriber1);
