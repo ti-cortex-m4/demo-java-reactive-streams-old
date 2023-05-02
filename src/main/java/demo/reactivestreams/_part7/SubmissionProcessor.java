@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 
-public class SubmissionProcessor extends SubmissionPublisher<Integer> implements Flow.Processor<Integer, Integer> {
+public class SubmissionProcessor extends SubmissionPublisher<FolderWatchEvent> implements Flow.Processor<FolderWatchEvent, String> {
 
     private static final Logger logger = LoggerFactory.getLogger(SubmissionProcessor.class);
 
@@ -20,7 +20,7 @@ public class SubmissionProcessor extends SubmissionPublisher<Integer> implements
     }
 
     @Override
-    public void onNext(Integer item) {
+    public void onNext(FolderWatchEvent item) {
         logger.info("processor.next: {}", item);
         if (item % 2 == 0) {
             logger.info("processor.submit: {}", item);
