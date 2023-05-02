@@ -42,10 +42,10 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     @Override
-    public void onError(Throwable throwable) {
-        logger.error("({}) subscriber.error", id, throwable);
+    public void onError(Throwable t) {
+        logger.error("({}) subscriber.error", id, t);
         // By rule 2.13, calling onError must throw a NullPointerException when the given parameter is null.
-        signal(new OnError(Objects.requireNonNull(throwable)));
+        signal(new OnError(Objects.requireNonNull(t)));
     }
 
     @Override
@@ -64,7 +64,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     // This method is invoked when an OnError signal arrives (is intended to override).
-    protected void whenError(Throwable throwable) {
+    protected void whenError(Throwable t) {
     }
 
     // This method is invoked when an OnComplete signal arrives (is intended to override).
@@ -96,10 +96,10 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
         }
     }
 
-    private void doError(Throwable throwable) {
+    private void doError(Throwable t) {
         // By rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
         cancelled = true;
-        whenError(throwable);
+        whenError(t);
     }
 
     private void doComplete() {
@@ -144,15 +144,15 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     private class OnError implements Signal {
-        private final Throwable throwable;
+        private final Throwable t;
 
-        OnError(Throwable throwable) {
-            this.throwable = throwable;
+        OnError(Throwable t) {
+            this.t = t;
         }
 
         @Override
         public void run() {
-            doError(throwable);
+            doError(t);
         }
     }
 
@@ -199,7 +199,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
         if (mutex.compareAndSet(false, true)) {
             try {
                 executor.execute(this);
-            } catch (Throwable throwable) {
+            } catch (Throwable t) {
                 if (!cancelled) {
                     try {
                         doCancel();
