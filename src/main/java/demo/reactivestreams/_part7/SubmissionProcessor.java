@@ -3,6 +3,7 @@ package demo.reactivestreams._part7;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.StandardWatchEventKinds;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 
@@ -22,7 +23,9 @@ public class SubmissionProcessor extends SubmissionPublisher<String> implements 
     @Override
     public void onNext(FolderWatchEvent item) {
         logger.info("processor.next: {}", item);
-        submit(item.toString());
+        if (item.getEvent().kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
+            submit(String.format("file %s is %sd", item.getPath(), item.getEvent()));
+        }
         subscription.request(1);
     }
 
