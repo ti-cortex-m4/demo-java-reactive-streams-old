@@ -1,11 +1,11 @@
 ## Code examples
 
-According to the Reactive Streams specification, their stages (producers, processors, consumers) can be synchronous (executed in the thread of a previous stage) or asynchronous (executed in another thread). Below are code examples of synchronous and asynchronous producers and consumers working in pairs. (The GitHub repository also has examples of how a _synchronous_ publisher works with _asynchronous_ subscribers and how an _asynchronous_ publisher works with _synchronous_ subscribers). The comments in the code examples show which code fragments are responsible for implementing which rules of the Reactive Streams specification.
 
+### Synchronous Publisher and Subscriber
 
-### Synchronous publisher and subscriber
+The following code example demonstrates a synchronous Publisher that sends a finite sequence of items from Iterator. The _synchronous_ Publisher processes its _subscribe_ method and the Subscriptions’ _request_ and _cancel_ methods in the caller’s thread. This Publisher is _multicast_ and can send items to multiple Subscribers, storing information about each connection in a private implementation of the Subscription interface. This includes the current Iterator instance, the demand (the aggregated number of items requested by a Subscriber which is yet to be fulfilled by the Publisher) and the connection cancellation flag. To make a _cold_ Publisher that sends the same sequence of items for each Subscriber, the Publisher stores a Supplier that must return a new Iterator instance for each new Subscription. The Publisher uses different types of error handling (throwing an exception or calling the onError handler) according to the Reactive Streams specification.
 
-The following code example demonstrates a synchronous _cold_ Publisher that sends a finite sequence of items from a given Iterator.
+<sub>The GitHub repository has unit tests to verify that this Publisher complies with all the specification rules that are checked in its TCK.</sub>
 
 
 ```
@@ -134,7 +134,9 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
 ```
 
 
-The following code sample demonstrates a synchronous Subscriber that _pulls_ items one by one and logs received events. This synchronous Subscriber executes its methods onSubscribe, onNext, onError, onComplete in a Publisher’s thread. The GitHub repository also has blackbox and whitebox unit tests to verify that this Subscriber meets the specification using its TCK.
+The following code example demonstrates a synchronous Subscriber that _pulls_ items one by one. The _synchronous_ Subscriber processes its _onSubscribe_, _onNext_, _onError_, _onComplete_ methods in the Publisher’s thread. The Subscriber also stores its Subscription (to perform backpressure in the _onNext_ method) and its cancellation flag. The Subscriber uses different types of error handling (throwing an exception or unsubscribing) according to the Reactive Streams specification.
+
+<sub>The GitHub repository has <em>blackbox</em> and <em>whitebox</em> unit tests to verify that this Subscriber complies with all the specification rules that are checked in its TCK.</sub>
 
 
 ```
@@ -230,7 +232,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 ```
 
 
-The following code example demonstrates that the _multicast_ Publisher sends the same sequence of events (_[The quick brown fox jumps over the lazy dog](https://en.wikipedia.org/wiki/The_quick_brown_fox_jumps_over_the_lazy_dog)_ pangram) to multiple Subscribers.
+The following code example demonstrates that the _multicast_ synchronous Publisher sends the same sequence of items (_[The quick brown fox jumps over the lazy dog](https://en.wikipedia.org/wiki/The_quick_brown_fox_jumps_over_the_lazy_dog)_ pangram) to two synchronous Subscribers.
 
 
 ```
@@ -248,7 +250,7 @@ subscriber2.awaitCompletion();
 ```
 
 
-The following log demonstrates that the synchronous Publisher sends a sequence of events in the caller's thread, and the synchronous Subscribers receive the sequence of events in the Publisher's thread _in sequence_.
+The following log demonstrates that the synchronous Publisher sends the sequence of items in the caller's thread, and the synchronous Subscribers receive the sequence of items in the Publisher's thread _one at a time_.
 
 
 ```
@@ -300,9 +302,11 @@ The following log demonstrates that the synchronous Publisher sends a sequence o
 
 
 
-### Asynchronous publisher and subscriber
+### Asynchronous Publisher and Subscriber
 
-The following code example demonstrates an asynchronous _cold_ Publisher that sends a finite sequence of items from a given Iterator.
+The following code example demonstrates an asynchronous Publisher that sends a finite sequence of items from Iterator. Its structure is similar to the synchronous Producer discussed earlier. The main difference is that the Publisher's _onSubscribe_ method and the Subscription’s _request_ and _cancel_ methods are not processed in the caller's thread, but in another thread in a given Executor.
+
+<sub>The GitHub repository has unit tests to verify that this Publisher complies with all the specification rules that are checked in its TCK.</sub>
 
 
 ```
@@ -449,7 +453,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 ```
 
 
-
+The classes that implement the Signal interface represent asynchronous signals sent from the caller’s thread to the Executor’s worker thread. The Subscribe class is a signal for creation of a new subscription. The Request and Cancel classes are signals for handling Subscription’s _request_ and _cancel_ events. The Next class is a signal to asynchronous sending multiple Subscriber’s _onNext_ events during one asynchronous call (to avoid frequent context switching).
 
 
 ```
@@ -493,7 +497,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 ```
 
 
-
+The unbounded, thread-safe, non-blocking ConcurrentLinkedQueue queue transmits signals across threads. The AtomicBoolean mutex guarantees _serial_ processing of asynchronous signals in the Executor instance.
 
 
 ```
@@ -552,7 +556,9 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 ```
 
 
-The following code sample demonstrates an asynchronous _Subscriber_ that _pulls_ items one by one and logs received events. This asynchronous _Subscriber_ executes its methods _onSubscribe_, _onNext_, _onError_, _onComplete_ in a separate thread. The thread-safe, non-blocking _ConcurrentLinkedQueue_ transfers the signals from the Publisher’s thread to the Subscriber’s thread. The _AtomicBoolean_ mutex ensures that the signals are executed _serially_ even if they are executed asynchronously. The GitHub repository also has blackbox and whitebox unit tests to verify that this Subscriber meets the specification using its TCK.
+The following code sample demonstrates an asynchronous Subscriber that _pulls_ items one by one. Its structure is similar to the synchronous Subscriber discussed earlier. The main difference is that the Subscriber's _onSubscribe_, _onNext_, _onError_, _onComplete_ methods are not processed in the Publisher's thread, but in another thread in a given Executor.
+
+<sub>The GitHub repository also has blackbox and whitebox unit tests to verify that this Subscriber meets the specification using its TCK.</sub>
 
 
 ```
@@ -658,7 +664,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 ```
 
 
-
+The classes that implement the Signal interface represent asynchronous signals sent from the Publisher’s thread to the Executor’s worker thread. The OnSubscribe, OnNext, OnError, OnComplete classes are signals for handling the correspondent Subscriber’s events.
 
 
 ```
@@ -714,7 +720,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 ```
 
 
-
+The asynchronous Consumer uses the same ConcurrentLinkedQueue queue and AtomicBoolean mutex to _serially_ process asynchronous signals in the Executor instance.
 
 
 ```
@@ -770,7 +776,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 ```
 
 
-The following code example demonstrates that the _multicast_ Publisher sends the same sequence of events (the same pangram) to multiple Subscribers.
+The following code example demonstrates that the _multicast_ asynchronous Publisher sends the same sequence of items (the same pangram) to two asynchronous Subscribers.
 
 
 ```
@@ -793,7 +799,7 @@ executorService.awaitTermination(60, TimeUnit.SECONDS);
 ```
 
 
-The following log shows that an asynchronous Publisher sends a sequence of events in a separate thread, and that asynchronous Subscribers receive a sequence of events in a separate thread _in parallel_.
+The following log shows that the asynchronous Publisher sends the sequence of items in a separate thread, and the asynchronous Subscribers receive the sequence of items also in a separate thread _at the same time_.
 
 
 ```

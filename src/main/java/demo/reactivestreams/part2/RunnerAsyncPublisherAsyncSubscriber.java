@@ -10,8 +10,8 @@ public class RunnerAsyncPublisherAsyncSubscriber {
     public static void main(String[] args) throws InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(3);
 
-        List<String> list = List.of("The quick brown fox jumps over the lazy dog.".split(" "));
-        AsyncIteratorPublisher<String> publisher = new AsyncIteratorPublisher<>(() -> List.copyOf(list).iterator(), 1024, executorService);
+        List<String> words = List.of("The quick brown fox jumps over the lazy dog.".split(" "));
+        AsyncIteratorPublisher<String> publisher = new AsyncIteratorPublisher<>(() -> List.copyOf(words).iterator(), 1024, executorService);
 
         AsyncSubscriber<String> subscriber1 = new AsyncSubscriber<>(1, executorService);
         publisher.subscribe(subscriber1);
