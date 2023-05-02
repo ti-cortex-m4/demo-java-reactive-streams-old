@@ -1,5 +1,6 @@
 package demo.reactivestreams._part7;
 
+import demo.reactivestreams.Delay;
 import demo.reactivestreams.part1.SyncSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,17 +17,12 @@ public class Runner {
              SubmissionProcessor processor = new SubmissionProcessor()) {
 
             SyncSubscriber<String> subscriber = new SyncSubscriber<>(1);
-
             processor.subscribe(subscriber);
             publisher.subscribe(processor);
 
-//            IntStream.range(0, 10).forEach(i -> {
-//                logger.info("publisher.submit: {}", i);
-//                publisher.submit(i);
-//            });
-//
-//            logger.info("publisher.close");
-//            publisher.close();
+            Delay.delay(10);
+            logger.info("publisher.close");
+            publisher.close();
 
             subscriber.awaitCompletion();
         }

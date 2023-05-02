@@ -66,6 +66,7 @@ public class FolderWatchServiceSubmissionPublisher extends SubmissionPublisher<F
 
     @Override
     public void close() {
+        logger.info("publisher.close");
         task.cancel(false);
         super.close();
     }
