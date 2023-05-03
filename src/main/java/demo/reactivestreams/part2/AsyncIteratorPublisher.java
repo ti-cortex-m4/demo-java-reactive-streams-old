@@ -103,14 +103,14 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
         private void doRequest(long n) {
             if (n <= 0) {
-                // By rule 3.9, while the Subscription is not cancelled, Subscription.request(long n) must signal onError with a IllegalArgumentException if the argument is <= 0.
+                // By rule 3.9, while the Subscription is not cancelled, Subscription.request(long) must signal onError with a IllegalArgumentException if the argument is <= 0.
                 doError(new IllegalArgumentException("non-positive subscription request"));
             } else if (demand.get() + n <= 0) {
                 // By rule 3.17, a Subscription must support a demand up to Long.MAX_VALUE.
                 demand.set(Long.MAX_VALUE);
                 doNext();
             } else {
-                // By rule 3.8, while the Subscription is not cancelled, Subscription.request(long n) must register the given number of additional elements to be produced to the respective Subscriber.
+                // By rule 3.8, while the Subscription is not cancelled, Subscription.request(long) must register the given number of additional elements to be produced to the respective Subscriber.
                 demand.addAndGet(n);
                 doNext();
             }

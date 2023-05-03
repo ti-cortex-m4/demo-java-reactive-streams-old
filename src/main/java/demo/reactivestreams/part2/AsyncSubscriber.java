@@ -77,7 +77,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
             subscription.cancel();
         } else {
             this.subscription = subscription;
-            // By rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+            // By rule 2.1, a Subscriber must signal demand via Subscription.request(long) to receive onNext signals.
             this.subscription.request(1);
         }
     }
@@ -86,7 +86,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
         // By rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
         if (!cancelled.get()) {
             if (whenNext(element)) {
-                // By rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+                // By rule 2.1, a Subscriber must signal demand via Subscription.request(long) to receive onNext signals.
                 subscription.request(1);
             } else {
                 // By rule 2.6, a Subscriber must call Subscription.cancel() if the Subscription is no longer needed.

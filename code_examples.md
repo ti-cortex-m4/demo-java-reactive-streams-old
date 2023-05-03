@@ -64,7 +64,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
        public void request(long n) {
            logger.info("subscription.request: {}", n);
 
-           // By rule 3.9, while the Subscription is not cancelled, Subscription.request(long n) must signal onError with a IllegalArgumentException if the argument is <= 0.
+           // By rule 3.9, while the Subscription is not cancelled, Subscription.request(long) must signal onError with a IllegalArgumentException if the argument is <= 0.
            if ((n <= 0) && !cancelled.get()) {
                doCancel();
                subscriber.onError(new IllegalArgumentException("non-positive subscription request"));
@@ -78,7 +78,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                    return;
                }
 
-               // By rule 3.8, while the Subscription is not cancelled, Subscription.request(long n) must register the given number of additional elements to be produced to the respective Subscriber.
+               // By rule 3.8, while the Subscription is not cancelled, Subscription.request(long) must register the given number of additional elements to be produced to the respective Subscriber.
                long newDemand = oldDemand + n;
                if (newDemand < 0) {
                    // By rule 3.17, a Subscription must support a demand up to Long.MAX_VALUE.
@@ -169,7 +169,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
            subscription.cancel();
        } else {
            this.subscription = subscription;
-           // By rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+           // By rule 2.1, a Subscriber must signal demand via Subscription.request(long) to receive onNext signals.
            this.subscription.request(1);
        }
    }
@@ -183,7 +183,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
        // By rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
        if (!cancelled.get()) {
            if (whenNext(item)) {
-               // By rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+               // By rule 2.1, a Subscriber must signal demand via Subscription.request(long) to receive onNext signals.
                subscription.request(1);
            } else {
                // By rule 2.6, a Subscriber must call Subscription.cancel() if the Subscription is no longer needed.
@@ -391,14 +391,14 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
        private void doRequest(long n) {
            if (n <= 0) {
-               // By rule 3.9, while the Subscription is not cancelled, Subscription.request(long n) must signal onError with a IllegalArgumentException if the argument is <= 0.
+               // By rule 3.9, while the Subscription is not cancelled, Subscription.request(long) must signal onError with a IllegalArgumentException if the argument is <= 0.
                doError(new IllegalArgumentException("non-positive subscription request"));
            } else if (demand + n <= 0) {
                // By rule 3.17, a Subscription must support a demand up to Long.MAX_VALUE.
                demand = Long.MAX_VALUE;
                doNext();
            } else {
-               // By rule 3.8, while the Subscription is not cancelled, Subscription.request(long n) must register the given number of additional elements to be produced to the respective Subscriber.
+               // By rule 3.8, while the Subscription is not cancelled, Subscription.request(long) must register the given number of additional elements to be produced to the respective Subscriber.
                demand += n;
                doNext();
            }
@@ -639,7 +639,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
            subscription.cancel();
        } else {
            this.subscription = subscription;
-           // By rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+           // By rule 2.1, a Subscriber must signal demand via Subscription.request(long) to receive onNext signals.
            this.subscription.request(1);
        }
    }
@@ -648,7 +648,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
        // By rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
        if (!cancelled) {
            if (whenNext(element)) {
-               // By rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+               // By rule 2.1, a Subscriber must signal demand via Subscription.request(long) to receive onNext signals.
                subscription.request(1);
            } else {
                // By rule 2.6, a Subscriber must call Subscription.cancel() if the Subscription is no longer needed.

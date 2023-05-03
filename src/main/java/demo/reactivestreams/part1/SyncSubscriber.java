@@ -32,7 +32,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
             subscription.cancel();
         } else {
             this.subscription = subscription;
-            // By rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+            // By rule 2.1, a Subscriber must signal demand via Subscription.request(long) to receive onNext signals.
             this.subscription.request(1);
         }
     }
@@ -46,7 +46,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
         // By rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
         if (!cancelled.get()) {
             if (whenNext(item)) {
-                // By rule 2.1, a Subscriber must signal demand via Subscription.request(long n) to receive onNext signals.
+                // By rule 2.1, a Subscriber must signal demand via Subscription.request(long) to receive onNext signals.
                 subscription.request(1);
             } else {
                 // By rule 2.6, a Subscriber must call Subscription.cancel() if the Subscription is no longer needed.
