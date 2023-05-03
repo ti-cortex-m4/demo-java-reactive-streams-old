@@ -41,7 +41,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
            try {
                iterator = iteratorSupplier.get();
            } catch (Throwable t) {
-               // By rule 1.9, a Publisher must call onSubscribe prior onError if Publisher.subscribe(Subscriber subscriber) fails.
+               // By rule 1.9, a Publisher must call onSubscribe prior onError if Publisher.subscribe(Subscriber) fails.
                subscriber.onSubscribe(new Flow.Subscription() {
                    @Override
                    public void cancel() {
@@ -357,7 +357,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
            try {
                iterator = iteratorSupplier.get();
            } catch (Throwable throwable) {
-               // By rule 1.9, a Publisher must call onSubscribe prior onError if Publisher.subscribe(Subscriber subscriber) fails.
+               // By rule 1.9, a Publisher must call onSubscribe prior onError if Publisher.subscribe(Subscriber) fails.
                subscriber.onSubscribe(new Flow.Subscription() {
                    @Override
                    public void cancel() {
