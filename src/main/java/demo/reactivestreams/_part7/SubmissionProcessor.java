@@ -24,7 +24,7 @@ public class SubmissionProcessor extends SubmissionPublisher<String> implements 
     public void onNext(FolderWatchEvent item) {
         logger.info("processor.next: {}", item);
         if (item.getEvent().kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
-            submit(String.format("file %s is %sd", item.getPath(), item.getEvent()));
+            submit(String.format("file %s is %s", item.getEvent().context(), item.getEvent().kind()));
         }
         subscription.request(1);
     }
