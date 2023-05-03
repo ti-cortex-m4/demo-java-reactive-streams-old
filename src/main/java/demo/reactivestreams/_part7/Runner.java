@@ -20,8 +20,8 @@ public class Runner {
             processor.subscribe(subscriber);
             publisher.subscribe(processor);
 
-            Delay.delay(10);
-            logger.info("publisher.close");
+            Delay.delay(100);
+            logger.info("runner.close");
             publisher.close();
 
             subscriber.awaitCompletion();
