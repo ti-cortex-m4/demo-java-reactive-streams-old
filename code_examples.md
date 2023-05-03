@@ -198,7 +198,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
        // By rule 2.13, calling onError must throw a NullPointerException when the given parameter is null.
        Objects.requireNonNull(t);
 
-       // By rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
+       // By rule 2.4, Subscriber.onError(Throwable) must consider the Subscription cancelled after having received the signal.
        cancelled.set(true);
        whenError(t);
    }
@@ -658,7 +658,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
    }
 
    private void doError(Throwable throwable) {
-       // By rule 2.4, Subscriber.onError(Throwable t) must consider the Subscription cancelled after having received the signal.
+       // By rule 2.4, Subscriber.onError(Throwable) must consider the Subscription cancelled after having received the signal.
        cancelled = true;
        whenError(throwable);
    }
