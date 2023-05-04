@@ -1,4 +1,4 @@
-package demo.reactivestreams._part8;
+package demo.reactivestreams.part5;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.SubmissionPublisher;
 
-public class FolderWatchServiceSubmissionPublisher extends SubmissionPublisher<FolderWatchEvent> {
+public class FolderWatchServiceSubmissionPublisher extends SubmissionPublisher<WatchEvent<Path>> {
 
     private static final Logger logger = LoggerFactory.getLogger(FolderWatchServiceSubmissionPublisher.class);
 
@@ -44,11 +44,11 @@ public class FolderWatchServiceSubmissionPublisher extends SubmissionPublisher<F
                         }
 
                         WatchEvent<Path> pathEvent = (WatchEvent<Path>) event;
-                        Path path = folder.resolve(pathEvent.context());
+//                        Path path = folder.resolve(pathEvent.context());
 
-                        FolderWatchEvent item = new FolderWatchEvent(pathEvent, path);
-                        logger.info("publisher.submit {}", item);
-                        submit(item);
+//                        FolderWatchEvent item = new FolderWatchEvent(pathEvent, path);
+                        logger.info("publisher.submit {}", pathEvent);
+                        submit(pathEvent);
                     }
 
                     boolean valid = key.reset();
@@ -66,6 +66,7 @@ public class FolderWatchServiceSubmissionPublisher extends SubmissionPublisher<F
 
     @Override
     public void close() {
+        logger.info("publisher.close");
         task.cancel(false);
         super.close();
     }

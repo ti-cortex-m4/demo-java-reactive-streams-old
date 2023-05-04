@@ -1,13 +1,15 @@
-package demo.reactivestreams._part7;
+package demo.reactivestreams.part5;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 
-public class SubmissionProcessor extends SubmissionPublisher<String> implements Flow.Processor<FolderWatchEvent, String> {
+public class SubmissionProcessor extends SubmissionPublisher<String> implements Flow.Processor<WatchEvent<Path>, String> {
 
     private static final Logger logger = LoggerFactory.getLogger(SubmissionProcessor.class);
 
@@ -21,10 +23,10 @@ public class SubmissionProcessor extends SubmissionPublisher<String> implements 
     }
 
     @Override
-    public void onNext(FolderWatchEvent item) {
+    public void onNext(WatchEvent<Path> item) {
         logger.info("processor.next: {}", item);
-        if (item.getEvent().kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
-            submit(String.format("file %s is %s", item.getEvent().context(), item.getEvent().kind()));
+        if (item.kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
+            submit(String.format("file %s is %s", item.context(), item.kind()));
         }
         subscription.request(1);
     }

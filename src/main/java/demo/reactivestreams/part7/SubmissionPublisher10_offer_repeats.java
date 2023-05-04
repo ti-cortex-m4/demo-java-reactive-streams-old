@@ -1,4 +1,4 @@
-package demo.reactivestreams.part6;
+package demo.reactivestreams.part7;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,13 +7,13 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.LongStream;
 
-public class SubmissionPublisher09_offer_drops extends AbstractTest {
+public class SubmissionPublisher10_offer_repeats extends AbstractTest {
 
     public static void main(String[] args) {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>(ForkJoinPool.commonPool(), 4)) {
 
             List<Long> consumedItems = new ArrayList<>();
-            List<Long> droppedItems = new ArrayList<>();
+            List<Long> repeatedItems = new ArrayList<>();
 
             CompletableFuture<Void> consumerFuture = publisher.consume(item -> {
                 delay();
@@ -25,13 +25,12 @@ public class SubmissionPublisher09_offer_drops extends AbstractTest {
                     logger.info("offered: {}", item);
                     publisher.offer(item, (subscriber, value) -> {
                         delay();
-                        logger.info("dropped: {}", value);
-                        droppedItems.add(value);
-                        return false;
+                        logger.info("repeated: {}", value);
+                        repeatedItems.add(value);
+                        return true;
                     });
                 }
             );
-
             //delay(10);
             publisher.close();
 
@@ -42,7 +41,7 @@ public class SubmissionPublisher09_offer_drops extends AbstractTest {
             logger.info("finished");
 
             logger.info("consumed: {}", consumedItems);
-            logger.info("dropped: {}", droppedItems);
+            logger.info("repeated: {}", repeatedItems);
         }
     }
 }

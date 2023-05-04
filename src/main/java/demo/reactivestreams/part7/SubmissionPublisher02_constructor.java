@@ -1,4 +1,4 @@
-package demo.reactivestreams.part6;
+package demo.reactivestreams.part7;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;

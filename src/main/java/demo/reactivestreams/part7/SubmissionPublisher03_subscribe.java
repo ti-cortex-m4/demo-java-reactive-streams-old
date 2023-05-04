@@ -1,18 +1,16 @@
-package demo.reactivestreams.part6;
+package demo.reactivestreams.part7;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.LongStream;
 
-// returns an estimate of the maximum number of items produced but not yet consumed among all current subscribers.
-public class SubmissionPublisher07_estimateMaximumLag extends AbstractTest {
+public class SubmissionPublisher03_subscribe extends AbstractTest {
 
     public static void main(String[] args) throws InterruptedException {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>()) {
 
-            final int count = 10;
-            CountDownLatch countDownLatch = new CountDownLatch(count);
+            CountDownLatch countDownLatch = new CountDownLatch(1);
 
             publisher.subscribe(new Flow.Subscriber<>() {
 
@@ -28,30 +26,27 @@ public class SubmissionPublisher07_estimateMaximumLag extends AbstractTest {
                 @Override
                 public void onNext(Long item) {
                     delay();
-                    this.subscription.request(1);
-
                     logger.info("next: {}", item);
-                    logger.info("estimateMaximumLag: {}", publisher.estimateMaximumLag());
-
-                    countDownLatch.countDown();
+                    this.subscription.request(1);
                 }
 
                 @Override
                 public void onError(Throwable throwable) {
-                    logger.info("error", throwable);
+                    logger.error("error", throwable);
                 }
 
                 @Override
                 public void onComplete() {
                     logger.info("completed");
+                    countDownLatch.countDown();
                 }
             });
 
-            LongStream.range(0, count).forEach(item -> {
-                    logger.info("submitted: {}", item);
-                    publisher.submit(item);
-                }
-            );
+            LongStream.range(0, 10).forEach(item -> {
+                logger.info("submitted: {}", item);
+                publisher.submit(item);
+            });
+            publisher.close();
 
             logger.info("wait...");
             countDownLatch.await();

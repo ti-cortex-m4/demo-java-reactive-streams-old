@@ -1,12 +1,12 @@
-package demo.reactivestreams.part6;
+package demo.reactivestreams.part7;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.LongStream;
 
-// returns an estimate of the minimum number of items requested (via request) but not yet produced, among all current subscribers.
-public class SubmissionPublisher06_estimateMinimumDemand extends AbstractTest {
+// returns an estimate of the maximum number of items produced but not yet consumed among all current subscribers.
+public class SubmissionPublisher07_estimateMaximumLag extends AbstractTest {
 
     public static void main(String[] args) throws InterruptedException {
         try (SubmissionPublisher<Long> publisher = new SubmissionPublisher<>()) {
@@ -22,13 +22,16 @@ public class SubmissionPublisher06_estimateMinimumDemand extends AbstractTest {
                 public void onSubscribe(Flow.Subscription subscription) {
                     logger.info("subscribed");
                     this.subscription = subscription;
-                    this.subscription.request(count);
+                    this.subscription.request(1);
                 }
 
                 @Override
                 public void onNext(Long item) {
+                    delay();
+                    this.subscription.request(1);
+
                     logger.info("next: {}", item);
-                    logger.info("estimateMinimumDemand: {}", publisher.estimateMinimumDemand());
+                    logger.info("estimateMaximumLag: {}", publisher.estimateMaximumLag());
 
                     countDownLatch.countDown();
                 }
@@ -45,7 +48,6 @@ public class SubmissionPublisher06_estimateMinimumDemand extends AbstractTest {
             });
 
             LongStream.range(0, count).forEach(item -> {
-                    delay();
                     logger.info("submitted: {}", item);
                     publisher.submit(item);
                 }
