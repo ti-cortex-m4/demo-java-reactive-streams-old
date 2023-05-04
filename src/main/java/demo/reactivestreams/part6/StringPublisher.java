@@ -21,6 +21,7 @@ public class StringPublisher implements Flow.Publisher<ByteBuffer> {
     @Override
     public void subscribe(Flow.Subscriber<? super ByteBuffer> subscriber) {
         logger.info("publisher.subscribe: {}", subscriber);
+
         subscriber.onSubscribe(new Flow.Subscription() {
             @Override
             public void request(long n) {
@@ -30,7 +31,9 @@ public class StringPublisher implements Flow.Publisher<ByteBuffer> {
             public void cancel() {
             }
         });
+
         subscriber.onNext(ByteBuffer.wrap(string.getBytes(StandardCharsets.UTF_8)));
+
         subscriber.onComplete();
     }
 }
