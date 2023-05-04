@@ -29,15 +29,15 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
     private class SubscriptionImpl implements Flow.Subscription {
 
         private final Flow.Subscriber<? super T> subscriber;
+        private final Iterator<? extends T> iterator;
         private final AtomicLong demand = new AtomicLong(0);
         private final AtomicBoolean cancelled = new AtomicBoolean(false);
-
-        private Iterator<? extends T> iterator;
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
             // By rule 1.9, calling Publisher.subscribe(Subscriber) must throw a NullPointerException when the given parameter is null.
             this.subscriber = Objects.requireNonNull(subscriber);
 
+            Iterator<? extends T> iterator = null;
             try {
                 iterator = iteratorSupplier.get();
             } catch (Throwable t) {
@@ -54,6 +54,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 // By rule 1.4, if a Publisher fails it must signal an onError.
                 doError(t);
             }
+            this.iterator = iterator;
 
             if (!cancelled.get()) {
                 subscriber.onSubscribe(this);
@@ -71,7 +72,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 return;
             }
 
-            for (;;) {
+            for (; ; ) {
                 long oldDemand = demand.get();
                 if (oldDemand == Long.MAX_VALUE) {
                     // By rule 3.17, a demand equal or greater than Long.MAX_VALUE may be considered by the Publisher as "effectively unbounded".
