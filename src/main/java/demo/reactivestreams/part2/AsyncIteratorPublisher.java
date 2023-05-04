@@ -45,7 +45,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         private Iterator<? extends T> iterator;
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
-            // By rule 1.9, calling Publisher.subscribe must throw a NullPointerException when the given parameter is null.
+            // By rule 1.9, calling Publisher.subscribe(Subscriber) must throw a NullPointerException when the given parameter is null.
             this.subscriber = Objects.requireNonNull(subscriber);
         }
 
