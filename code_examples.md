@@ -146,7 +146,7 @@ The following code example demonstrates a synchronous Subscriber that _pulls_ it
 <sub>The GitHub repository has <em>blackbox</em> and <em>whitebox</em> unit tests to verify that this Subscriber complies with all the specification rules that are checked in its TCK.</sub>
 
 
-```
+```java
 public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 
    private final int id;
@@ -244,7 +244,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 The following code example demonstrates that the _multicast_ synchronous Publisher sends the same sequence of events (_[The quick brown fox jumps over the lazy dog](https://en.wikipedia.org/wiki/The_quick_brown_fox_jumps_over_the_lazy_dog)_ pangram) to two synchronous Subscribers.
 
 
-```
+```java
 List<String> words = List.of("The quick brown fox jumps over the lazy dog.".split(" "));
 SyncIteratorPublisher<String> publisher = new SyncIteratorPublisher<>(() -> List.copyOf(words).iterator());
 
@@ -318,7 +318,7 @@ The following code example demonstrates an asynchronous Publisher that sends a f
 <sub>The GitHub repository has unit tests to verify that this Publisher complies with all the specification rules that are checked in its TCK.</sub>
 
 
-```
+```java
 public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
    private final Supplier<Iterator<? extends T>> iteratorSupplier;
@@ -465,7 +465,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 The classes that implement the Signal interface represent asynchronous signals sent from the caller’s thread to the Executor’s worker thread. The Subscribe class is a signal for creation of a new subscription. The Request and Cancel classes are signals for handling Subscription’s _request_ and _cancel_ events. The Next class is a signal to asynchronous sending multiple Subscriber’s _onNext_ events during one asynchronous call (to avoid frequent context switching).
 
 
-```
+```java
        // These classes represent the asynchronous signals.
        private interface Signal extends Runnable {
        }
@@ -509,7 +509,7 @@ The classes that implement the Signal interface represent asynchronous signals s
 The unbounded, thread-safe, non-blocking ConcurrentLinkedQueue queue transmits signals across threads. The AtomicBoolean mutex guarantees _serial_ processing of asynchronous signals in the Executor instance.
 
 
-```
+```java
        // The non-blocking queue to transmit signals in a thread-safe way.
        private final ConcurrentLinkedQueue<Signal> signalsQueue = new ConcurrentLinkedQueue<>();
 
@@ -573,7 +573,7 @@ The following code sample demonstrates an asynchronous Subscriber that _pulls_ i
 <sub>The GitHub repository also has blackbox and whitebox unit tests to verify that this Subscriber meets the specification using its TCK.</sub>
 
 
-```
+```java
 public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
    private final int id;
@@ -679,7 +679,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 The classes that implement the Signal interface represent asynchronous signals sent from the Publisher’s thread to the Executor’s worker thread. The OnSubscribe, OnNext, OnError, OnComplete classes are signals for handling the correspondent Subscriber’s events.
 
 
-```
+```java
    // These classes represent the asynchronous signals.
    private interface Signal extends Runnable {
    }
@@ -735,7 +735,7 @@ The classes that implement the Signal interface represent asynchronous signals s
 The asynchronous Consumer uses the same ConcurrentLinkedQueue queue and AtomicBoolean mutex to _serially_ process asynchronous signals in the Executor instance.
 
 
-```
+```java
    // The non-blocking queue to transmit signals in a thread-safe way.
    private final ConcurrentLinkedQueue<Signal> signalsQueue = new ConcurrentLinkedQueue<>();
 
@@ -794,7 +794,7 @@ The asynchronous Consumer uses the same ConcurrentLinkedQueue queue and AtomicBo
 The following code example demonstrates that the _multicast_ asynchronous Publisher sends the same sequence of events (the same pangram) to two asynchronous Subscribers.
 
 
-```
+```java
 ExecutorService executorService = Executors.newFixedThreadPool(3);
 
 List<String> words = List.of("The quick brown fox jumps over the lazy dog.".split(" "));
