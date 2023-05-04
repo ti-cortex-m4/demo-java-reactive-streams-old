@@ -15,13 +15,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.SubmissionPublisher;
 
-public class FolderWatchServiceSubmissionPublisher extends SubmissionPublisher<WatchEvent<Path>> {
+public class PathWatchServiceSubmissionPublisher extends SubmissionPublisher<WatchEvent<Path>> {
 
-    private static final Logger logger = LoggerFactory.getLogger(FolderWatchServiceSubmissionPublisher.class);
+    private static final Logger logger = LoggerFactory.getLogger(PathWatchServiceSubmissionPublisher.class);
 
     private final Future<?> task;
 
-    FolderWatchServiceSubmissionPublisher(String folderName) {
+    PathWatchServiceSubmissionPublisher(String folderName) {
         ExecutorService executorService = (ExecutorService) getExecutor();
 
         task = executorService.submit(() -> {
