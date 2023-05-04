@@ -1,5 +1,8 @@
 package demo.reactivestreams.part6;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -8,9 +11,12 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Flow;
 
 public class HttpClientRunner {
+
+    private static final Logger logger = LoggerFactory.getLogger(HttpClientRunner.class);
 
     public static void main(String[] args) throws URISyntaxException {
         HttpClient client = HttpClient.newBuilder()
@@ -27,7 +33,10 @@ public class HttpClientRunner {
 
         Flow.Subscriber<List<ByteBuffer>> subscriber = new StringSubscriber();
 
-        HttpResponse<Void> response = client.sendAsync(request, BodyHandlers.fromSubscriber(subscriber)).join();
-        System.out.println(response.statusCode());
+        CompletableFuture<HttpResponse<Void>> responseFuture = client.sendAsync(request, BodyHandlers.fromSubscriber(subscriber));
+        logger.info("request sent");
+
+        HttpResponse<Void> response = responseFuture.join();
+        logger.info("response received, status code {}", response.statusCode());
     }
 }

@@ -17,7 +17,7 @@ public class WatchEventSubmissionProcessor extends SubmissionPublisher<String> i
 
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
-        logger.info("processor.subscribed: {}", subscription);
+        logger.info("processor.subscribe: {}", subscription);
         this.subscription = subscription;
         this.subscription.request(1);
     }
