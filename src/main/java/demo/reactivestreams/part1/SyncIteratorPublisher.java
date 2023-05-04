@@ -72,7 +72,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 return;
             }
 
-            for (; ; ) {
+            for (;;) {
                 long oldDemand = demand.get();
                 if (oldDemand == Long.MAX_VALUE) {
                     // By rule 3.17, a demand equal or greater than Long.MAX_VALUE may be considered by the Publisher as "effectively unbounded".

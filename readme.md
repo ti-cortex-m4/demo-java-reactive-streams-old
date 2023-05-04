@@ -1,9 +1,36 @@
+<!-- Output copied to clipboard! -->
+
+<!-----
+
+Yay, no errors, warnings, or alerts!
+
+Conversion time: 2.006 seconds.
+
+
+Using this Markdown file:
+
+1. Paste this output into your source file.
+2. See the notes and action items below regarding this conversion run.
+3. Check the rendered output (headings, lists, code blocks, tables) for proper
+   formatting and use a linkchecker before you publish this page.
+
+Conversion notes:
+
+* Docs to Markdown version 1.0β34
+* Thu May 04 2023 04:07:25 GMT-0700 (PDT)
+* Source doc: #2
+----->
+
+
+
 # Reactive Streams specification in Java
 
 
 ## Introduction
 
-_Reactive Streams_ is a cross-platform specification for processing a possibly unbounded sequence of events across asynchronous boundaries (threads, actors, processes, or network-connected computers) with non-blocking _backpressure_. Backpressure is application-level flow control from the subscriber to the publisher to control the emission rate.
+_Reactive Streams_ is a cross-platform specification for processing a possibly unbounded sequence of events across asynchronous boundaries (threads, actors, processes, or network-connected computers) with non-blocking _backpressure_. A reactive stream contains a publisher, which sends forward _data_, _error_, _completion_ events, and subscribers, which send backward _request_ and _cancel_ backpressure events. There may be intermediate event Processors between the Publisher and the Subscribers.
+
+<sub>Backpressure is application-level flow control from the subscriber to the publisher to control the emission rate.</sub>
 
 The Reactive Streams specification was created to solve two problems. First, to create a solution for processing time-ordered sequences of events with automatic switching between _push_ and _pull_ models based on the consumption rate and without unbounded buffering. Second, to create an interoperable solution that can be used in different frameworks, environments, and networks.
 
@@ -117,7 +144,7 @@ Reactive Extensions (ReactiveX) is a family of multi-platform frameworks for han
 
 <sub>The implementation of Reactive Extensions for Java is the Netflix RxJava framework.</sub>
 
-In a simplified way, Reactive Extensions can be thought of as a combination of the Observer and Iterator patterns and functional programming. From the Observer pattern, they took the ability of the consumer to subscribe to producer events. From the Iterator pattern, they took the ability to handle event streams of three types (data, error, completion). From functional programming, they took the ability to handle event streams with chained methods (transform, filter, combine, etc.).
+In a simplified way, Reactive Extensions are a combination of the Observer and Iterator patterns and functional programming. From the Observer pattern, they took the ability of the consumer to subscribe to producer events. From the Iterator pattern, they took the ability to handle event streams of three types (data, error, completion). From functional programming, they took the ability to handle event streams with chained methods (transform, filter, combine, etc.).
 
 ![Reactive Extensions](/images/Reactive_Extensions.png)
 
@@ -142,7 +169,7 @@ Cons:
 
 ### Reactive Streams
 
-Reactive Streams is a further development of Reactive Extensions, which were created to solve the problem of unbounded buffers that were used to reconcile the processing rates of a faster producer and a slower consumer. In a simplified way, Reactive Streams can be thought of as a combination of Reactive Extensions and batching.
+Reactive Streams are a further development of Reactive Extensions, which were created to solve the problem of unbounded buffers that were used to reconcile the processing rates of a faster producer and a slower consumer. In a simplified way, Reactive Streams are a combination of Reactive Extensions and batching.
 
 In Reactive Extensions, a Publisher can send events to a Subscriber as soon as they become available and in any quantity. In Reactive Streams, a Publisher must send events to a Subscriber only after requesting them and no more than the requested quantity.
 
@@ -171,8 +198,6 @@ Cons:
 
 There are several solutions for situations where the consumer processes events slower than the producer sends them. This is not a problem for _pull_ models because the consumer is the initiator of the exchange. In _push_ models, the producer usually has no way to determine the rate of sending events, so the consumer may receive more events than it can handle. This performance mismatch can be resolved by backpressure on the consumer or the producer.
 
-In synchronous, imperative code, blocking calls serve as a natural form of back pressure that forces the caller to wait.
-
 There are several ways to deal with the backpressure on the consumer side:
 
 
@@ -185,7 +210,7 @@ In this situation, the choice is either to lose the events or to introduce addit
 
 <sub>Backpressure on the consumer side may be inefficient because dropped events require I/O operations to send them from the producer.</sub>
 
-Backpressure is a solution in reactive streams to the problem of informing the producer about the processing rate of its consumers. To start sending events from the producer, the consumer _pulls_ the number of events it wants to receive. Only then does the producer send events to the consumer, the producer never sends events on its own initiative. If the consumer is faster than the producer, he can work in the _push_ model and request all events immediately after subscribing. If the consumer is slower than the producer, he can work in the _pull_ model and request the next events only after the previous ones have been processed. So, the model in which reactive streams operate can be described as a _dynamic push/pull_ model. This model works effectively if the producer is faster or slower than the consumer, or even when that ratio can change over time.
+Backpressure is a solution in reactive streams to the problem of informing the producer about the processing rate of its consumers. To start sending events from the producer, the consumer _pulls_ the number of events it wants to receive. Only then does the producer send events to the consumer, the producer never sends events on its initiative. If the consumer is faster than the producer, he can work in the _push_ model and request all events immediately after subscribing. If the consumer is slower than the producer, he can work in the _pull_ model and request the next events only after the previous ones have been processed. So, the model in which reactive streams operate can be described as a _dynamic push/pull_ model. This model works effectively if the producer is faster or slower than the consumer, or even when that ratio can change over time.
 
 There are several ways to deal with the backpressure on the producer:
 
@@ -263,7 +288,7 @@ The Subscriber interface represents a consumer of events. Multiple Subscribers c
 ```
 public interface Subscriber<T> {
     public void onSubscribe(Subscription s);
-    public void onNext(T t);
+    public void onNext(T item);
     public void onError(Throwable t);
     public void onComplete();
 }
@@ -333,6 +358,319 @@ When there are no more events, the Publisher completes the Subscription normally
 ## The JDK Flow API
 
 Reactive Streams started to be supported in JDK 9 in the form of the Flow API. The _java.util.concurrent.Flow_ class contains nested static interfaces Publisher, Subscriber, Subscription, Processor, which are 100% semantically equivalent to their respective Reactive Streams counterparts. The Reactive Streams specification contains the _org.reactivestreams.FlowAdapters_ class, which is a bridge between the Reactive Streams API in the _org.reactivestreams_ package and the JDK Flow API in the _java.util.concurrent.Flow_ class. The only implementation of the Reactive Streams specification that JDK provides so far is the _java.util.concurrent.SubmissionPublisher_ class that implements the Publisher interface.
+
+
+## Code examples
+
+
+### Synchronous Publisher
+
+The following code example demonstrates a synchronous Publisher that sends a finite sequence of events from Iterator. The _synchronous_ Publisher processes its _subscribe_ method and the Subscriptions’ _request_ and _cancel_ methods in the caller’s thread. This Publisher is _multicast_ and can send items to multiple Subscribers, storing information about each connection in a private implementation of the Subscription interface. This includes the current Iterator instance, the demand (the aggregated number of items requested by a Subscriber which is yet to be fulfilled by the Publisher) and the connection cancellation flag. To make a _cold_ Publisher that sends the same sequence of events for each Subscriber, the Publisher stores a Supplier that must return a new Iterator instance for each new Subscription. The Publisher uses different types of error handling (throwing an exception or calling the onError handler) according to the Reactive Streams specification.
+
+<sub>The GitHub repository has unit tests to verify that this Publisher complies with all the specification rules that are checked in its TCK.</sub>
+
+
+```java
+public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
+
+   private final Supplier<Iterator<? extends T>> iteratorSupplier;
+
+   public SyncIteratorPublisher(Supplier<Iterator<? extends T>> iteratorSupplier) {
+       this.iteratorSupplier = Objects.requireNonNull(iteratorSupplier);
+   }
+
+   @Override
+   public void subscribe(Flow.Subscriber<? super T> subscriber) {
+       // By rule 1.11, a Publisher may support multiple Subscribers and decide whether each Subscription is unicast or multicast.
+       new SubscriptionImpl(subscriber);
+   }
+
+   private class SubscriptionImpl implements Flow.Subscription {
+
+       private final Flow.Subscriber<? super T> subscriber;
+       private final Iterator<? extends T> iterator;
+       private final AtomicLong demand = new AtomicLong(0);
+       private final AtomicBoolean cancelled = new AtomicBoolean(false);
+
+       SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
+           // By rule 1.9, calling Publisher.subscribe(Subscriber) must throw a NullPointerException when the given parameter is null.
+           this.subscriber = Objects.requireNonNull(subscriber);
+
+           Iterator<? extends T> iterator = null;
+           try {
+               iterator = iteratorSupplier.get();
+           } catch (Throwable t) {
+               // By rule 1.9, a Publisher must call onSubscribe prior onError if Publisher.subscribe(Subscriber) fails.
+               subscriber.onSubscribe(new Flow.Subscription() {
+                   @Override
+                   public void cancel() {
+                   }
+
+                   @Override
+                   public void request(long n) {
+                   }
+               });
+               // By rule 1.4, if a Publisher fails it must signal an onError.
+               doError(t);
+           }
+           this.iterator = iterator;
+
+           if (!cancelled.get()) {
+               subscriber.onSubscribe(this);
+           }
+       }
+
+       @Override
+       public void request(long n) {
+           logger.info("subscription.request: {}", n);
+
+           // By rule 3.9, while the Subscription is not cancelled, Subscription.request(long) must signal onError with a IllegalArgumentException if the argument is <= 0.
+           if ((n <= 0) && !cancelled.get()) {
+               doCancel();
+               subscriber.onError(new IllegalArgumentException("non-positive subscription request"));
+               return;
+           }
+
+           for (;;) {
+               long oldDemand = demand.get();
+               if (oldDemand == Long.MAX_VALUE) {
+                   // By rule 3.17, a demand equal or greater than Long.MAX_VALUE may be considered by the Publisher as "effectively unbounded".
+                   return;
+               }
+
+               // By rule 3.8, while the Subscription is not cancelled, Subscription.request(long) must register the given number of additional elements to be produced to the respective Subscriber.
+               long newDemand = oldDemand + n;
+               if (newDemand < 0) {
+                   // By rule 3.17, a Subscription must support a demand up to Long.MAX_VALUE.
+                   newDemand = Long.MAX_VALUE;
+               }
+
+               // By rule 3.3, Subscription.request must place an upper bound on possible synchronous recursion between Publisher and Subscriber.
+               if (demand.compareAndSet(oldDemand, newDemand)) {
+                   if (oldDemand > 0) {
+                       return;
+                   }
+                   break;
+               }
+           }
+
+           // By rule 1.2, a Publisher may signal fewer onNext than requested and terminate the Subscription by calling onError.
+           for (; demand.get() > 0 && iterator.hasNext() && !cancelled.get(); demand.decrementAndGet()) {
+               try {
+                   subscriber.onNext(iterator.next());
+               } catch (Throwable t) {
+                   if (!cancelled.get()) {
+                       // By rule 1.6, if a Publisher signals onError on a Subscriber, that Subscriber's Subscription must be considered cancelled.
+                       doCancel();
+                       // By rule 1.4, if a Publisher fails it must signal an onError.
+                       subscriber.onError(t);
+                   }
+               }
+           }
+
+           // By rule 1.2, a Publisher may signal fewer onNext than requested and terminate the Subscription by calling onComplete.
+           if (!iterator.hasNext() && !cancelled.get()) {
+               // By rule 1.6, if a Publisher signals onComplete on a Subscriber, that Subscriber's Subscription must be considered cancelled.
+               doCancel();
+               // By rule 1.5, if a Publisher terminates successfully it must signal an onComplete.
+               subscriber.onComplete();
+           }
+       }
+
+       @Override
+       public void cancel() {
+           logger.info("subscription.cancel");
+           doCancel();
+       }
+
+       private void doCancel() {
+           logger.info("subscription.cancelled");
+           cancelled.set(true);
+       }
+
+       private void doError(Throwable t) {
+           // By rule 1.6, if a Publisher signals onError on a Subscriber, that Subscriber's Subscription must be considered cancelled.
+           cancelled.set(true);
+           subscriber.onError(t);
+       }
+   }
+}
+```
+
+
+
+### Synchronous Subscriber
+
+The following code example demonstrates a synchronous Subscriber that _pulls_ items one by one. The _synchronous_ Subscriber processes its _onSubscribe_, _onNext_, _onError_, _onComplete_ methods in the Publisher’s thread. The Subscriber also stores its Subscription (to perform backpressure) and its cancellation flag. The Subscriber also uses different types of error handling (throwing an exception or unsubscribing) according to the Reactive Streams specification.
+
+<sub>The GitHub repository has <em>blackbox</em> and <em>whitebox</em> unit tests to verify that this Subscriber complies with all the specification rules that are checked in its TCK.</sub>
+
+
+```java
+public class SyncSubscriber<T> implements Flow.Subscriber<T> {
+
+   private static final Logger logger = LoggerFactory.getLogger(SyncSubscriber.class);
+
+   private final int id;
+   private final AtomicReference<Flow.Subscription> subscription = new AtomicReference<>();
+   private final AtomicBoolean cancelled = new AtomicBoolean(false);
+   private final CountDownLatch completed = new CountDownLatch(1);
+
+   public SyncSubscriber(int id) {
+       this.id = id;
+   }
+
+   @Override
+   public void onSubscribe(Flow.Subscription subscription) {
+       logger.info("({}) subscriber.subscribe: {}", id, subscription);
+       // By rule 2.13, calling onSubscribe must throw a NullPointerException when the given parameter is null.
+       Objects.requireNonNull(subscription);
+
+       if (this.subscription.get() != null) {
+           // By rule 2.5, a Subscriber must call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
+           subscription.cancel();
+       } else {
+           this.subscription.set(subscription);
+           // By rule 2.1, a Subscriber must signal demand via Subscription.request(long) to receive onNext signals.
+           this.subscription.get().request(1);
+       }
+   }
+
+   @Override
+   public void onNext(T item) {
+       logger.info("({}) subscriber.next: {}", id, item);
+       // By rule 2.13, calling onNext must throw a NullPointerException when the given parameter is null.
+       Objects.requireNonNull(item);
+
+       // By rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
+       if (!cancelled.get()) {
+           if (whenNext(item)) {
+               // By rule 2.1, a Subscriber must signal demand via Subscription.request(long) to receive onNext signals.
+               subscription.get().request(1);
+           } else {
+               // By rule 2.6, a Subscriber must call Subscription.cancel() if the Subscription is no longer needed.
+               doCancel();
+           }
+       }
+   }
+
+   @Override
+   public void onError(Throwable t) {
+       logger.error("({}) subscriber.error", id, t);
+       // By rule 2.13, calling onError must throw a NullPointerException when the given parameter is null.
+       Objects.requireNonNull(t);
+
+       // By rule 2.4, Subscriber.onError(Throwable) must consider the Subscription cancelled after having received the signal.
+       cancelled.set(true);
+       whenError(t);
+   }
+
+   @Override
+   public void onComplete() {
+       logger.info("({}) subscriber.complete", id);
+
+       // By rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled after having received the signal.
+       cancelled.set(true);
+       whenComplete();
+   }
+
+   public void awaitCompletion() throws InterruptedException {
+       completed.await();
+   }
+
+   // This method is invoked when OnNext signals arrive and returns whether more elements are desired or not (is intended to override).
+   protected boolean whenNext(T item) {
+       return true;
+   }
+
+   // This method is invoked when an OnError signal arrives (is intended to override).
+   protected void whenError(Throwable t) {
+   }
+
+   // This method is invoked when an OnComplete signal arrives (is intended to override).
+   protected void whenComplete() {
+       completed.countDown();
+   }
+
+   private void doCancel() {
+       cancelled.set(true);
+       subscription.get().cancel();
+   }
+}
+```
+
+
+
+### Synchronous reactive stream
+
+The following code example demonstrates that the _multicast_ synchronous Publisher sends the same sequence of events (_[The quick brown fox jumps over the lazy dog](https://en.wikipedia.org/wiki/The_quick_brown_fox_jumps_over_the_lazy_dog)_ pangram) to two synchronous Subscribers.
+
+
+```java
+List<String> words = List.of("The quick brown fox jumps over the lazy dog.".split(" "));
+SyncIteratorPublisher<String> publisher = new SyncIteratorPublisher<>(() -> List.copyOf(words).iterator());
+
+SyncSubscriber<String> subscriber1 = new SyncSubscriber<>(1);
+publisher.subscribe(subscriber1);
+
+SyncSubscriber<String> subscriber2 = new SyncSubscriber<>(2);
+publisher.subscribe(subscriber2);
+
+subscriber1.awaitCompletion();
+subscriber2.awaitCompletion();
+```
+
+
+The following log demonstrates that the synchronous Publisher sends the sequence of events in the caller's thread, and the synchronous Subscribers receive the sequence of events in the Publisher's thread (the same caller's thread) _one at a time_.
+
+
+```
+11:32:37.310  main             (1) subscriber.subscribe: SyncIteratorPublisher$SubscriptionImpl@1f28c152
+11:32:37.313  main             subscription.request: 1
+11:32:37.313  main             (1) subscriber.next: The
+11:32:37.313  main             subscription.request: 1
+11:32:37.313  main             (1) subscriber.next: quick
+11:32:37.313  main             subscription.request: 1
+11:32:37.313  main             (1) subscriber.next: brown
+11:32:37.313  main             subscription.request: 1
+11:32:37.313  main             (1) subscriber.next: fox
+11:32:37.313  main             subscription.request: 1
+11:32:37.313  main             (1) subscriber.next: jumps
+11:32:37.313  main             subscription.request: 1
+11:32:37.313  main             (1) subscriber.next: over
+11:32:37.314  main             subscription.request: 1
+11:32:37.314  main             (1) subscriber.next: the
+11:32:37.314  main             subscription.request: 1
+11:32:37.314  main             (1) subscriber.next: lazy
+11:32:37.314  main             subscription.request: 1
+11:32:37.314  main             (1) subscriber.next: dog.
+11:32:37.314  main             subscription.request: 1
+11:32:37.314  main             subscription.terminate
+11:32:37.314  main             (1) subscriber.complete
+11:32:37.314  main             (2) subscriber.subscribe: SyncIteratorPublisher$SubscriptionImpl@3dd4520b
+11:32:37.314  main             subscription.request: 1
+11:32:37.314  main             (2) subscriber.next: The
+11:32:37.314  main             subscription.request: 1
+11:32:37.314  main             (2) subscriber.next: quick
+11:32:37.314  main             subscription.request: 1
+11:32:37.314  main             (2) subscriber.next: brown
+11:32:37.314  main             subscription.request: 1
+11:32:37.314  main             (2) subscriber.next: fox
+11:32:37.314  main             subscription.request: 1
+11:32:37.314  main             (2) subscriber.next: jumps
+11:32:37.314  main             subscription.request: 1
+11:32:37.314  main             (2) subscriber.next: over
+11:32:37.314  main             subscription.request: 1
+11:32:37.314  main             (2) subscriber.next: the
+11:32:37.314  main             subscription.request: 1
+11:32:37.314  main             (2) subscriber.next: lazy
+11:32:37.314  main             subscription.request: 1
+11:32:37.314  main             (2) subscriber.next: dog.
+11:32:37.314  main             subscription.request: 1
+11:32:37.314  main             subscription.terminate
+11:32:37.314  main             (2) subscriber.complete
+```
+
 
 
 ## Conclusion
