@@ -7,13 +7,14 @@ import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(SyncSubscriber.class);
 
     private final int id;
-    private Flow.Subscription subscription;
+    private final AtomicReference<Flow.Subscription> subscription = new AtomicReference<>();
     private final AtomicBoolean cancelled = new AtomicBoolean(false);
     private final CountDownLatch completed = new CountDownLatch(1);
 
@@ -27,13 +28,13 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
         // By rule 2.13, calling onSubscribe must throw a NullPointerException when the given parameter is null.
         Objects.requireNonNull(subscription);
 
-        if (this.subscription != null) {
+        if (this.subscription.get() != null) {
             // By rule 2.5, a Subscriber must call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
             subscription.cancel();
         } else {
-            this.subscription = subscription;
+            this.subscription.set(subscription);
             // By rule 2.1, a Subscriber must signal demand via Subscription.request(long) to receive onNext signals.
-            this.subscription.request(1);
+            this.subscription.get().request(1);
         }
     }
 
@@ -47,7 +48,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
         if (!cancelled.get()) {
             if (whenNext(item)) {
                 // By rule 2.1, a Subscriber must signal demand via Subscription.request(long) to receive onNext signals.
-                subscription.request(1);
+                subscription.get().request(1);
             } else {
                 // By rule 2.6, a Subscriber must call Subscription.cancel() if the Subscription is no longer needed.
                 doCancel();
@@ -95,6 +96,6 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 
     private void doCancel() {
         cancelled.set(true);
-        subscription.cancel();
+        subscription.get().cancel();
     }
 }
