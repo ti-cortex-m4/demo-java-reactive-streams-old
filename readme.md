@@ -66,10 +66,10 @@ Cons:
 
 
 * The latency may not be optimal due to an incorrectly chosen pulling period (too long pulling period leads to high latency, too short pulling period wastes CPU and I/O resources).
-* The throughput is not optimal because it takes one request/response to send each item.
+* The throughput is not optimal because it takes one request and response to send each item.
 * The consumer can not determine if the producer is done sending items.
 
-When using the Iterator pattern that transmits items one at a time, latency and throughput are often unsatisfactory. To improve these parameters with minimal changes, the same Iterator pattern is often used, which transmits items in batches of fixed or variable size.
+When using the Iterator pattern that transmits items one at a time, latency and throughput are often unsatisfactory. To improve these parameters with minimal changes, the same Iterator pattern can transmit items in batches instead of one at a time.
 
 ![Iterator with batching](/images/Iterator_with_batching.png)
 
@@ -90,7 +90,7 @@ Cons:
 
 ### Observer
 
-In the Observer pattern, one or many consumers subscribe to the producer's events. The producer asynchronously _pushes_ events to all subscribed consumers as soon as they become available. The consumer can unsubscribe from the producer at any time if it does not need further events.
+In the Observer pattern, one or many consumers subscribe to the producer's events. The producer asynchronously _pushes_ events to all subscribed consumers as soon as they become available. The consumer can unsubscribe from the producer if it does not need further events.
 
 ![Observer](/images/Observer.png)
 
@@ -185,7 +185,7 @@ In this situation, the choice is either to lose the events or to introduce addit
 
 <sub>Backpressure on the consumer side may be inefficient because dropped events require I/O operations to send them from the producer.</sub>
 
-Backpressure is a solution in reactive streams to the problem of informing the producer about the processing rate of its consumers. To start sending events from the producer, the consumer _pulls_ the number of events it wants to receive. Only then does the producer send events to the consumer, the producer never sends events on its own initiative. If the consumer is faster than the producer, he can work in the _push_ model and request all events immediately after subscribing. If the consumer is slower than the producer, he can work in the _pull_ model and request the next events only after the previous ones have been processed. So, the model in which reactive streams operate can be described as a _dynamic push/pull_ model. This model works effectively if the producer is faster or slower than the consumer, or even that ratio can change over time.
+Backpressure is a solution in reactive streams to the problem of informing the producer about the processing rate of its consumers. To start sending events from the producer, the consumer _pulls_ the number of events it wants to receive. Only then does the producer send events to the consumer, the producer never sends events on its own initiative. If the consumer is faster than the producer, he can work in the _push_ model and request all events immediately after subscribing. If the consumer is slower than the producer, he can work in the _pull_ model and request the next events only after the previous ones have been processed. So, the model in which reactive streams operate can be described as a _dynamic push/pull_ model. This model works effectively if the producer is faster or slower than the consumer, or even when that ratio can change over time.
 
 There are several ways to deal with the backpressure on the producer:
 
@@ -215,7 +215,7 @@ The specification describes the concept of a _reactive stream_ that has the foll
 * Reactive Streams use _mandatory backpressure_: consumers can request events from the producer according to their consumption rate.
 * Reactive Streams use _bounded buffers_: they can be implemented without unbounded buffers that can lead to out-of-memory errors.
 
-The Reactive Streams [specification for the JVM](https://github.com/reactive-streams/reactive-streams-jvm) (the latest version 1.0.4 was released on May 26th, 2022) contains the textual specification and the Java API that contains four interfaces that must be implemented according to this specification. There is also the Technology Compatibility Kit (TCK), a standard test suite for conformance testing of implementations.
+The Reactive Streams [specification for the JVM](https://github.com/reactive-streams/reactive-streams-jvm) (the latest version 1.0.4 was released on May 26th, 2022) contains the textual specification and the Java API that contains four interfaces that must be implemented according to this specification. They also include the Technology Compatibility Kit (TCK), a standard test suite for conformance testing of implementations.
 
 The Reactive Streams specification was created after several mature but incompatible implementations of Reactive Streams already existed. Therefore, the specification is currently limited and contains only low-level APIs. Application developers should use this specification to provide _interoperability_ between existing implementations. To have high-level functional APIs (transform, filter, combine, etc.), application developers should use implementations of this specification (Lightbend Akka Streams, Pivotal Project Reactor, Netflix RxJava, etc.) by their native APIs.
 
@@ -252,7 +252,7 @@ This interface has the following method:
 
 
 
-* The _Publisher#subscribe(Subscriber)_ method requests the Publisher to start sending events to the Subscriber.
+* The _Publisher.subscribe(Subscriber)_ method requests the Publisher to start sending events to the Subscriber.
 
 
 ### Subscriber
@@ -319,13 +319,13 @@ public interface Processor<T, R> extends Subscriber<T>, Publisher<R> {
 
 ## The Reactive Streams workflow
 
-When a Subscriber wants to start receiving events from a Publisher, it calls the _Publisher#subscribe(Subscriber)_ method and passes itself as a parameter. If the _Publisher_ accepts the request, it creates a new _Subscription_ object and invokes the _Subscriber#onSubscribe(Subscription)_ method with it. If the Publisher rejects the request or otherwise fails (for example, it has already subscribed), it invokes the _Subscriber#onError(Throwable)_ method.
+When a Subscriber wants to start receiving events from a Publisher, it calls the _Publisher.subscribe(Subscriber)_ method and passes itself as a parameter. If the Publisher accepts the request, it creates a new Subscription object and invokes the _Subscriber.onSubscribe(Subscription)_ method with it. If the Publisher rejects the request or otherwise fails (for example, it has already subscribed), it invokes the _Subscriber.onError(Throwable)_ method.
 
-Once the connection between Publisher and Subscriber is established through the Subscription object, the Subscriber can request events and the Publisher can send them. When the Subscriber wants to receive events, it calls the _Subscription#request(long)_ method with a number of items requested. Typically, the first such call occurs in the _Subscriber#onSubscribe_ method. If the Subscriber wants to stop receiving events, it calls the _Subscription#cancel()_ method. After this method is called, the Subscriber can continue to receive events to meet the previously requested demand. A canceled Subscription does not receive _Subscriber#onComplete()_ or _Subscriber#onError(Throwable)_ events.
+Once the connection between Publisher and Subscriber is established through the Subscription object, the Subscriber can request events and the Publisher can send them. When the Subscriber wants to receive events, it calls the _Subscription#request(long)_ method with a number of items requested. Typically, the first such call occurs in the _Subscriber.onSubscribe_ method. If the Subscriber wants to stop receiving events, it calls the _Subscription#cancel()_ method. After this method is called, the Subscriber can continue to receive events to meet the previously requested demand. A canceled Subscription does not receive _Subscriber.onComplete()_ or _Subscriber.onError(Throwable)_ events.
 
-The Producer sends each requested event by calling the _Subscriber#onNext(T)_ method only in response to a previous request by the _Subscription#request(long)_ method, but never by itself. A Publisher can send fewer events than is requested if the stream ends but then must call either the _Subscriber#onError(Throwable)_ or _Subscriber#onComplete()_ methods. After invocation of _Subscriber#onError(Throwable)_ or _Subscriber#onComplete()_ events, the current Subscription will not send any other events to the Subscriber.
+The Producer sends each requested event by calling the _Subscriber.onNext(T)_ method only in response to a previous request by the _Subscription#request(long)_ method, but never by itself. A Publisher can send fewer events than is requested if the stream ends but then must call either the _Subscriber.onError(Throwable)_ or _Subscriber.onComplete()_ methods. After invocation of _Subscriber.onError(Throwable)_ or _Subscriber.onComplete()_ events, the current Subscription will not send any other events to the Subscriber.
 
-When there are no more events, the Publisher completes the Subscription normally by calling the _Subscriber#onCompleted()_ method. When an unrecoverable exception occurs in the Publisher, it completes the Subscription exceptionally by calling the _Subscriber#onError(Throwable)_ method.
+When there are no more events, the Publisher completes the Subscription normally by calling the _Subscriber.onCompleted()_ method. When an unrecoverable exception occurs in the Publisher, it completes the Subscription exceptionally by calling the _Subscriber.onError(Throwable)_ method.
 
 <sub>To make a reactive stream <em>push</em>-based, a Consumer can call the <em>Subscription#request(long)</em> method once with the parameter <em>Long.MAX_VALUE</em>. To make a reactive stream <em>pull</em>-based, a Consumer can call the <em>Subscription#request(long)</em> method with parameter <em>1</em> every time it is ready to handle the next event.</sub>
 
@@ -339,4 +339,4 @@ Reactive Streams started to be supported in JDK 9 in the form of the Flow API. T
 
 Reactive streams take a proper place among other parallel and concurrent Java frameworks. Before they appeared in the JDK, there were slightly related CompletableFuture and Stream APIs. CompletableFuture uses the _push_ model but supports asynchronous computations of a single value. Stream supports sequential or parallel computations of multiple values but uses the _pull_ model. Reactive streams have taken a vacant place that supports synchronous or asynchronous computations of multiple values and additionally can dynamically switch between the _push_ and _pull_ models. Reactive streams are suitable for processing possible unbounded sequences of events with unpredictable rates, such as mouse and keyboard events, sensor events, latency-bound I/O events from file or network, etc.
 
-Application developers should not implement the interfaces of the Reactive Streams specification themselves. The specification is complex enough, especially in concurrent publisher-subscriber contracts to be implemented correctly. Also, the specification does not contain APIs for intermediate stream operations. They should use stream components (producers, processors, consumers) from existing frameworks and use the Reactive Streams API only to connect them together. Then application developers should use the much richer native frameworks APIs.
+Application developers should not implement the interfaces of the Reactive Streams specification themselves. The specification is complex enough, especially in concurrent publisher-subscriber contracts to be implemented correctly. Also, the specification does not contain APIs for intermediate stream operations. They should use stream components (producers, processors, consumers) from existing frameworks and use the Reactive Streams API only to connect them. Then application developers should use the much richer native frameworks APIs.

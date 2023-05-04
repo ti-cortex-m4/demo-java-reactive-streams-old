@@ -6,7 +6,7 @@
 
 ### Synchronous Publisher
 
-The following code example demonstrates a synchronous Publisher that sends a finite sequence of items from Iterator. The _synchronous_ Publisher processes its _subscribe_ method and the Subscriptions’ _request_ and _cancel_ methods in the caller’s thread. This Publisher is _multicast_ and can send items to multiple Subscribers, storing information about each connection in a private implementation of the Subscription interface. This includes the current Iterator instance, the demand (the aggregated number of items requested by a Subscriber which is yet to be fulfilled by the Publisher) and the connection cancellation flag. To make a _cold_ Publisher that sends the same sequence of items for each Subscriber, the Publisher stores a Supplier that must return a new Iterator instance for each new Subscription. The Publisher uses different types of error handling (throwing an exception or calling the onError handler) according to the Reactive Streams specification.
+The following code example demonstrates a synchronous Publisher that sends a finite sequence of events from Iterator. The _synchronous_ Publisher processes its _subscribe_ method and the Subscriptions’ _request_ and _cancel_ methods in the caller’s thread. This Publisher is _multicast_ and can send items to multiple Subscribers, storing information about each connection in a private implementation of the Subscription interface. This includes the current Iterator instance, the demand (the aggregated number of items requested by a Subscriber which is yet to be fulfilled by the Publisher) and the connection cancellation flag. To make a _cold_ Publisher that sends the same sequence of events for each Subscriber, the Publisher stores a Supplier that must return a new Iterator instance for each new Subscription. The Publisher uses different types of error handling (throwing an exception or calling the onError handler) according to the Reactive Streams specification.
 
 <sub>The GitHub repository has unit tests to verify that this Publisher complies with all the specification rules that are checked in its TCK.</sub>
 
@@ -72,7 +72,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
            }
 
            for (;;) {
-               long oldDemand = demand.getAcquire();
+               long oldDemand = demand.get();
                if (oldDemand == Long.MAX_VALUE) {
                    // By rule 3.17, a demand equal or greater than Long.MAX_VALUE may be considered by the Publisher as "effectively unbounded".
                    return;
@@ -241,7 +241,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 
 ### Synchronous reactive stream
 
-The following code example demonstrates that the _multicast_ synchronous Publisher sends the same sequence of items (_[The quick brown fox jumps over the lazy dog](https://en.wikipedia.org/wiki/The_quick_brown_fox_jumps_over_the_lazy_dog)_ pangram) to two synchronous Subscribers.
+The following code example demonstrates that the _multicast_ synchronous Publisher sends the same sequence of events (_[The quick brown fox jumps over the lazy dog](https://en.wikipedia.org/wiki/The_quick_brown_fox_jumps_over_the_lazy_dog)_ pangram) to two synchronous Subscribers.
 
 
 ```
@@ -259,7 +259,7 @@ subscriber2.awaitCompletion();
 ```
 
 
-The following log demonstrates that the synchronous Publisher sends the sequence of items in the caller's thread, and the synchronous Subscribers receive the sequence of items in the Publisher's thread (the same caller's thread) _one at a time_.
+The following log demonstrates that the synchronous Publisher sends the sequence of events in the caller's thread, and the synchronous Subscribers receive the sequence of events in the Publisher's thread (the same caller's thread) _one at a time_.
 
 
 ```
@@ -313,7 +313,7 @@ The following log demonstrates that the synchronous Publisher sends the sequence
 
 ### Asynchronous Publisher
 
-The following code example demonstrates an asynchronous Publisher that sends a finite sequence of items from Iterator. Its structure is similar to the synchronous Producer discussed earlier. The main difference is that the Publisher's _onSubscribe_ method and the Subscription’s _request_ and _cancel_ methods are not processed in the caller's thread, but in another thread in a given Executor.
+The following code example demonstrates an asynchronous Publisher that sends a finite sequence of events from Iterator. Its structure is similar to the synchronous Producer discussed earlier. The main difference is that the Publisher's _onSubscribe_ method and the Subscription’s _request_ and _cancel_ methods are not processed in the caller's thread, but in another thread in a given Executor.
 
 <sub>The GitHub repository has unit tests to verify that this Publisher complies with all the specification rules that are checked in its TCK.</sub>
 
@@ -791,7 +791,7 @@ The asynchronous Consumer uses the same ConcurrentLinkedQueue queue and AtomicBo
 
 ### Asynchronous reactive stream
 
-The following code example demonstrates that the _multicast_ asynchronous Publisher sends the same sequence of items (the same pangram) to two asynchronous Subscribers.
+The following code example demonstrates that the _multicast_ asynchronous Publisher sends the same sequence of events (the same pangram) to two asynchronous Subscribers.
 
 
 ```
@@ -814,7 +814,7 @@ executorService.awaitTermination(60, TimeUnit.SECONDS);
 ```
 
 
-The following log shows that the asynchronous Publisher sends the sequence of items in a separate thread, and the asynchronous Subscribers receive the sequence of items also in a separate thread _at the same time_.
+The following log shows that the asynchronous Publisher sends the sequence of events in a separate thread, and the asynchronous Subscribers receive the sequence of events also in a separate thread _at the same time_.
 
 
 ```
