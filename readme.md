@@ -352,7 +352,7 @@ The Publisher sends each requested event by calling the _Subscriber.onNext(T)_ m
 
 When there are no more events, the Publisher completes the Subscription normally by calling the _Subscriber.onCompleted()_ method. When an unrecoverable exception occurs in the Publisher, it completes the Subscription exceptionally by calling the _Subscriber.onError(Throwable)_ method.
 
-<sub>To make a reactive stream <em>push</em>-based, a Subsriber can call the <em>Subscription#request(long)</em> method once with the parameter <em>Long.MAX_VALUE</em>. To make a reactive stream <em>pull</em>-based, a Subsriber can call the <em>Subscription#request(long)</em> method with parameter <em>1</em> every time it is ready to handle the next event.</sub>
+<sub>To make a reactive stream <em>push</em>-based, a Subscriber can call the <em>Subscription#request(long)</em> method once with the parameter <em>Long.MAX_VALUE</em>. To make a reactive stream <em>pull</em>-based, a Subscriber can call the <em>Subscription#request(long)</em> method with parameter <em>1</em> every time it is ready to handle the next event.</sub>
 
 
 ## The JDK Flow API
