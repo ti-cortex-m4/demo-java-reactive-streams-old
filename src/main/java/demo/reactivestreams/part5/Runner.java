@@ -22,9 +22,9 @@ public class Runner {
             processor.subscribe(subscriber);
             publisher.subscribe(processor);
 
-            TimeUnit.SECONDS.sleep(60);
+            TimeUnit.SECONDS.sleep(180);
 
-            logger.info("runner.close");
+            logger.info("publisher.close");
             publisher.close();
 
             subscriber.awaitCompletion();
