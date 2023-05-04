@@ -11,7 +11,7 @@ The following code example demonstrates a synchronous Publisher that sends a fin
 <sub>The GitHub repository has unit tests to verify that this Publisher complies with all the specification rules that are checked in its TCK.</sub>
 
 
-```
+```java
 public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
    private final Supplier<Iterator<? extends T>> iteratorSupplier;
