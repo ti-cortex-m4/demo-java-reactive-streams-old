@@ -43,12 +43,10 @@ public class PathWatchServiceSubmissionPublisher extends SubmissionPublisher<Wat
                             continue;
                         }
 
-                        WatchEvent<Path> pathEvent = (WatchEvent<Path>) event;
-//                        Path path = folder.resolve(pathEvent.context());
+                        WatchEvent<Path> watchEvent = (WatchEvent<Path>) event;
 
-//                        FolderWatchEvent item = new FolderWatchEvent(pathEvent, path);
-                        logger.info("publisher.submit {}", pathEvent);
-                        submit(pathEvent);
+                        logger.info("publisher.submit {}", watchEvent);
+                        submit(watchEvent);
                     }
 
                     boolean valid = key.reset();

@@ -9,7 +9,8 @@ import java.nio.file.WatchEvent;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 
-public class WatchEventSubmissionProcessor extends SubmissionPublisher<String> implements Flow.Processor<WatchEvent<Path>, String> {
+public class WatchEventSubmissionProcessor extends SubmissionPublisher<String>
+    implements Flow.Processor<WatchEvent<Path>, String> {
 
     private static final Logger logger = LoggerFactory.getLogger(WatchEventSubmissionProcessor.class);
 
@@ -23,18 +24,18 @@ public class WatchEventSubmissionProcessor extends SubmissionPublisher<String> i
     }
 
     @Override
-    public void onNext(WatchEvent<Path> item) {
-        logger.info("processor.next: {}", item);
-        if (item.kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
-            submit(String.format("file %s is %s", item.context(), item.kind()));
+    public void onNext(WatchEvent<Path> watchEvent) {
+        logger.info("processor.next: {}", watchEvent);
+        if (watchEvent.kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
+            submit(String.format("file %s is %s", watchEvent.context(), watchEvent.kind()));
         }
         subscription.request(1);
     }
 
     @Override
-    public void onError(Throwable throwable) {
-        logger.error("processor.error", throwable);
-        closeExceptionally(throwable);
+    public void onError(Throwable t) {
+        logger.error("processor.error", t);
+        closeExceptionally(t);
     }
 
     @Override
