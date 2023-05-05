@@ -30,10 +30,10 @@ public class WatchEventSubmissionProcessor extends SubmissionPublisher<String>
 
     @Override
     public void onNext(WatchEvent<Path> watchEvent) {
-        logger.info("processor.next: {} {}", watchEvent.context(), watchEvent.kind());
+        logger.info("processor.next: path {}, action {}", watchEvent.context(), watchEvent.kind());
         if (watchEvent.context().toString().endsWith(extension)) {
             logger.info("processor.submit");
-            submit(String.format("file: '%s', action: %s", watchEvent.context(), watchEvent.kind()));
+            submit(String.format("path '%s', action %s", watchEvent.context(), watchEvent.kind()));
         } else {
             logger.info("processor.skip");
         }

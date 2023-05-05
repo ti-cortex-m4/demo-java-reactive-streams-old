@@ -45,7 +45,7 @@ public class WatchServiceSubmissionPublisher extends SubmissionPublisher<WatchEv
 
                         WatchEvent<Path> watchEvent = (WatchEvent<Path>) event;
 
-                        logger.info("publisher.submit {} {}", watchEvent.context(), watchEvent.kind());
+                        logger.info("publisher.submit: path {}, action {}", watchEvent.context(), watchEvent.kind());
                         submit(watchEvent);
                     }
 
