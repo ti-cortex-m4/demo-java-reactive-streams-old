@@ -16,10 +16,6 @@
 16:59:56.476 ForkJoinPool.commonPool-worker-1 publisher.submit: path that.docx, action ENTRY_CREATE
 
 16:59:56.476 ForkJoinPool.commonPool-worker-7 processor.next: path that.docx, action ENTRY_CREATE
-16:59:57.917 ForkJoinPool.commonPool-worker-1 publisher.submit: path ~$that.docx, action ENTRY_CREATE
-16:59:57.917 ForkJoinPool.commonPool-worker-7 processor.next: path ~$that.docx, action ENTRY_CREATE
-16:59:57.917 ForkJoinPool.commonPool-worker-1 publisher.submit: path ~$that.docx, action ENTRY_MODIFY
-16:59:57.917 ForkJoinPool.commonPool-worker-7 processor.next: path ~$that.docx, action ENTRY_MODIFY
 
 
 
@@ -48,8 +44,6 @@
 
 
 
-17:00:01.081 ForkJoinPool.commonPool-worker-1 publisher.submit: path ~$that.docx, action ENTRY_DELETE
-17:00:01.082 ForkJoinPool.commonPool-worker-7 processor.next: path ~$that.docx, action ENTRY_DELETE
 
 
 17:00:04.373 ForkJoinPool.commonPool-worker-1 publisher.submit: path that.docx, action ENTRY_DELETE
