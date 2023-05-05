@@ -13,18 +13,13 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(SyncSubscriber.class);
 
-    private final int id;
     private final AtomicReference<Flow.Subscription> subscription = new AtomicReference<>();
     private final AtomicBoolean cancelled = new AtomicBoolean(false);
     private final CountDownLatch completed = new CountDownLatch(1);
 
-    public SyncSubscriber(int id) {
-        this.id = id;
-    }
-
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
-        logger.info("({}) subscriber.subscribe: {}", id, subscription);
+        logger.info("subscriber.subscribe: {}", subscription);
         // By rule 2.13, calling onSubscribe must throw a NullPointerException when the given parameter is null.
         Objects.requireNonNull(subscription);
 
@@ -40,7 +35,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 
     @Override
     public void onNext(T item) {
-        logger.info("({}) subscriber.next: {}", id, item);
+        logger.info("subscriber.next: {}", item);
         // By rule 2.13, calling onNext must throw a NullPointerException when the given parameter is null.
         Objects.requireNonNull(item);
 
@@ -58,7 +53,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 
     @Override
     public void onError(Throwable t) {
-        logger.error("({}) subscriber.error", id, t);
+        logger.error("subscriber.error", t);
         // By rule 2.13, calling onError must throw a NullPointerException when the given parameter is null.
         Objects.requireNonNull(t);
 
@@ -69,7 +64,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 
     @Override
     public void onComplete() {
-        logger.info("({}) subscriber.complete", id);
+        logger.info("subscriber.complete");
 
         // By rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled after having received the signal.
         cancelled.set(true);

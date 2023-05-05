@@ -1,6 +1,5 @@
 package demo.reactivestreams.part5;
 
-import demo.reactivestreams.part1.SyncSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +19,7 @@ public class WatchServiceRunner {
         try (SubmissionPublisher<WatchEvent<Path>> publisher = new WatchServiceSubmissionPublisher(folderName);
              WatchEventSubmissionProcessor processor = new WatchEventSubmissionProcessor(extension)) {
 
-            SyncSubscriber<String> subscriber = new SyncSubscriber<>(1);
+            SyncSubscriber<String> subscriber = new SyncSubscriber<>();
             processor.subscribe(subscriber);
             publisher.subscribe(processor);
 
