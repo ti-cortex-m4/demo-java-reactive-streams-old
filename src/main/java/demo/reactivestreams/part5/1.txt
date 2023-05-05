@@ -1,55 +1,23 @@
 16:59:12.114 ForkJoinPool.commonPool-worker-2 subscriber.subscribe: java.util.concurrent.SubmissionPublisher$BufferedSubscription@172ba13e
 16:59:12.114 ForkJoinPool.commonPool-worker-3 processor.subscribe: java.util.concurrent.SubmissionPublisher$BufferedSubscription@7457599e
-
-
-
 16:59:37.500 ForkJoinPool.commonPool-worker-1 publisher.submit: path this.txt, action ENTRY_CREATE
-
 16:59:37.500 ForkJoinPool.commonPool-worker-2 processor.next: path this.txt, action ENTRY_CREATE
 16:59:40.282 ForkJoinPool.commonPool-worker-1 publisher.submit: path this.txt, action ENTRY_MODIFY
 16:59:40.282 ForkJoinPool.commonPool-worker-6 processor.next: path this.txt, action ENTRY_MODIFY
 16:59:44.769 ForkJoinPool.commonPool-worker-1 publisher.submit: path this.txt, action ENTRY_DELETE
 16:59:44.769 ForkJoinPool.commonPool-worker-7 processor.next: path this.txt, action ENTRY_DELETE
-
-
-
 16:59:56.476 ForkJoinPool.commonPool-worker-1 publisher.submit: path that.docx, action ENTRY_CREATE
-
 16:59:56.476 ForkJoinPool.commonPool-worker-7 processor.next: path that.docx, action ENTRY_CREATE
-
-
-
-
-
-
-
-
-
-
 16:59:59.966 ForkJoinPool.commonPool-worker-1 publisher.submit: path that.docx, action ENTRY_DELETE
-
 16:59:59.966 ForkJoinPool.commonPool-worker-7 processor.next: path that.docx, action ENTRY_DELETE
-
-
 16:59:59.966 ForkJoinPool.commonPool-worker-1 publisher.submit: path that.docx, action ENTRY_CREATE
-
 16:59:59.966 ForkJoinPool.commonPool-worker-1 publisher.submit: path that.docx, action ENTRY_MODIFY
 16:59:59.966 ForkJoinPool.commonPool-worker-7 processor.next: path that.docx, action ENTRY_CREATE
 16:59:59.966 ForkJoinPool.commonPool-worker-7 processor.next: path that.docx, action ENTRY_MODIFY
 16:59:59.967 ForkJoinPool.commonPool-worker-1 publisher.submit: path that.docx, action ENTRY_MODIFY
 16:59:59.967 ForkJoinPool.commonPool-worker-7 processor.next: path that.docx, action ENTRY_MODIFY
-
-
-
-
-
-
-
-
 17:00:04.373 ForkJoinPool.commonPool-worker-1 publisher.submit: path that.docx, action ENTRY_DELETE
 17:00:04.373 ForkJoinPool.commonPool-worker-7 processor.next: path that.docx, action ENTRY_DELETE
-
-
 17:02:12.113 main                             publisher.close
 17:02:12.114 main                             publisher.close
 17:02:12.114 ForkJoinPool.commonPool-worker-6 processor.completed
