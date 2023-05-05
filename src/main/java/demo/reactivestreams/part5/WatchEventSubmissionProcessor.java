@@ -3,7 +3,6 @@ package demo.reactivestreams.part5;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.util.concurrent.Flow;
@@ -14,12 +13,12 @@ public class WatchEventSubmissionProcessor extends SubmissionPublisher<String>
 
     private static final Logger logger = LoggerFactory.getLogger(WatchEventSubmissionProcessor.class);
 
-    private final String extension;
+    private final String fileExtension;
 
     private Flow.Subscription subscription;
 
-    public WatchEventSubmissionProcessor(String extension) {
-        this.extension = extension;
+    public WatchEventSubmissionProcessor(String fileExtension) {
+        this.fileExtension = fileExtension;
     }
 
     @Override
@@ -32,8 +31,7 @@ public class WatchEventSubmissionProcessor extends SubmissionPublisher<String>
     @Override
     public void onNext(WatchEvent<Path> watchEvent) {
         logger.info("processor.next: path {}, action {}", watchEvent.context(), watchEvent.kind());
-        Path path = watchEvent.context();
-        if (Files.isRegularFile(path) && path.toString().endsWith(extension)) {
+        if (watchEvent.context().toString().endsWith(fileExtension)) {
             logger.info("processor.submit");
             submit(String.format("file %s, action %s", watchEvent.context(), watchEvent.kind()));
         }

@@ -14,10 +14,10 @@ public class WatchServiceRunner {
 
     public static void main(String[] args) throws InterruptedException {
         String folderName = System.getProperty("user.home");
-        String extension = ".txt";
+        String fileExtension = ".txt";
 
         try (SubmissionPublisher<WatchEvent<Path>> publisher = new WatchServiceSubmissionPublisher(folderName);
-             WatchEventSubmissionProcessor processor = new WatchEventSubmissionProcessor(extension)) {
+             WatchEventSubmissionProcessor processor = new WatchEventSubmissionProcessor(fileExtension)) {
 
             SyncSubscriber<String> subscriber = new SyncSubscriber<>();
             processor.subscribe(subscriber);
@@ -25,7 +25,7 @@ public class WatchServiceRunner {
 
             TimeUnit.SECONDS.sleep(180);
 
-            logger.info("publisher.close");
+            logger.info("runner.close");
             publisher.close();
 
             subscriber.awaitCompletion();
