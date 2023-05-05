@@ -8,9 +8,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.SubmissionPublisher;
 
-public class RunnerSubmissionPublisher {
+public class SubmissionPublisherRunner {
 
-    private static final Logger logger = LoggerFactory.getLogger(RunnerSubmissionPublisher.class);
+    private static final Logger logger = LoggerFactory.getLogger(SubmissionPublisherRunner.class);
 
     public static void main(String[] args) throws InterruptedException {
         SubmissionPublisher<String> publisher = new SubmissionPublisher<>();

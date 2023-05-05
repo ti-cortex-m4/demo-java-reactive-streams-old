@@ -6,17 +6,18 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
-import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
 
-public class Runner {
+public class WatchServiceRunner {
 
-    private static final Logger logger = LoggerFactory.getLogger(Runner.class);
+    private static final Logger logger = LoggerFactory.getLogger(WatchServiceRunner.class);
 
     public static void main(String[] args) throws InterruptedException {
-        try (SubmissionPublisher<WatchEvent<Path>> publisher = new PathWatchServiceSubmissionPublisher(System.getProperty("user.home"));
-             WatchEventSubmissionProcessor processor = new WatchEventSubmissionProcessor()) {
+        String folderName = System.getProperty("user.home");
+        String extension = ".txt";
+        try (SubmissionPublisher<WatchEvent<Path>> publisher = new WatchServiceSubmissionPublisher(folderName);
+             WatchEventSubmissionProcessor processor = new WatchEventSubmissionProcessor(extension)) {
 
             SyncSubscriber<String> subscriber = new SyncSubscriber<>(1);
             processor.subscribe(subscriber);

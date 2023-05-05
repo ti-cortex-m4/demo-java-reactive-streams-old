@@ -1,25 +1,25 @@
 package demo.reactivestreams.part3;
 
-import demo.reactivestreams.part1.SyncSubscriber;
-import demo.reactivestreams.part2.AsyncIteratorPublisher;
+import demo.reactivestreams.part1.SyncIteratorPublisher;
+import demo.reactivestreams.part2.AsyncSubscriber;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class RunnerAsyncPublisherSyncSubscriber {
+public class SyncPublisherAsyncSubscriberRunner {
 
     public static void main(String[] args) throws InterruptedException {
-        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
 
         List<String> words = List.of("The quick brown fox jumps over the lazy dog.".split(" "));
-        AsyncIteratorPublisher<String> publisher = new AsyncIteratorPublisher<>(() -> List.copyOf(words).iterator(), 1024, executorService);
+        SyncIteratorPublisher<String> publisher = new SyncIteratorPublisher<>(() -> List.copyOf(words).iterator());
 
-        SyncSubscriber<String> subscriber1 = new SyncSubscriber<>(1);
+        AsyncSubscriber<String> subscriber1 = new AsyncSubscriber<>(1, executorService);
         publisher.subscribe(subscriber1);
 
-        SyncSubscriber<String> subscriber2 = new SyncSubscriber<>(2);
+        AsyncSubscriber<String> subscriber2 = new AsyncSubscriber<>(2, executorService);
         publisher.subscribe(subscriber2);
 
         subscriber1.awaitCompletion();

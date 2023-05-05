@@ -2,7 +2,7 @@ package demo.reactivestreams.part1;
 
 import java.util.List;
 
-public class RunnerSyncPublisherSyncSubscriber {
+public class SyncPublisherSyncSubscriberRunner {
 
     public static void main(String[] args) throws InterruptedException {
         List<String> words = List.of("The quick brown fox jumps over the lazy dog.".split(" "));

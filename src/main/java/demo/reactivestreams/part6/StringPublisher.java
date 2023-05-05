@@ -1,6 +1,5 @@
 package demo.reactivestreams.part6;
 
-import demo.reactivestreams.part4.RunnerSubmissionPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

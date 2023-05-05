@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
-import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
@@ -14,7 +13,13 @@ public class WatchEventSubmissionProcessor extends SubmissionPublisher<String>
 
     private static final Logger logger = LoggerFactory.getLogger(WatchEventSubmissionProcessor.class);
 
+    private final String extension;
+
     private Flow.Subscription subscription;
+
+    public WatchEventSubmissionProcessor(String extension) {
+        this.extension = extension;
+    }
 
     @Override
     public void onSubscribe(Flow.Subscription subscription) {
@@ -25,9 +30,11 @@ public class WatchEventSubmissionProcessor extends SubmissionPublisher<String>
 
     @Override
     public void onNext(WatchEvent<Path> watchEvent) {
-        logger.info("processor.next: {}", watchEvent);
-        if (watchEvent.kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
+        logger.info("processor.next: {} {}", watchEvent.context(), watchEvent.kind());
+        if (watchEvent.context().toString().endsWith(extension)) {
             submit(String.format("file %s is %s", watchEvent.context(), watchEvent.kind()));
+        } else {
+            logger.info("processor.skip");
         }
         subscription.request(1);
     }
