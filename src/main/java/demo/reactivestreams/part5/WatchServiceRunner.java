@@ -16,6 +16,7 @@ public class WatchServiceRunner {
     public static void main(String[] args) throws InterruptedException {
         String folderName = System.getProperty("user.home");
         String extension = ".txt";
+
         try (SubmissionPublisher<WatchEvent<Path>> publisher = new WatchServiceSubmissionPublisher(folderName);
              WatchEventSubmissionProcessor processor = new WatchEventSubmissionProcessor(extension)) {
 
