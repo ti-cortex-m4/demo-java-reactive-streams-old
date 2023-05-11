@@ -33,7 +33,6 @@ public class WatchEventSubmissionProcessor extends SubmissionPublisher<String>
     public void onNext(WatchEvent<Path> watchEvent) {
         logger.info("processor.next: path {}, action {}", watchEvent.context(), watchEvent.kind());
         if (watchEvent.context().toString().endsWith(fileExtension)) {
-            logger.info("processor.submit");
             submit(String.format("file %s is %s", watchEvent.context(), decode(watchEvent.kind())));
         }
         subscription.request(1);
