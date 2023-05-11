@@ -31,8 +31,8 @@ public class WatchServiceSubmissionPublisher extends SubmissionPublisher<WatchEv
                 Path folder = Paths.get(folderName);
                 folder.register(watchService,
                     StandardWatchEventKinds.ENTRY_CREATE,
-                    StandardWatchEventKinds.ENTRY_DELETE,
-                    StandardWatchEventKinds.ENTRY_MODIFY
+                    StandardWatchEventKinds.ENTRY_MODIFY,
+                    StandardWatchEventKinds.ENTRY_DELETE
                 );
 
                 WatchKey key;

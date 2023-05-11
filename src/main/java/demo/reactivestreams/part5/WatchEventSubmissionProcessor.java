@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
+import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
@@ -33,9 +34,21 @@ public class WatchEventSubmissionProcessor extends SubmissionPublisher<String>
         logger.info("processor.next: path {}, action {}", watchEvent.context(), watchEvent.kind());
         if (watchEvent.context().toString().endsWith(fileExtension)) {
             logger.info("processor.submit");
-            submit(String.format("path %s, action %s", watchEvent.context(), watchEvent.kind()));
+            submit(String.format("file %s is %s", watchEvent.context(), decode(watchEvent.kind())));
         }
         subscription.request(1);
+    }
+
+    private String decode(WatchEvent.Kind<Path> kind) {
+        if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
+            return "created";
+        } else if (kind == StandardWatchEventKinds.ENTRY_MODIFY) {
+            return "modified";
+        } else if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
+            return "deleted";
+        } else {
+            throw new RuntimeException();
+        }
     }
 
     @Override
