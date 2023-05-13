@@ -1,22 +1,48 @@
+<!-- Output copied to clipboard! -->
+
+<!-----
+
+Yay, no errors, warnings, or alerts!
+
+Conversion time: 0.483 seconds.
+
+
+Using this Markdown file:
+
+1. Paste this output into your source file.
+2. See the notes and action items below regarding this conversion run.
+3. Check the rendered output (headings, lists, code blocks, tables) for proper
+   formatting and use a linkchecker before you publish this page.
+
+Conversion notes:
+
+* Docs to Markdown version 1.0β34
+* Fri May 12 2023 23:26:56 GMT-0700 (PDT)
+* Source doc: #2
+* This is a partial selection. Check to make sure intra-doc links work.
+----->
+
+
+
 # Reactive Streams specification in Java
 
 
 ## Introduction
 
-_Reactive Streams_ is a cross-platform specification for processing a possibly unbounded sequence of events across asynchronous boundaries (threads, actors, processes, or network-connected computers) with non-blocking backpressure. A reactive stream contains a publisher, which sends forward _data_, _error_, _completion_ events, and subscribers, which send backward _request_ and _cancel_ backpressure events. There may be intermediate event processors between the publisher and the subscribers.
+_Reactive Streams_ is a cross-platform specification for processing a possibly unlimited sequence of events across asynchronous boundaries (threads, actors, processes, or network-connected computers) with non-blocking backpressure. A reactive stream contains a publisher, which sends forward _data_, _error_, _completion_ events, and subscribers, which send backward _request_ and _cancel_ backpressure events. There can also be intermediate processors between the publisher and the subscribers that filter or modify events.
 
-<sub>Backpressure is application-level flow control from the subscriber to the publisher to control the emission rate.</sub>
+<sub>Backpressure is application-level flow control from the subscriber to the publisher to control the sending rate.</sub>
 
-The Reactive Streams specification was created to solve two problems. First, to create a solution for processing time-ordered sequences of events with automatic switching between _push_ and _pull_ models based on the consumption rate and without unbounded buffering. Second, to create an interoperable solution that can be used in different frameworks, environments, and networks.
+The Reactive Streams specification is designed to efficiently process (in terms of CPU and memory usage) time-ordered sequences of events. For efficient CPU usage, the specification describes the rules for asynchronous and non-blocking processing in various stages (producers, processors, consumers). For efficient memory usage, the specification describes the rules for switching between _push_ and _pull_ communication models based on the consumption rate, which avoids using unbounded buffers.
 
 
 ## Problems and solutions
 
-When transmitting items from the producer to the consumer, the goal is to send items with minimal latency and maximum throughput.
+When designing systems for transferring items from the producer to the consumer, the goal is to send them with minimal latency and maximum throughput.
 
-<sub>Latency is the time between the generation of an item at the producer and its arrival at the consumer. Throughput is the number of items sent from producer to consumer per unit of time.</sub>
+<sub>Latency is the time between sending an item from the producer and its receiving by the consumer. Throughput is the number of items sent from producer to consumer per unit of time.</sub>
 
-However, the producer and the consumer may have limitations that can prevent the best performance from being achieved:
+However, the producer and the consumer may have limitations that can prevent the system from achieving the best performance:
 
 
 
@@ -35,7 +61,7 @@ There are several patterns for sequential item processing that solve some or mos
 * Reactive Extensions
 * Reactive Streams
 
-These patterns fall into two groups: synchronous _pull_ models (in which the consumer determines when to request items from the producer) and asynchronous _push_ models (in which the producer determines when to send items to the consumer).
+These patterns are divided into two groups: synchronous _pull_ communication models (in which the consumer determines when to receive items from the producer) and asynchronous _push_ communication models (in which the producer determines when to send items to the consumer).
 
 
 ### Iterator
@@ -50,7 +76,7 @@ Pros:
 
 * The consumer can start the exchange at any time.
 * The consumer cannot request the next item if he has not yet processed the previous one.
-* The consumer can stop the exchange at any time.
+* The consumer can stop communication at any time.
 
 Cons:
 
@@ -58,9 +84,9 @@ Cons:
 
 * The latency may not be optimal due to an incorrectly chosen pulling period (too long pulling period leads to high latency, too short pulling period wastes CPU and I/O resources).
 * The throughput is not optimal because it takes one request-response to send each item.
-* The consumer cannot determine if the producer is done sending items.
+* The consumer cannot determine if the producer has finished generating items.
 
-When using the Iterator pattern, which transmits items one at a time, latency and throughput are often unsatisfactory. To improve these parameters with minimal changes, the same Iterator pattern can transmit items in batches instead of one at a time.
+When using the Iterator pattern, which transfers items one at a time, latency and throughput are often unsatisfactory. To improve these parameters with minimal changes, the same Iterator pattern can transfer items in batches instead of one at a time.
 
 ![Iterator with batching](/images/Iterator_with_batching.png)
 
@@ -68,7 +94,7 @@ Pros:
 
 
 
-* Throughput increases as the number of requests/responses decreases from one for _each_ item to one for _all_ items in a batch.
+* Throughput increases as the number of requests/responses decreases from one for each item to one for all items in a batch.
 
 Cons:
 
@@ -76,8 +102,7 @@ Cons:
 
 * The latency increases because the producer needs more time to send more items.
 * If the batch size is too large, it may not fit in the memory of the producer or the consumer.
-* If the consumer wants to stop processing, he can do so no sooner than he receives the entire item batch.
-
+* If the consumer wants to stop processing, he can do so no sooner than he receives the entire batch.
 
 ### Observer
 
