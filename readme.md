@@ -1,35 +1,9 @@
-<!-- Output copied to clipboard! -->
-
-<!-----
-
-Yay, no errors, warnings, or alerts!
-
-Conversion time: 0.483 seconds.
-
-
-Using this Markdown file:
-
-1. Paste this output into your source file.
-2. See the notes and action items below regarding this conversion run.
-3. Check the rendered output (headings, lists, code blocks, tables) for proper
-   formatting and use a linkchecker before you publish this page.
-
-Conversion notes:
-
-* Docs to Markdown version 1.0β34
-* Fri May 12 2023 23:26:56 GMT-0700 (PDT)
-* Source doc: #2
-* This is a partial selection. Check to make sure intra-doc links work.
------>
-
-
-
 # Reactive Streams specification in Java
 
 
 ## Introduction
 
-_Reactive Streams_ is a cross-platform specification for processing a possibly unlimited sequence of events across asynchronous boundaries (threads, actors, processes, or network-connected computers) with non-blocking backpressure. A reactive stream contains a publisher, which sends forward _data_, _error_, _completion_ events, and subscribers, which send backward _request_ and _cancel_ backpressure events. There can also be intermediate processors between the publisher and the subscribers that filter or modify events.
+Reactive Streams is a cross-platform specification for processing a possibly unlimited sequence of events across asynchronous boundaries (threads, processes, or network-connected computers) with non-blocking backpressure. A reactive stream contains a publisher, which sends forward _data_, _error_, _completion_ events, and subscribers, which send backward _request_ and _cancel_ backpressure events. There can also be intermediate processors between the publisher and the subscribers that filter or modify events.
 
 <sub>Backpressure is application-level flow control from the subscriber to the publisher to control the sending rate.</sub>
 
@@ -76,7 +50,7 @@ Pros:
 
 * The consumer can start the exchange at any time.
 * The consumer cannot request the next item if he has not yet processed the previous one.
-* The consumer can stop communication at any time.
+* The consumer can stop the exchange at any time.
 
 Cons:
 
@@ -104,9 +78,10 @@ Cons:
 * If the batch size is too large, it may not fit in the memory of the producer or the consumer.
 * If the consumer wants to stop processing, he can do so no sooner than he receives the entire batch.
 
+
 ### Observer
 
-In the Observer pattern, one or many consumers subscribe to the producer's events. The producer asynchronously _pushes_ events to all subscribed consumers as soon as they become available. The consumer can unsubscribe from the producer if it does not need further events.
+In the Observer pattern, one or many consumers subscribe to the producer's events. The producer asynchronously _pushes_ events to all subscribed consumers as soon as they are generated. The consumer can unsubscribe from the producer if it does not need further events.
 
 ![Observer](/images/Observer.png)
 
@@ -116,15 +91,15 @@ Pros:
 
 * The consumer can start the exchange at any time.
 * The consumer can stop the exchange at any time.
-* The latency is lower than in synchronous _pull_ models because the producer sends events to the consumer as soon as they become available.
+* The latency is lower than in synchronous _pull_ communication models because the producer sends events to the consumer as soon as they become available.
 
 Cons:
 
 
 
 * A slower consumer may be overwhelmed by events from a faster producer.
-* The consumer cannot determine if the producer has finished sending events.
-* Implementing a concurrent producer may be non-trivial.
+* The consumer cannot determine when the producer has finished generating items.
+* Implementing concurrent producers and consumers may be non-trivial.
 
 
 ### Reactive Extensions
@@ -133,7 +108,7 @@ Reactive Extensions (ReactiveX) is a family of multi-platform frameworks for han
 
 <sub>The implementation of Reactive Extensions for Java is the Netflix RxJava framework.</sub>
 
-In a simplified way, Reactive Extensions are a combination of the Observer and Iterator patterns and functional programming. From the Observer pattern, they took the ability of the consumer to subscribe to producer events. From the Iterator pattern, they took the ability to handle event streams of three types (data, error, completion). From functional programming, they took the ability to handle event streams with chained methods (transform, filter, combine, etc.).
+In a simplified way, Reactive Extensions are a combination of the Observer and Iterator patterns and functional programming. From the Observer pattern, they took the consumer’s ability to subscribe to the producer’s events. From the Iterator pattern, they took the ability to handle event streams of three types (data, error, termination). From functional programming, they took the ability to handle event streams with chained methods (transform, filter, combine, etc.).
 
 ![Reactive Extensions](/images/Reactive_Extensions.png)
 
@@ -143,9 +118,9 @@ Pros:
 
 * The consumer can start the exchange at any time.
 * The consumer can stop the exchange at any time.
-* The consumer can determine when the producer has finished sending events.
-* The latency is lower than in synchronous _pull_ models because the producer sends events to the consumer as soon as they become available.
-* The consumer can uniformly handle the stream of events of the three types (data, error, completion).
+* The consumer can determine when the producer has finished generating events.
+* The latency is lower than in synchronous _pull_ communication models because the producer sends events to the consumer as soon as they become available.
+* The consumer can uniformly handle event streams of three types (data, error, completion).
 * Handling event streams with chained methods can be easier than with nested event handlers.
 
 Cons:
@@ -153,14 +128,14 @@ Cons:
 
 
 * A slower consumer may be overwhelmed by events from a faster producer.
-* Implementing a concurrent producer may be non-trivial.
+* Implementing concurrent producers and consumers may be non-trivial.
 
 
 ### Reactive Streams
 
-Reactive Streams are a further development of Reactive Extensions, which were created to solve the problem of unbounded buffers, which can lead to crashes due to memory overflow. In a simplified way, Reactive Streams are a combination of Reactive Extensions and batching.
+Reactive Streams are a further development of Reactive Extensions, which use backpressure to match producer and consumer performance. In a simplified way, Reactive Streams are a combination of Reactive Extensions and batching.
 
-The main difference between them is who is the initiator of the exchange. In Reactive Extensions, a Publisher sends events to a Subscriber as soon as they become available and in any quantity. In Reactive Streams, a Publisher must send events to a Subscriber only after requesting them and no more than the requested quantity.
+The main difference between them is who is the initiator of the exchange. In Reactive Extensions, a Publisher sends events to a Subscriber as soon as they become available and in any quantity. In Reactive Streams, a Publisher must send events to a Subscriber only after they have been requested and no more than the requested quantity.
 
 ![Reactive Streams](/images/Reactive_Streams.png)
 
@@ -170,18 +145,17 @@ Pros:
 
 * The consumer can start the exchange at any time.
 * The consumer can stop the exchange at any time.
-* The consumer can determine when the producer has finished sending the events.
-* The latency is lower than in synchronous _pull_ models because the producer sends events to the consumer as soon as they become available.
-* The consumer can uniformly handle the stream of events of the three types (data, error, completion).
+* The consumer can determine when the producer has finished generating events.
+* The latency is lower than in synchronous _pull_ communication models because the producer sends events to the consumer as soon as they become available.
+* The consumer can uniformly handle event streams of three types (data, error, completion).
 * Handling event streams with chained methods can be easier than with nested event handlers.
-* The consumer can request events from the producer depending on its demand.
+* The consumer can request events from the producer depending on the need.
 
 Cons:
 
 
 
-* Implementing a concurrent producer may be non-trivial.
-
+* Implementing concurrent producers and consumers may be non-trivial.
 
 ## Backpressure
 
