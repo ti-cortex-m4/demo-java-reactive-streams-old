@@ -56,7 +56,7 @@ Cons:
 
 
 
-* The latency may not be optimal due to an incorrectly chosen pulling period (too long pulling period leads to high latency, too short pulling period wastes CPU and I/O resources).
+* The latency may not be optimal due to an incorrectly chosen pulling period (too long pulling period leads to high latency; too short pulling period wastes CPU and I/O resources).
 * The throughput is not optimal because it takes one request-response to send each item.
 * The consumer cannot determine if the producer has finished generating items.
 
@@ -104,11 +104,9 @@ Cons:
 
 ### Reactive Extensions
 
-Reactive Extensions (ReactiveX) is a family of multi-platform frameworks for handling synchronous or asynchronous event streams, originally created by Erik Meijer at Microsoft.
+Reactive Extensions (ReactiveX) is a family of multi-platform frameworks for handling synchronous or asynchronous event streams, originally created by Erik Meijer at Microsoft. The implementation of Reactive Extensions for Java is the Netflix RxJava framework.
 
-<sub>The implementation of Reactive Extensions for Java is the Netflix RxJava framework.</sub>
-
-In a simplified way, Reactive Extensions are a combination of the Observer and Iterator patterns and functional programming. From the Observer pattern, they took the consumer’s ability to subscribe to the producer’s events. From the Iterator pattern, they took the ability to handle event streams of three types (data, error, termination). From functional programming, they took the ability to handle event streams with chained methods (transform, filter, combine, etc.).
+In a simplified way, Reactive Extensions are a combination of the Observer and Iterator patterns and functional programming. From the Observer pattern, they took the consumer’s ability to subscribe to the producer’s events. From the Iterator pattern, they took the ability to handle event streams of three types (data, error, completion). From functional programming, they took the ability to handle event streams with chained methods (transform, filter, combine, etc.).
 
 ![Reactive Extensions](/images/Reactive_Extensions.png)
 
@@ -172,7 +170,7 @@ Without the use of backpressure, the consumer has a few solutions to deal with e
 
 <sub>Any solution that includes dropping events on the consumer may be inefficient because these events still require I/O operations to send them from the producer.</sub>
 
-The backpressure in reactive streams is implemented as follows. To start sending events from the producer, the consumer _pulls_ the number of items it wants to receive. Only then does the producer _push_ events to the consumer; the producer never sends them on its own initiative. After the consumer has processed all the requested events, this cycle is repeated. If the consumer is known to be faster than the producer, it can work in a _push_ communication model and request all items immediately after subscribing. If the consumer is known to be slower than the producer, it can work in a _pull_ communication model and request the next items only after the previous ones have been processed. Thus, the model in which reactive streams operate can be described as a _dynamic push/pull_ communication model. It works effectively if the producer is faster or slower than the consumer, or even when that ratio can change over time.
+The backpressure in reactive streams is implemented as follows. To start receiving events from the producer, the consumer _pulls_ the number of items it wants to receive. Only then does the producer _push_ events to the consumer; the producer never sends them on its own initiative. After the consumer has processed all the requested events, this cycle is repeated. In a particular case, if the consumer is known to be faster than the producer, it can work in a _push_ communication model and request all items immediately after subscribing. Or vice versa, if the consumer is known to be slower than the producer, it can work in a _pull_ communication model and request the next items only after the previous ones have been processed. Thus, the model in which reactive streams operate can be described as a _dynamic push/pull_ communication model. It works effectively if the producer is faster or slower than the consumer, or even when that ratio can change over time.
 
 With the use of backpressure, the producer has much more solutions to deal with excessive events:
 
@@ -184,4 +182,4 @@ With the use of backpressure, the producer has much more solutions to deal with 
 * block the producer
 * cancel the event stream
 
-Which solutions to use for a particular reactive stream depends on the nature of the events being generated. But backpressure is not a _silver bullet_. This shifts the problem of performance mismatch to the producer's side, where it is supposed to be easier to solve. However, in some cases, there are better solutions than using backpressure, such as simply dropping excessive events on the consumer's side.
+Which solutions to use for a particular reactive stream depends on the nature of the events. But backpressure is not a _silver bullet_. It shifts the problem of performance mismatch to the producer's side, where it is supposed to be easier to solve. However, in some cases, there are better solutions than using backpressure, such as simply dropping excessive events on the consumer's side.
