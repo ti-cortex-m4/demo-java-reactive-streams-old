@@ -7,12 +7,12 @@ Reactive Streams is a cross-platform specification for processing a possibly unl
 
 <sub>Backpressure is application-level flow control from the subscriber to the publisher to control the sending rate.</sub>
 
-The Reactive Streams specification is designed to efficiently process (in terms of CPU and memory usage) time-ordered sequences of events. For efficient CPU usage, the specification describes the rules for asynchronous and non-blocking processing in various stages (producers, processors, consumers). For efficient memory usage, the specification describes the rules for switching between _push_ and _pull_ communication models based on the consumption rate, which avoids using unbounded buffers.
+The Reactive Streams specification is designed to efficiently process (in terms of CPU and memory usage) time-ordered sequences of events. For efficient CPU usage, the specification describes the rules for asynchronous and non-blocking events processing in various stages (producers, processors, consumers). For efficient memory usage, the specification describes the rules for switching between _push_ and _pull_ communication models based on the events processing rate, which avoids using unbounded buffers.
 
 
 ## Problems and solutions
 
-When designing systems for transferring items from the producer to the consumer, the goal is to send them with minimal latency and maximum throughput.
+When designing systems for transferring items from a producer to a consumer, the goal is to send them with minimal latency and maximum throughput.
 
 <sub>Latency is the time between sending an item from the producer and its receiving by the consumer. Throughput is the number of items sent from producer to consumer per unit of time.</sub>
 
@@ -21,9 +21,9 @@ However, the producer and the consumer may have limitations that can prevent the
 
 
 * The consumer can be slower than the producer.
-* The producer may not be able to slow or stop sending items that the consumer does not have time to process.
 * The consumer may not be able to skip items that it does not have time to process.
-* The producer and consumer may have a limited amount of memory to buffer items and CPU cores to process items asynchronously.
+* The producer may not be able to slow or stop sending items that the consumer does not have time to process.
+* The producer and consumer may have a limited amount of CPU cores to process items asynchronously and memory to buffer items.
 * The communication channel between the producer and the consumer may have limited bandwidth.
 
 There are several patterns for sequential item processing that solve some or most of the above limitations:
@@ -182,4 +182,4 @@ With the use of backpressure, the producer has much more solutions to deal with 
 * block the producer
 * cancel the event stream
 
-Which solutions to use for a particular reactive stream depends on the nature of the events. But backpressure is not a _silver bullet_. It shifts the problem of performance mismatch to the producer's side, where it is supposed to be easier to solve. However, in some cases, there are better solutions than using backpressure, such as simply dropping excessive events on the consumer's side.
+Which solutions to use for a particular reactive stream depends on the nature of the events. But backpressure is not a _silver bullet_. It simply shifts the problem of performance mismatch to the producer's side, where it is supposed to be easier to solve. However, in some cases, there are better solutions than using backpressure, such as simply dropping excessive events on the consumer's side.
