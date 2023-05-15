@@ -183,3 +183,23 @@ With the use of backpressure, the producer has much more solutions to deal with 
 * cancel the event stream
 
 Which solutions to use for a particular reactive stream depends on the nature of the events. But backpressure is not a _silver bullet_. It simply shifts the problem of performance mismatch to the producer's side, where it is supposed to be easier to solve. However, in some cases, there are better solutions than using backpressure, such as simply dropping excessive events on the consumer's side.
+
+
+## The Reactive Streams specification
+
+Reactive Streams is a [specification](https://www.reactive-streams.org/) to provide a standard for asynchronous stream processing with non-blocking backpressure for various runtime environments (JVM, .NET, and JavaScript) and network protocols. The Reactive Streams specification was created by engineers from Kaazing, Lightbend, Netflix, Pivotal, Red Hat, Twitter, and others.
+
+The specification describes the concept of a _reactive stream_ that has the following features:
+
+
+
+* reactive streams are potentially _unbounded_: they can handle zero, one, many, or an infinite number of events.
+* reactive streams are _sequential_: a consumer processes events in the same order that a producer sends them.
+* reactive streams can be _synchronous_ or _asynchronous_: they can use computing resources (CPU cores) for parallel processing in separate stream stages.
+* reactive streams are _non-blocking_: they do not waste computing resources if the performance of a producer and a consumer is different.
+* reactive streams use _mandatory backpressure_: a consumer can request events from a producer according to their processing rate.
+* reactive streams use _bounded buffers_: they can be implemented without unbounded buffers, avoiding memory out-of-memory errors.
+
+The Reactive Streams [specification for the JVM](https://github.com/reactive-streams/reactive-streams-jvm) (the latest version 1.0.4 was released on May 26th, 2022) contains the textual specification and the Java API, which contains four interfaces that must be implemented according to this specification. It also includes the Technology Compatibility Kit (TCK), a standard test suite for conformance testing of implementations.
+
+Importantly, the Reactive Streams specification was created after several mature but incompatible implementations of Reactive Streams already existed. Therefore, the specification is currently limited and contains only low-level APIs. Application developers should use this specification to provide _interoperability_ between existing implementations. To have high-level functional APIs (transform, filter, combine, etc.), application developers should use implementations of this specification (Lightbend Akka Streams, Pivotal Project Reactor, Netflix RxJava, etc.) through their native APIs.
