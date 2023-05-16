@@ -301,3 +301,13 @@ public interface Processor<T, R> extends Subscriber<T>, Publisher<R> {
 ## The Reactive Streams workflow
 
 ![Reactive Streams workflow](/images/Reactive_Streams_workflow.png)
+
+When a Subscriber wants to start receiving events from a Publisher, it calls the _Publisher.subscribe(Subscriber)_ method and passes itself as a parameter. If the Publisher accepts the request, it creates a new Subscription instance and invokes the _Subscriber.onSubscribe(Subscription)_ method with it. If the Publisher rejects the request or otherwise fails, it invokes the _Subscriber.onError(Throwable)_ method.
+
+Once the connection between Publisher and Subscriber is established through the Subscription object, the Subscriber can request events and the Publisher can send them. When the Subscriber wants to receive events, it calls the _Subscription#request(long)_ method with the number of items requested. Typically, the first such call occurs in the _Subscriber.onSubscribe_ method. If the Subscriber wants to stop receiving events, it calls the _Subscription#cancel()_ method. After this method is called, the Subscriber can continue to receive events to meet the previously requested demand. A canceled Subscription does not receive _Subscriber.onComplete()_ or _Subscriber.onError(Throwable)_ events.
+
+The Publisher sends each requested event by calling the _Subscriber.onNext(T)_ method only in response to a previous request by the _Subscription#request(long)_ method, but never by itself. A Publisher can send fewer events than requested if the stream ends, but then must call either the _Subscriber.onError(Throwable)_ or _Subscriber.onComplete()_ methods. After invocation of _Subscriber.onError(Throwable)_ or _Subscriber.onComplete()_ events, the current Subscription will not send any other events to the Subscriber.
+
+When there are no more events, the Publisher completes the Subscription normally by calling the _Subscriber.onCompleted()_ method. When an unrecoverable exception occurs in the Publisher, it completes the Subscription exceptionally by calling the _Subscriber.onError(Throwable)_ method.
+
+<sub>To make a reactive stream <em>push</em>-based, a Subscriber can call the <em>Subscription#request(long)</em> method once with the parameter <em>Long.MAX_VALUE</em>. To make a reactive stream <em>pull</em>-based, a Subscriber can call the <em>Subscription#request(long)</em> method with parameter <em>1</em> every time it is ready to handle the next event.</sub>
