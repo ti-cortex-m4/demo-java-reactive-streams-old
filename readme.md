@@ -283,4 +283,21 @@ This interface has the following methods:
 
 
 * The _request(long)_ method adds the given number of items to the unfulfilled demand for this Subscription.
-* The _cancel()_ method requests the Publisher to eventually stop sending items.
+* The _cancel()_ method requests the Publisher to _eventually_ stop sending items.
+
+
+### Processor
+
+The Processor interface represents a processing stage that extends the Subscriber and Publisher interfaces and obeys the contracts of both.. It acts as a Subscriber for the previous stage of a reactive stream and as a publisher for the next one.
+
+
+```
+public interface Processor<T, R> extends Subscriber<T>, Publisher<R> {
+}
+```
+
+
+
+## The Reactive Streams workflow
+
+![Reactive Streams workflow](/images/Reactive_Streams_workflow.png)
