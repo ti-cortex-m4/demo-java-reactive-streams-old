@@ -3,7 +3,7 @@
 
 ## Introduction
 
-Reactive Streams is a cross-platform specification for processing a possibly unlimited sequence of events across asynchronous boundaries (threads, processes, or network-connected computers) with non-blocking backpressure. A reactive stream contains a publisher, which sends forward _data_, _error_, _completion_ events, and subscribers, which send backward _request_ and _cancel_ backpressure events. There can also be intermediate processors between the publisher and the subscribers that filter or modify events.
+Reactive Streams is a cross-platform specification for processing a potentially unlimited sequence of events across asynchronous boundaries (threads, processes, or network-connected computers) with non-blocking backpressure. A reactive stream contains a publisher, which sends forward _data_, _error_, _completion_ events, and subscribers, which send backward _request_ and _cancel_ backpressure events. There can also be intermediate processors between the publisher and the subscribers that filter or modify events.
 
 <sub>Backpressure is application-level flow control from the subscriber to the publisher to control the sending rate.</sub>
 
@@ -203,3 +203,84 @@ The specification describes the concept of a _reactive stream_ that has the foll
 The Reactive Streams [specification for the JVM](https://github.com/reactive-streams/reactive-streams-jvm) (the latest version 1.0.4 was released on May 26th, 2022) contains the textual specification and the Java API, which contains four interfaces that must be implemented according to this specification. It also includes the Technology Compatibility Kit (TCK), a standard test suite for conformance testing of implementations.
 
 Importantly, the Reactive Streams specification was created after several mature but incompatible implementations of Reactive Streams already existed. Therefore, the specification is currently limited and contains only low-level APIs. Application developers should use this specification to provide _interoperability_ between existing implementations. To have high-level functional APIs (transform, filter, combine, etc.), application developers should use implementations of this specification (Lightbend Akka Streams, Pivotal Project Reactor, Netflix RxJava, etc.) through their native APIs.
+
+
+## The Reactive Streams API
+
+The Reactive Streams API consists of the four interfaces, which are located in the _org.reactivestreams_ package:
+
+
+
+* The Publisher&lt;T> interface represents a producer of data and control events.
+* The Subscriber&lt;T> interface represents a consumer of events.
+* The Subscription interface represents a connection between a Publisher and a Subscriber.
+* The Processor&lt;T,R> interface represents a processor of events that acts as both a Subscriber and a Publisher.
+
+![Reactive Streams API](/images/Reactive_Streams_API.png)
+
+
+### Publisher
+
+The Publisher interface represents a producer of potentially unlimited sequenced data and control events. A Publisher produces events according to the demand received from one or many Subscribers.
+
+<sub>Demand is the aggregated number of items requested by a Subscriber which is yet to be delivered by the Publisher.</sub>
+
+
+```
+public interface Publisher<T> {
+    public void subscribe(Subscriber<? super T> s);
+}
+```
+
+
+This interface has the following method:
+
+
+
+* The _subscribe(Subscriber)_ method requests the Publisher to start sending events to a Subscriber.
+
+
+### Subscriber
+
+The Subscriber interface represents a consumer of events. Multiple Subscribers can subscribe to and unsubscribe from a Producer at different times.
+
+
+```
+public interface Subscriber<T> {
+    public void onSubscribe(Subscription s);
+    public void onNext(T item);
+    public void onError(Throwable t);
+    public void onComplete();
+}
+```
+
+
+This interface has the following methods:
+
+
+
+* The _onSubscribe(Subscription)_ method is invoked when the Producer accepts a new Subscription.
+* The _onNext(T)_ method is invoked on each received item.
+* The _onError(Throwable)_ method is invoked on erroneous completion.
+* The _onComplete()_ method is invoked on successful completion.
+
+
+### Subscription
+
+The Subscription interface represents a connection between a Publisher and a Subscriber. Through a Subscription, the Subscriber can request items from the Publisher or cancel the connection.
+
+
+```
+public interface Subscription {
+    public void request(long n);
+    public void cancel();
+}
+```
+
+
+This interface has the following methods:
+
+
+
+* The _request(long)_ method adds the given number of items to the unfulfilled demand for this Subscription.
+* The _cancel()_ method requests the Publisher to eventually stop sending items.
