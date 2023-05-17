@@ -6,9 +6,9 @@
 
 ### Cold synchronous reactive stream
 
-The following class demonstrates a synchronous Publisher that sends a finite sequence of events from an Iterator. The _synchronous_ Publisher processes  its _subscribe_ method and the Subscription’s _request_ and _cancel_ methods in the caller’s thread. The _multicast_ Publisher can send items to multiple Subscribers, storing information about each connection in a private implementation of the Subscription interface. It includes the current Iterator instance, the demand (the aggregated number of items requested by a Subscriber which is yet to be delivered by the Publisher), and the connection cancellation flag. To make a _cold_ Publisher that sends the same sequence of events for each Subscriber, the Publisher stores a Supplier that must return a new Iterator instance for each new Subscription. The Publisher uses different types of error handling (throwing an exception or calling the _onError_ method) according to the specification.
+The following class demonstrates a synchronous Publisher that sends a finite sequence of events from an Iterator. The _synchronous_ Publisher processes its _subscribe_ method and the Subscription _request_ and _cancel_ methods in the caller’s thread. The _multicast_ Publisher can send items to multiple Subscribers, storing information about each connection in a private implementation of the Subscription interface. It includes the current Iterator instance, the demand (the aggregated number of items requested by a Subscriber which is yet to be delivered by the Publisher), and the connection cancellation flag. To make a _cold_ Publisher that sends the same sequence of events for each Subscriber, the Publisher stores a Supplier that must return a new Iterator instance for each new Subscription. The Publisher uses different types of error handling (throwing an exception or calling the _onError_ method) according to the specification.
 
-<sub>The GitHub repository has unit tests to verify that this Publisher complies with all the specification rules that are checked in its TCK.</sub>
+<sub>The GitHub repository has unit tests to verify that this Publisher complies with all the specification rules that checks its TCK.</sub>
 
 
 ```java
@@ -141,7 +141,7 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
 The following class demonstrates a synchronous Subscriber that _pulls_ items one by one. The _synchronous_ Subscriber processes its _onSubscribe_, _onNext_, _onError_, _onComplete_ methods in the Publisher’s thread. The Subscriber also stores its Subscription (to perform backpressure) and its cancellation flag. The Subscriber also uses different types of error handling (throwing an exception or unsubscribing) according to the specification.
 
-<sub>The GitHub repository has <em>blackbox</em> and <em>whitebox</em> unit tests to verify that this Subscriber complies with all the specification rules that are checked in its TCK.</sub>
+<sub>The GitHub repository has <em>blackbox</em> and <em>whitebox</em> unit tests to verify that this Subscriber complies with all the specification rules that checks its TCK.</sub>
 
 
 ```java
@@ -258,47 +258,47 @@ Log from the invocation of the previous code fragment demonstrates that the sync
 
 
 ```
-11:32:37.310  main             (1) subscriber.subscribe: SyncIteratorPublisher$SubscriptionImpl@1f28c152
-11:32:37.313  main             subscription.request: 1
-11:32:37.313  main             (1) subscriber.next: The
-11:32:37.313  main             subscription.request: 1
-11:32:37.313  main             (1) subscriber.next: quick
-11:32:37.313  main             subscription.request: 1
-11:32:37.313  main             (1) subscriber.next: brown
-11:32:37.313  main             subscription.request: 1
-11:32:37.313  main             (1) subscriber.next: fox
-11:32:37.313  main             subscription.request: 1
-11:32:37.313  main             (1) subscriber.next: jumps
-11:32:37.313  main             subscription.request: 1
-11:32:37.313  main             (1) subscriber.next: over
-11:32:37.314  main             subscription.request: 1
-11:32:37.314  main             (1) subscriber.next: the
-11:32:37.314  main             subscription.request: 1
-11:32:37.314  main             (1) subscriber.next: lazy
-11:32:37.314  main             subscription.request: 1
-11:32:37.314  main             (1) subscriber.next: dog.
-11:32:37.314  main             subscription.request: 1
-11:32:37.314  main             subscription.terminate
-11:32:37.314  main             (1) subscriber.complete
-11:32:37.314  main             (2) subscriber.subscribe: SyncIteratorPublisher$SubscriptionImpl@3dd4520b
-11:32:37.314  main             subscription.request: 1
-11:32:37.314  main             (2) subscriber.next: The
-11:32:37.314  main             subscription.request: 1
-11:32:37.314  main             (2) subscriber.next: quick
-11:32:37.314  main             subscription.request: 1
-11:32:37.314  main             (2) subscriber.next: brown
-11:32:37.314  main             subscription.request: 1
-11:32:37.314  main             (2) subscriber.next: fox
-11:32:37.314  main             subscription.request: 1
-11:32:37.314  main             (2) subscriber.next: jumps
-11:32:37.314  main             subscription.request: 1
-11:32:37.314  main             (2) subscriber.next: over
-11:32:37.314  main             subscription.request: 1
-11:32:37.314  main             (2) subscriber.next: the
-11:32:37.314  main             subscription.request: 1
-11:32:37.314  main             (2) subscriber.next: lazy
-11:32:37.314  main             subscription.request: 1
-11:32:37.314  main             (2) subscriber.next: dog.
-11:32:37.314  main             subscription.request: 1
-11:32:37.314  main             subscription.terminate
-11:32:37.314  main             (2) subscriber.complete
+15:27:26.744 main                             (1) subscriber.subscribe: SyncIteratorPublisher$SubscriptionImpl@7d907bac
+15:27:26.747 main                             subscription.request: 1
+15:27:26.747 main                             (1) subscriber.next: The
+15:27:26.747 main                             subscription.request: 1
+15:27:26.747 main                             (1) subscriber.next: quick
+15:27:26.747 main                             subscription.request: 1
+15:27:26.747 main                             (1) subscriber.next: brown
+15:27:26.747 main                             subscription.request: 1
+15:27:26.747 main                             (1) subscriber.next: fox
+15:27:26.747 main                             subscription.request: 1
+15:27:26.747 main                             (1) subscriber.next: jumps
+15:27:26.747 main                             subscription.request: 1
+15:27:26.747 main                             (1) subscriber.next: over
+15:27:26.747 main                             subscription.request: 1
+15:27:26.747 main                             (1) subscriber.next: the
+15:27:26.747 main                             subscription.request: 1
+15:27:26.747 main                             (1) subscriber.next: lazy
+15:27:26.747 main                             subscription.request: 1
+15:27:26.747 main                             (1) subscriber.next: dog.
+15:27:26.747 main                             subscription.request: 1
+15:27:26.748 main                             subscription.cancelled
+15:27:26.748 main                             (1) subscriber.complete
+15:27:26.748 main                             (2) subscriber.subscribe: SyncIteratorPublisher$SubscriptionImpl@5ae63ade
+15:27:26.748 main                             subscription.request: 1
+15:27:26.748 main                             (2) subscriber.next: The
+15:27:26.748 main                             subscription.request: 1
+15:27:26.748 main                             (2) subscriber.next: quick
+15:27:26.748 main                             subscription.request: 1
+15:27:26.748 main                             (2) subscriber.next: brown
+15:27:26.748 main                             subscription.request: 1
+15:27:26.748 main                             (2) subscriber.next: fox
+15:27:26.748 main                             subscription.request: 1
+15:27:26.748 main                             (2) subscriber.next: jumps
+15:27:26.748 main                             subscription.request: 1
+15:27:26.748 main                             (2) subscriber.next: over
+15:27:26.748 main                             subscription.request: 1
+15:27:26.748 main                             (2) subscriber.next: the
+15:27:26.748 main                             subscription.request: 1
+15:27:26.748 main                             (2) subscriber.next: lazy
+15:27:26.748 main                             subscription.request: 1
+15:27:26.748 main                             (2) subscriber.next: dog.
+15:27:26.748 main                             subscription.request: 1
+15:27:26.748 main                             subscription.cancelled
+15:27:26.748 main                             (2) subscriber.complete
