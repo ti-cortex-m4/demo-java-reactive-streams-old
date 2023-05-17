@@ -617,6 +617,7 @@ Log from the invocation of the previous code fragment demonstrates that the sync
 15:27:26.748 main                             subscription.request: 1
 15:27:26.748 main                             subscription.cancelled
 15:27:26.748 main                             (2) subscriber.complete
+```
 
 
 
@@ -628,10 +629,10 @@ The following class demonstrates an asynchronous Publisher an infinite sequence 
 ```
 public class WatchServiceSubmissionPublisher extends SubmissionPublisher<WatchEvent<Path>> {
 
-private final Future<?> task;
+   private final Future<?> task;
 
-WatchServiceSubmissionPublisher(String folderName) {
-ExecutorService executorService = (ExecutorService) getExecutor();
+   WatchServiceSubmissionPublisher(String folderName) {
+       ExecutorService executorService = (ExecutorService) getExecutor();
 
        task = executorService.submit(() -> {
            try {
@@ -669,14 +670,14 @@ ExecutorService executorService = (ExecutorService) getExecutor();
                throw new RuntimeException(e);
            }
        });
-}
+   }
 
-@Override
-public void close() {
-logger.info("publisher.close");
-task.cancel(false);
-super.close();
-}
+   @Override
+   public void close() {
+       logger.info("publisher.close");
+       task.cancel(false);
+       super.close();
+   }
 }
 ```
 
@@ -684,57 +685,57 @@ super.close();
 The following code sample demonstrates an asynchronous Processor that simultaneously filters events (only to files with the given extension) and transforms them (from WatchEvent&lt;Path> to String). As a Subscriber, this Processor implements Subscriber methods _onSubscribe_, _onNext_, _onError_, _onComplete_ to connect to an upstream Producer and _pull_ events one by one. As a Publisher, this Processor uses SubmissionPublisher’s _submit_ method to send events to a downstream Subscriber.
 
 
-```
+```java
 public class WatchEventSubmissionProcessor extends SubmissionPublisher<String>
-implements Flow.Processor<WatchEvent<Path>, String> {
+   implements Flow.Processor<WatchEvent<Path>, String> {
 
-private final String fileExtension;
+   private final String fileExtension;
 
-private Flow.Subscription subscription;
+   private Flow.Subscription subscription;
 
-public WatchEventSubmissionProcessor(String fileExtension) {
-this.fileExtension = fileExtension;
-}
+   public WatchEventSubmissionProcessor(String fileExtension) {
+       this.fileExtension = fileExtension;
+   }
 
-@Override
-public void onSubscribe(Flow.Subscription subscription) {
-logger.info("processor.subscribe: {}", subscription);
-this.subscription = subscription;
-this.subscription.request(1);
-}
+   @Override
+   public void onSubscribe(Flow.Subscription subscription) {
+       logger.info("processor.subscribe: {}", subscription);
+       this.subscription = subscription;
+       this.subscription.request(1);
+   }
 
-@Override
-public void onNext(WatchEvent<Path> watchEvent) {
-logger.info("processor.next: path {}, action {}", watchEvent.context(), watchEvent.kind());
-if (watchEvent.context().toString().endsWith(fileExtension)) {
-submit(String.format("file %s is %s", watchEvent.context(), decode(watchEvent.kind())));
-}
-subscription.request(1);
-}
+   @Override
+   public void onNext(WatchEvent<Path> watchEvent) {
+       logger.info("processor.next: path {}, action {}", watchEvent.context(), watchEvent.kind());
+       if (watchEvent.context().toString().endsWith(fileExtension)) {
+           submit(String.format("file %s is %s", watchEvent.context(), decode(watchEvent.kind())));
+       }
+       subscription.request(1);
+   }
 
-private String decode(WatchEvent.Kind<Path> kind) {
-if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
-return "created";
-} else if (kind == StandardWatchEventKinds.ENTRY_MODIFY) {
-return "modified";
-} else if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
-return "deleted";
-} else {
-throw new RuntimeException();
-}
-}
+   private String decode(WatchEvent.Kind<Path> kind) {
+       if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
+           return "created";
+       } else if (kind == StandardWatchEventKinds.ENTRY_MODIFY) {
+           return "modified";
+       } else if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
+           return "deleted";
+       } else {
+           throw new RuntimeException();
+       }
+   }
 
-@Override
-public void onError(Throwable t) {
-logger.error("processor.error", t);
-closeExceptionally(t);
-}
+   @Override
+   public void onError(Throwable t) {
+       logger.error("processor.error", t);
+       closeExceptionally(t);
+   }
 
-@Override
-public void onComplete() {
-logger.info("processor.completed");
-close();
-}
+   @Override
+   public void onComplete() {
+       logger.info("processor.completed");
+       close();
+   }
 }
 ```
 
@@ -742,27 +743,27 @@ close();
 The following code fragment demonstrates that this Publisher generates events about changes in the current user's home directory, this Processor filters events related to text files and transforms them to String type, and this Subscriber logs them.
 
 
-```
+```java
 String folderName = System.getProperty("user.home");
 String fileExtension = ".txt";
 
 try (SubmissionPublisher<WatchEvent<Path>> publisher = new WatchServiceSubmissionPublisher(folderName);
-WatchEventSubmissionProcessor processor = new WatchEventSubmissionProcessor(fileExtension)) {
+    WatchEventSubmissionProcessor processor = new WatchEventSubmissionProcessor(fileExtension)) {
 
-SyncSubscriber<String> subscriber = new SyncSubscriber<>();
-processor.subscribe(subscriber);
-publisher.subscribe(processor);
+   SyncSubscriber<String> subscriber = new SyncSubscriber<>();
+   processor.subscribe(subscriber);
+   publisher.subscribe(processor);
 
-TimeUnit.SECONDS.sleep(180);
+   TimeUnit.SECONDS.sleep(180);
 
-publisher.close();
+   publisher.close();
 
-subscriber.awaitCompletion();
+   subscriber.awaitCompletion();
 }
 ```
 
 
-Log from the invocation of the previous code fragment demonstrates that the Publisher and the Processor use the internal implementation of the Flow.Subscription interface, the nested SubmissionPublisher.BufferedSubscription class. These classes handle events asysnchronously in the common Fork/Join thread pool. 
+Log from the invocation of the previous code fragment demonstrates that the Publisher and the Processor use the internal implementation of the Flow.Subscription interface, the nested SubmissionPublisher.BufferedSubscription class. These classes handle events asysnchronously in the common Fork/Join thread pool.
 
 
 ```
