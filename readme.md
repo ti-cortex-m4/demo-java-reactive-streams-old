@@ -321,7 +321,7 @@ The JDK has supported the Reactive Streams specification since version 9 in the 
 
 ### Cold synchronous reactive stream
 
-The following class demonstrates a synchronous Publisher that sends a finite sequence of events from an Iterator. The _synchronous_ Publisher processes its _subscribe_ method and the Subscription _request_ and _cancel_ methods in the caller’s thread. The _multicast_ Publisher can send items to multiple Subscribers, storing information about each connection in a private implementation of the Subscription interface. It includes the current Iterator instance, the demand (the aggregated number of items requested by a Subscriber which is yet to be delivered by the Publisher), and the connection cancellation flag. To make a _cold_ Publisher that sends the same sequence of events for each Subscriber, the Publisher stores a Supplier that must return a new Iterator instance for each new Subscription. The Publisher uses different types of error handling (throwing an exception or calling the _onError_ method) according to the specification.
+The following class demonstrates a synchronous Publisher that sends a finite sequence of events from an Iterator. The _synchronous_ Publisher processes its _subscribe_ method and the Subscription’s _request_ and _cancel_ methods in the caller’s thread. The Publisher is _multicast_ and can send items to multiple Subscribers, storing information about each connection in a private implementation of the Subscription interface. It includes the current Iterator instance, the demand (the aggregated number of items requested by a Subscriber which is yet to be delivered by the Publisher), and the connection cancellation flag. To make a _cold_ Publisher that sends the same sequence of events for each Subscriber, the Publisher stores a Supplier that must return a new Iterator instance for each new Subscription. The Publisher uses different types of error handling (throwing an exception or calling the _onError_ method) according to the specification.
 
 <sub>The GitHub repository has unit tests to verify that this Publisher complies with all the specification rules that checks its TCK.</sub>
 
@@ -617,3 +617,170 @@ Log from the invocation of the previous code fragment demonstrates that the sync
 15:27:26.748 main                             subscription.request: 1
 15:27:26.748 main                             subscription.cancelled
 15:27:26.748 main                             (2) subscriber.complete
+
+
+
+### Hot asynchronous reactive stream
+
+The following class demonstrates an asynchronous Publisher an infinite sequence of events from a [WatchService](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/nio/file/WatchService.html). The _asynchronous_ Publisher is inherited from the [SubmissionPublisher](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/SubmissionPublisher.html) class and reuses its Executor. The publisher is _hot_ and sends change events to files in the given folder.
+
+
+```
+public class WatchServiceSubmissionPublisher extends SubmissionPublisher<WatchEvent<Path>> {
+
+private final Future<?> task;
+
+WatchServiceSubmissionPublisher(String folderName) {
+ExecutorService executorService = (ExecutorService) getExecutor();
+
+       task = executorService.submit(() -> {
+           try {
+               WatchService watchService = FileSystems.getDefault().newWatchService();
+
+               Path folder = Paths.get(folderName);
+               folder.register(watchService,
+                   StandardWatchEventKinds.ENTRY_CREATE,
+                   StandardWatchEventKinds.ENTRY_MODIFY,
+                   StandardWatchEventKinds.ENTRY_DELETE
+               );
+
+               WatchKey key;
+               while ((key = watchService.take()) != null) {
+                   for (WatchEvent<?> event : key.pollEvents()) {
+                       WatchEvent.Kind<?> kind = event.kind();
+                       if (kind == StandardWatchEventKinds.OVERFLOW) {
+                           continue;
+                       }
+
+                       WatchEvent<Path> watchEvent = (WatchEvent<Path>) event;
+
+                       logger.info("publisher.submit: path {}, action {}", watchEvent.context(), watchEvent.kind());
+                       submit(watchEvent);
+                   }
+
+                   boolean valid = key.reset();
+                   if (!valid) {
+                       break;
+                   }
+               }
+
+               watchService.close();
+           } catch (IOException | InterruptedException e) {
+               throw new RuntimeException(e);
+           }
+       });
+}
+
+@Override
+public void close() {
+logger.info("publisher.close");
+task.cancel(false);
+super.close();
+}
+}
+```
+
+
+The following code sample demonstrates an asynchronous Processor that simultaneously filters events (only to files with the given extension) and transforms them (from WatchEvent&lt;Path> to String). As a Subscriber, this Processor implements Subscriber methods _onSubscribe_, _onNext_, _onError_, _onComplete_ to connect to an upstream Producer and _pull_ events one by one. As a Publisher, this Processor uses SubmissionPublisher’s _submit_ method to send events to a downstream Subscriber.
+
+
+```
+public class WatchEventSubmissionProcessor extends SubmissionPublisher<String>
+implements Flow.Processor<WatchEvent<Path>, String> {
+
+private final String fileExtension;
+
+private Flow.Subscription subscription;
+
+public WatchEventSubmissionProcessor(String fileExtension) {
+this.fileExtension = fileExtension;
+}
+
+@Override
+public void onSubscribe(Flow.Subscription subscription) {
+logger.info("processor.subscribe: {}", subscription);
+this.subscription = subscription;
+this.subscription.request(1);
+}
+
+@Override
+public void onNext(WatchEvent<Path> watchEvent) {
+logger.info("processor.next: path {}, action {}", watchEvent.context(), watchEvent.kind());
+if (watchEvent.context().toString().endsWith(fileExtension)) {
+submit(String.format("file %s is %s", watchEvent.context(), decode(watchEvent.kind())));
+}
+subscription.request(1);
+}
+
+private String decode(WatchEvent.Kind<Path> kind) {
+if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
+return "created";
+} else if (kind == StandardWatchEventKinds.ENTRY_MODIFY) {
+return "modified";
+} else if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
+return "deleted";
+} else {
+throw new RuntimeException();
+}
+}
+
+@Override
+public void onError(Throwable t) {
+logger.error("processor.error", t);
+closeExceptionally(t);
+}
+
+@Override
+public void onComplete() {
+logger.info("processor.completed");
+close();
+}
+}
+```
+
+
+The following code fragment demonstrates that this Publisher generates events about changes in the current user's home directory, this Processor filters events related to text files and transforms them to String type, and this Subscriber logs them.
+
+
+```
+String folderName = System.getProperty("user.home");
+String fileExtension = ".txt";
+
+try (SubmissionPublisher<WatchEvent<Path>> publisher = new WatchServiceSubmissionPublisher(folderName);
+WatchEventSubmissionProcessor processor = new WatchEventSubmissionProcessor(fileExtension)) {
+
+SyncSubscriber<String> subscriber = new SyncSubscriber<>();
+processor.subscribe(subscriber);
+publisher.subscribe(processor);
+
+TimeUnit.SECONDS.sleep(180);
+
+publisher.close();
+
+subscriber.awaitCompletion();
+}
+```
+
+
+Log from the invocation of the previous code fragment demonstrates that the Publisher and the Processor use the internal implementation of the Flow.Subscription interface, the nested SubmissionPublisher.BufferedSubscription class. These classes handle events asysnchronously in the common Fork/Join thread pool. 
+
+
+```
+14:41:08.665 ForkJoinPool.commonPool-worker-3 processor.subscribe: java.util.concurrent.SubmissionPublisher$BufferedSubscription@7be468c3
+14:41:08.665 ForkJoinPool.commonPool-worker-2 subscriber.subscribe: java.util.concurrent.SubmissionPublisher$BufferedSubscription@1f1b4f1b
+14:42:04.566 ForkJoinPool.commonPool-worker-1 publisher.submit: path example.txt, action ENTRY_CREATE
+14:42:04.566 ForkJoinPool.commonPool-worker-1 publisher.submit: path example.txt, action ENTRY_MODIFY
+14:42:04.566 ForkJoinPool.commonPool-worker-6 processor.next: path example.txt, action ENTRY_CREATE
+14:42:04.569 ForkJoinPool.commonPool-worker-6 processor.next: path example.txt, action ENTRY_MODIFY
+14:42:04.569 ForkJoinPool.commonPool-worker-7 subscriber.next: file example.txt is created
+14:42:04.569 ForkJoinPool.commonPool-worker-7 subscriber.next: file example.txt is modified
+14:42:10.950 ForkJoinPool.commonPool-worker-1 publisher.submit: path example.txt, action ENTRY_MODIFY
+14:42:10.950 ForkJoinPool.commonPool-worker-7 processor.next: path example.txt, action ENTRY_MODIFY
+14:42:10.951 ForkJoinPool.commonPool-worker-6 subscriber.next: file example.txt is modified
+14:42:14.739 ForkJoinPool.commonPool-worker-1 publisher.submit: path example.txt, action ENTRY_DELETE
+14:42:14.739 ForkJoinPool.commonPool-worker-6 processor.next: path example.txt, action ENTRY_DELETE
+14:42:14.740 ForkJoinPool.commonPool-worker-6 subscriber.next: file example.txt is deleted
+14:44:08.679 main                             publisher.close
+14:44:08.681 ForkJoinPool.commonPool-worker-7 processor.completed
+14:44:08.681 ForkJoinPool.commonPool-worker-7 subscriber.complete
+14:44:08.681 main                             publisher.close
