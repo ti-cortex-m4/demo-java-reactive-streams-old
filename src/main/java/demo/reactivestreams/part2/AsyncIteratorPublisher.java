@@ -146,7 +146,6 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         }
 
         private void doCancel() {
-            logger.info("subscription.cancelled");
             cancelled.set(true);
         }
 
