@@ -18,7 +18,7 @@ public class WatchServiceRunner {
             processor.subscribe(subscriber);
             publisher.subscribe(processor);
 
-            TimeUnit.SECONDS.sleep(180);
+            TimeUnit.SECONDS.sleep(60);
 
             publisher.close();
 

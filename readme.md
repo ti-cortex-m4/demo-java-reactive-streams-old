@@ -626,7 +626,7 @@ Log from the invocation of the previous code fragment demonstrates that the sync
 The following class demonstrates an asynchronous Publisher an infinite sequence of events from a [WatchService](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/nio/file/WatchService.html). The _asynchronous_ Publisher is inherited from the [SubmissionPublisher](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/SubmissionPublisher.html) class and reuses its Executor. The publisher is _hot_ and sends change events to files in the given folder.
 
 
-```
+```java
 public class WatchServiceSubmissionPublisher extends SubmissionPublisher<WatchEvent<Path>> {
 
    private final Future<?> task;
@@ -767,21 +767,19 @@ Log from the invocation of the previous code fragment demonstrates that the Publ
 
 
 ```
-14:41:08.665 ForkJoinPool.commonPool-worker-3 processor.subscribe: java.util.concurrent.SubmissionPublisher$BufferedSubscription@7be468c3
-14:41:08.665 ForkJoinPool.commonPool-worker-2 subscriber.subscribe: java.util.concurrent.SubmissionPublisher$BufferedSubscription@1f1b4f1b
-14:42:04.566 ForkJoinPool.commonPool-worker-1 publisher.submit: path example.txt, action ENTRY_CREATE
-14:42:04.566 ForkJoinPool.commonPool-worker-1 publisher.submit: path example.txt, action ENTRY_MODIFY
-14:42:04.566 ForkJoinPool.commonPool-worker-6 processor.next: path example.txt, action ENTRY_CREATE
-14:42:04.569 ForkJoinPool.commonPool-worker-6 processor.next: path example.txt, action ENTRY_MODIFY
-14:42:04.569 ForkJoinPool.commonPool-worker-7 subscriber.next: file example.txt is created
-14:42:04.569 ForkJoinPool.commonPool-worker-7 subscriber.next: file example.txt is modified
-14:42:10.950 ForkJoinPool.commonPool-worker-1 publisher.submit: path example.txt, action ENTRY_MODIFY
-14:42:10.950 ForkJoinPool.commonPool-worker-7 processor.next: path example.txt, action ENTRY_MODIFY
-14:42:10.951 ForkJoinPool.commonPool-worker-6 subscriber.next: file example.txt is modified
-14:42:14.739 ForkJoinPool.commonPool-worker-1 publisher.submit: path example.txt, action ENTRY_DELETE
-14:42:14.739 ForkJoinPool.commonPool-worker-6 processor.next: path example.txt, action ENTRY_DELETE
-14:42:14.740 ForkJoinPool.commonPool-worker-6 subscriber.next: file example.txt is deleted
-14:44:08.679 main                             publisher.close
-14:44:08.681 ForkJoinPool.commonPool-worker-7 processor.completed
-14:44:08.681 ForkJoinPool.commonPool-worker-7 subscriber.complete
-14:44:08.681 main                             publisher.close
+21:38:08.926  ForkJoinPool.commonPool-worker-2  subscriber.subscribe: java.util.concurrent.SubmissionPublisher$BufferedSubscription@7650c966
+21:38:08.926  ForkJoinPool.commonPool-worker-3  processor.subscribe: java.util.concurrent.SubmissionPublisher$BufferedSubscription@7d9f8d6e
+21:38:24.215  ForkJoinPool.commonPool-worker-1  publisher.submit: path example.txt, action ENTRY_CREATE
+21:38:24.216  ForkJoinPool.commonPool-worker-3  processor.next: path example.txt, action ENTRY_CREATE
+21:38:24.219  ForkJoinPool.commonPool-worker-5  subscriber.next: file example.txt is created
+21:38:34.153  ForkJoinPool.commonPool-worker-1  publisher.submit: path example.txt, action ENTRY_MODIFY
+21:38:34.153  ForkJoinPool.commonPool-worker-5  processor.next: path example.txt, action ENTRY_MODIFY
+21:38:34.153  ForkJoinPool.commonPool-worker-3  subscriber.next: file example.txt is modified
+21:38:44.194  ForkJoinPool.commonPool-worker-1  publisher.submit: path example.txt, action ENTRY_DELETE
+21:38:44.194  ForkJoinPool.commonPool-worker-6  processor.next: path example.txt, action ENTRY_DELETE
+21:38:44.195  ForkJoinPool.commonPool-worker-3  subscriber.next: file example.txt is deleted
+21:39:08.928  main                              publisher.close
+21:39:08.928  ForkJoinPool.commonPool-worker-7  processor.completed
+21:39:08.928  ForkJoinPool.commonPool-worker-7  subscriber.complete
+21:39:08.928  main                              publisher.close
+```
