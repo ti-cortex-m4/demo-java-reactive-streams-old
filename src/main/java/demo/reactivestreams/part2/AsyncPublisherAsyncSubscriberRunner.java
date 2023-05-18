@@ -11,7 +11,7 @@ public class AsyncPublisherAsyncSubscriberRunner {
         ExecutorService executorService = Executors.newFixedThreadPool(3);
 
         List<String> words = List.of("The quick brown fox jumps over the lazy dog.".split(" "));
-        AsyncIteratorPublisher<String> publisher = new AsyncIteratorPublisher<>(() -> List.copyOf(words).iterator(), 1024, executorService);
+        AsyncIteratorPublisher<String> publisher = new AsyncIteratorPublisher<>(() -> List.copyOf(words).iterator(), 128, executorService);
 
         AsyncSubscriber<String> subscriber1 = new AsyncSubscriber<>(1, executorService);
         publisher.subscribe(subscriber1);
