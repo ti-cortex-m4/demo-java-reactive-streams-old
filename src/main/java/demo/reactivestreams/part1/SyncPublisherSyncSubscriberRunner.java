@@ -1,12 +1,15 @@
 package demo.reactivestreams.part1;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class SyncPublisherSyncSubscriberRunner {
 
     public static void main(String[] args) throws InterruptedException {
         List<String> words = List.of("The quick brown fox jumps over the lazy dog.".split(" "));
-        SyncIteratorPublisher<String> publisher = new SyncIteratorPublisher<>(() -> List.copyOf(words).iterator());
+        Supplier<Iterator<? extends String>> iteratorSupplier = () -> List.copyOf(words).iterator();
+        SyncIteratorPublisher<String> publisher = new SyncIteratorPublisher<>(iteratorSupplier);
 
         SyncSubscriber<String> subscriber1 = new SyncSubscriber<>(1);
         publisher.subscribe(subscriber1);
