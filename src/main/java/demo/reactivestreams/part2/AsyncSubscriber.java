@@ -58,7 +58,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
         completed.await();
     }
 
-    // This method is invoked when OnNext signals arrive and returns whether more elements are desired or not (is intended to override).
+    // This method is invoked when OnNext signals arrive and returns whether more elements are desired (is intended to override).
     protected boolean whenNext(T item) {
         return true;
     }

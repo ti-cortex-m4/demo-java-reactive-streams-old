@@ -66,7 +66,7 @@ public abstract class AsyncSubscriber<T> implements Subscriber<T>, Runnable {
   }
 
   // This method is invoked when the OnNext signals arrive
-  // Returns whether more elements are desired or not, and if no more elements are desired,
+  // Returns whether more elements are desired, and if no more elements are desired,
   // for convenience.
   protected abstract boolean whenNext(final T element);
 

@@ -90,7 +90,7 @@ public abstract class SyncSubscriber<T> implements Subscriber<T> {
   }
 
   // This method is left as an exercise to the reader/extension point
-  // Returns whether more elements are desired or not, and if no more elements are desired
+  // Returns whether more elements are desired, and if no more elements are desired
   protected abstract boolean whenNext(final T element);
 
   @Override public void onError(final Throwable t) {
