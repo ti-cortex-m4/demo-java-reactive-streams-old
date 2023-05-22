@@ -103,11 +103,13 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
         private void doRequest(long n) {
             if (n <= 0) {
-                // By rule 3.9, while the Subscription is not cancelled, Subscription.request(long) must signal onError with a IllegalArgumentException if the argument is <= 0.
+                // By rule 3.9, while the Subscription is not cancelled, Subscription.request(long)
+                // must signal onError with a IllegalArgumentException if the argument is <= 0.
                 doError(new IllegalArgumentException("non-positive subscription request"));
             } else {
                 if (demand.get() == Long.MAX_VALUE) {
-                    // By rule 3.17, a demand equal or greater than Long.MAX_VALUE may be considered by the Publisher as "effectively unbounded".
+                    // By rule 3.17, a demand equal or greater than Long.MAX_VALUE
+                    // may be considered by the Publisher as "effectively unbounded".
                     return;
                 }
 
@@ -115,7 +117,8 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                     // By rule 3.17, a Subscription must support a demand up to Long.MAX_VALUE.
                     demand.set(Long.MAX_VALUE);
                 } else {
-                    // By rule 3.8, while the Subscription is not cancelled, Subscription.request(long) must register the given number of additional elements to be produced to the respective Subscriber.
+                    // By rule 3.8, while the Subscription is not cancelled, Subscription.request(long)
+                    // must register the given number of additional elements to be produced to the respective Subscriber.
                     demand.addAndGet(n);
                 }
 
