@@ -11,14 +11,13 @@ import java.util.concurrent.Executors;
 public class Runner {
 
     public static void main(String[] args) throws InterruptedException, IOException {
-        SyncPublisherSyncSubscriberRunner.main(new String[] {});
-        AsyncPublisherAsyncSubscriberRunner.main(new String[] {});
+//        SyncPublisherSyncSubscriberRunner.main(new String[]{});
+//        AsyncPublisherAsyncSubscriberRunner.main(new String[]{});
 
-        WatchServiceRunner.main(new String[] {});
 
-        Thread thread =  new Thread() {
+        Thread thread = new Thread() {
             @Override
-            public void run(){
+            public void run() {
                 try {
                     FileRunner.main(new String[]{});
                 } catch (InterruptedException | IOException e) {
@@ -28,6 +27,9 @@ public class Runner {
         };
 
         thread.start();
+
+        WatchServiceRunner.main(new String[]{});
+
         thread.join();
     }
 }
