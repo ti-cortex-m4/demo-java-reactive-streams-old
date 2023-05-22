@@ -126,7 +126,8 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             }
         }
 
-        // By rule 1.2, a Publisher may signal fewer onNext than requested and terminate the Subscription by calling onComplete or onError.
+        // By rule 1.2, a Publisher may signal fewer onNext than requested
+        // and terminate the Subscription by calling onComplete or onError.
         private void doNext() {
             int batchLeft = batchSize;
             do {
@@ -143,7 +144,8 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                 subscriber.onNext(next);
 
                 if (!hasNext) {
-                    // By rule 1.6, if a Publisher signals onComplete on a Subscriber, that Subscriber’s Subscription must be considered cancelled.
+                    // By rule 1.6, if a Publisher signals onComplete on a Subscriber,
+                    // that Subscriber’s Subscription must be considered cancelled.
                     doCancel();
                     // By rule 1.5, if a Publisher terminates successfully it must signal an onComplete.
                     subscriber.onComplete();
@@ -160,7 +162,8 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         }
 
         private void doError(Throwable t) {
-            // By rule 1.6, if a Publisher signals onError on a Subscriber, that Subscriber’s Subscription must be considered cancelled.
+            // By rule 1.6, if a Publisher signals onError on a Subscriber,
+            // that Subscriber’s Subscription must be considered cancelled.
             cancelled.set(true);
             subscriber.onError(t);
         }
