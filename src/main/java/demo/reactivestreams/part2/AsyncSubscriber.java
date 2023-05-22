@@ -175,7 +175,8 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     @Override
     public void run() {
-        // By rule 2.7, a Subscriber must ensure that all calls on its Subscription's request, cancel methods are performed serially.
+        // By rule 2.7, a Subscriber must ensure that all calls on its Subscription's request, cancel methods
+        // are performed serially.
         if (mutex.get()) {
             try {
                 Signal signal = signalsQueue.poll();
