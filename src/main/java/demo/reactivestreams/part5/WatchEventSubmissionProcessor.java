@@ -9,7 +9,8 @@ import java.nio.file.WatchEvent;
 import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 
-public class WatchEventSubmissionProcessor extends SubmissionPublisher<String> implements Flow.Processor<WatchEvent<Path>, String> {
+public class WatchEventSubmissionProcessor extends SubmissionPublisher<String>
+    implements Flow.Processor<WatchEvent<Path>, String> {
 
     private static final Logger logger = LoggerFactory.getLogger(WatchEventSubmissionProcessor.class);
 
