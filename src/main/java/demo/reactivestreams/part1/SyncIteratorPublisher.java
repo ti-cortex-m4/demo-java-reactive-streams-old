@@ -22,7 +22,8 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
     @Override
     public void subscribe(Flow.Subscriber<? super T> subscriber) {
-        // By rule 1.11, a Publisher may support multiple Subscribers and decide whether each Subscription is unicast or multicast.
+        // By rule 1.11, a Publisher may support multiple Subscribers and decide
+        // whether each Subscription is unicast or multicast.
         new SubscriptionImpl(subscriber);
     }
 

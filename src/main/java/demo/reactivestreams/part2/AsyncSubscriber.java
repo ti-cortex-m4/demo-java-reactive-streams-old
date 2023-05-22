@@ -74,7 +74,8 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
     private void doSubscribe(Flow.Subscription subscription) {
         if (this.subscription.get() != null) {
-            // By rule 2.5, a Subscriber must call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
+            // By rule 2.5, a Subscriber must call Subscription.cancel() on the given Subscription
+            // after an onSubscribe signal if it already has an active Subscription.
             subscription.cancel();
         } else {
             this.subscription.set(subscription);
@@ -84,7 +85,8 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     private void doNext(T element) {
-        // By rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
+        // By rule 2.8, a Subscriber must be prepared to receive one or more onNext signals
+        // after having called Subscription.cancel()
         if (!cancelled.get()) {
             if (whenNext(element)) {
                 // By rule 2.1, a Subscriber must signal demand via Subscription.request(long) to receive onNext signals.
