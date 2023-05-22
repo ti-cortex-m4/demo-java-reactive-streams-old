@@ -41,10 +41,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
         private final Flow.Subscriber<? super T> subscriber;
         private final AtomicLong demand = new AtomicLong(0);
         private final AtomicBoolean cancelled = new AtomicBoolean(false);
-        // The non-blocking queue to transmit signals in a thread-safe way.
-        private final Queue<Signal> signalsQueue = new ConcurrentLinkedQueue<>();
-        // The mutex to establish the happens-before relationship between asynchronous signal calls.
-        private final AtomicBoolean mutex = new AtomicBoolean(false);
+
         private Iterator<? extends T> iterator;
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
@@ -108,20 +105,13 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             if (n <= 0) {
                 // By rule 3.9, while the Subscription is not cancelled, Subscription.request(long) must signal onError with a IllegalArgumentException if the argument is <= 0.
                 doError(new IllegalArgumentException("non-positive subscription request"));
+            } else if (demand.get() + n <= 0) {
+                // By rule 3.17, a Subscription must support a demand up to Long.MAX_VALUE.
+                demand.set(Long.MAX_VALUE);
+                doNext();
             } else {
-                if (demand.get() == Long.MAX_VALUE) {
-                    // By rule 3.17, a demand equal or greater than Long.MAX_VALUE may be considered by the Publisher as "effectively unbounded".
-                    return;
-                }
-
-                if (demand.get() + n <= 0) {
-                    // By rule 3.17, a Subscription must support a demand up to Long.MAX_VALUE.
-                    demand.set(Long.MAX_VALUE);
-                } else {
-                    // By rule 3.8, while the Subscription is not cancelled, Subscription.request(long) must register the given number of additional elements to be produced to the respective Subscriber.
-                    demand.addAndGet(n);
-                }
-
+                // By rule 3.8, while the Subscription is not cancelled, Subscription.request(long) must register the given number of additional elements to be produced to the respective Subscriber.
+                demand.addAndGet(n);
                 doNext();
             }
         }
@@ -165,6 +155,50 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
             subscriber.onError(t);
         }
 
+        // These classes represent the asynchronous signals.
+        private interface Signal extends Runnable {
+        }
+
+        private class Subscribe implements Signal {
+            @Override
+            public void run() {
+                doSubscribe();
+            }
+        }
+
+        private class Request implements Signal {
+            private final long n;
+
+            Request(long n) {
+                this.n = n;
+            }
+
+            @Override
+            public void run() {
+                doRequest(n);
+            }
+        }
+
+        private class Next implements Signal {
+            @Override
+            public void run() {
+                doNext();
+            }
+        }
+
+        private class Cancel implements Signal {
+            @Override
+            public void run() {
+                doCancel();
+            }
+        }
+
+        // The non-blocking queue to transmit signals in a thread-safe way.
+        private final Queue<Signal> signalsQueue = new ConcurrentLinkedQueue<>();
+
+        // The mutex to establish the happens-before relationship between asynchronous signal calls.
+        private final AtomicBoolean mutex = new AtomicBoolean(false);
+
         private void signal(Signal signal) {
             logger.debug("signal.offer {}", signal);
             if (signalsQueue.offer(signal)) {
@@ -207,44 +241,6 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
                         }
                     }
                 }
-            }
-        }
-
-        // These classes represent the asynchronous signals.
-        private interface Signal extends Runnable {
-        }
-
-        private class Subscribe implements Signal {
-            @Override
-            public void run() {
-                doSubscribe();
-            }
-        }
-
-        private class Request implements Signal {
-            private final long n;
-
-            Request(long n) {
-                this.n = n;
-            }
-
-            @Override
-            public void run() {
-                doRequest(n);
-            }
-        }
-
-        private class Next implements Signal {
-            @Override
-            public void run() {
-                doNext();
-            }
-        }
-
-        private class Cancel implements Signal {
-            @Override
-            public void run() {
-                doCancel();
             }
         }
     }
