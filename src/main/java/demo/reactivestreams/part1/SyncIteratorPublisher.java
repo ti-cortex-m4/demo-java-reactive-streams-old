@@ -34,7 +34,8 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
         private final AtomicBoolean cancelled = new AtomicBoolean(false);
 
         SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
-            // By rule 1.9, calling Publisher.subscribe(Subscriber) must throw a NullPointerException when the given parameter is null.
+            // By rule 1.9, calling Publisher.subscribe(Subscriber)
+            // must throw a NullPointerException when the given parameter is null.
             this.subscriber = Objects.requireNonNull(subscriber);
 
             Iterator<? extends T> iterator = null;
