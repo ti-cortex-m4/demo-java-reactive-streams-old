@@ -20,7 +20,8 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
    @Override
    public void subscribe(Flow.Subscriber<? super T> subscriber) {
-       // By rule 1.11, a Publisher may support multiple Subscribers and decide whether each Subscription is unicast or multicast.
+       // By rule 1.11, a Publisher may support multiple Subscribers and decide
+       // whether each Subscription is unicast or multicast.
        new SubscriptionImpl(subscriber);
    }
 
@@ -32,7 +33,8 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
        private final AtomicBoolean cancelled = new AtomicBoolean(false);
 
        SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
-           // By rule 1.9, calling Publisher.subscribe(Subscriber) must throw a NullPointerException when the given parameter is null.
+           // By rule 1.9, calling Publisher.subscribe(Subscriber)
+           // must throw a NullPointerException when the given parameter is null.
            this.subscriber = Objects.requireNonNull(subscriber);
 
            Iterator<? extends T> iterator = null;
@@ -63,7 +65,8 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
        public void request(long n) {
            logger.info("subscription.request: {}", n);
 
-           // By rule 3.9, while the Subscription is not cancelled, Subscription.request(long) must signal onError with a IllegalArgumentException if the argument is <= 0.
+           // By rule 3.9, while the Subscription is not cancelled, Subscription.request(long)
+           // must signal onError with a IllegalArgumentException if the argument is <= 0.
            if ((n <= 0) && !cancelled.get()) {
                doCancel();
                subscriber.onError(new IllegalArgumentException("non-positive subscription request"));
@@ -73,18 +76,21 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
            for (;;) {
                long oldDemand = demand.get();
                if (oldDemand == Long.MAX_VALUE) {
-                   // By rule 3.17, a demand equal or greater than Long.MAX_VALUE may be considered by the Publisher as "effectively unbounded".
+                   // By rule 3.17, a demand equal or greater than Long.MAX_VALUE
+                   // may be considered by the Publisher as "effectively unbounded".
                    return;
                }
 
-               // By rule 3.8, while the Subscription is not cancelled, Subscription.request(long) must register the given number of additional elements to be produced to the respective Subscriber.
+               // By rule 3.8, while the Subscription is not cancelled, Subscription.request(long)
+               // must register the given number of additional elements to be produced to the respective Subscriber.
                long newDemand = oldDemand + n;
                if (newDemand < 0) {
                    // By rule 3.17, a Subscription must support a demand up to Long.MAX_VALUE.
                    newDemand = Long.MAX_VALUE;
                }
 
-               // By rule 3.3, Subscription.request must place an upper bound on possible synchronous recursion between Publisher and Subscriber.
+               // By rule 3.3, Subscription.request must place an upper bound on possible synchronous recursion
+               // between Publisher and Subscriber.
                if (demand.compareAndSet(oldDemand, newDemand)) {
                    if (oldDemand > 0) {
                        return;
@@ -93,13 +99,15 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                }
            }
 
-           // By rule 1.2, a Publisher may signal fewer onNext than requested and terminate the Subscription by calling onError.
+           // By rule 1.2, a Publisher may signal fewer onNext than requested
+           // and terminate the Subscription by calling onError.
            for (; demand.get() > 0 && iterator.hasNext() && !cancelled.get(); demand.decrementAndGet()) {
                try {
                    subscriber.onNext(iterator.next());
                } catch (Throwable t) {
                    if (!cancelled.get()) {
-                       // By rule 1.6, if a Publisher signals onError on a Subscriber, that Subscriber's Subscription must be considered cancelled.
+                       // By rule 1.6, if a Publisher signals onError on a Subscriber,
+                       // that Subscriber's Subscription must be considered cancelled.
                        doCancel();
                        // By rule 1.4, if a Publisher fails it must signal an onError.
                        subscriber.onError(t);
@@ -107,9 +115,11 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
                }
            }
 
-           // By rule 1.2, a Publisher may signal fewer onNext than requested and terminate the Subscription by calling onComplete.
+           // By rule 1.2, a Publisher may signal fewer onNext than requested
+           // and terminate the Subscription by calling onComplete.
            if (!iterator.hasNext() && !cancelled.get()) {
-               // By rule 1.6, if a Publisher signals onComplete on a Subscriber, that Subscriber's Subscription must be considered cancelled.
+               // By rule 1.6, if a Publisher signals onComplete on a Subscriber,
+               // that Subscriber's Subscription must be considered cancelled.
                doCancel();
                // By rule 1.5, if a Publisher terminates successfully it must signal an onComplete.
                subscriber.onComplete();
@@ -127,7 +137,8 @@ public class SyncIteratorPublisher<T> implements Flow.Publisher<T> {
        }
 
        private void doError(Throwable t) {
-           // By rule 1.6, if a Publisher signals onError on a Subscriber, that Subscriber's Subscription must be considered cancelled.
+           // By rule 1.6, if a Publisher signals onError on a Subscriber,
+           // that Subscriber's Subscription must be considered cancelled.
            cancelled.set(true);
            subscriber.onError(t);
        }
@@ -158,7 +169,8 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
        Objects.requireNonNull(subscription);
 
        if (this.subscription.get() != null) {
-           // By rule 2.5, a Subscriber must call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
+           // By rule 2.5, a Subscriber must call Subscription.cancel() on the given Subscription
+           // after an onSubscribe signal if it already has an active Subscription.
            subscription.cancel();
        } else {
            this.subscription.set(subscription);
@@ -173,7 +185,8 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
        // By rule 2.13, calling onNext must throw a NullPointerException when the given parameter is null.
        Objects.requireNonNull(item);
 
-       // By rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
+       // By rule 2.8, a Subscriber must be prepared to receive one or more onNext signals
+       // after having called Subscription.cancel()
        if (!cancelled.get()) {
            if (whenNext(item)) {
                // By rule 2.1, a Subscriber must signal demand via Subscription.request(long) to receive onNext signals.
@@ -191,7 +204,8 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
        // By rule 2.13, calling onError must throw a NullPointerException when the given parameter is null.
        Objects.requireNonNull(t);
 
-       // By rule 2.4, Subscriber.onError(Throwable) must consider the Subscription cancelled after having received the signal.
+       // By rule 2.4, Subscriber.onError(Throwable) must consider the Subscription cancelled
+       // after having received the signal.
        cancelled.set(true);
        whenError(t);
    }
@@ -200,7 +214,8 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
    public void onComplete() {
        logger.info("({}) subscriber.complete", id);
 
-       // By rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled after having received the signal.
+       // By rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled
+       // after having received the signal.
        cancelled.set(true);
        whenComplete();
    }
@@ -209,7 +224,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
        completed.await();
    }
 
-   // This method is invoked when OnNext signals arrive and returns whether more elements are desired or not.
+   // This method is invoked when OnNext signals arrive and returns whether more elements are desired.
    protected boolean whenNext(T item) {
        return true;
    }
@@ -238,7 +253,8 @@ The following code fragment demonstrates that this _multicast_ synchronous Publi
 
 ```java
 List<String> words = List.of("The quick brown fox jumps over the lazy dog.".split(" "));
-SyncIteratorPublisher<String> publisher = new SyncIteratorPublisher<>(() -> List.copyOf(words).iterator());
+Supplier<Iterator<? extends String>> iteratorSupplier = () -> List.copyOf(words).iterator();
+SyncIteratorPublisher<String> publisher = new SyncIteratorPublisher<>(iteratorSupplier);
 
 SyncSubscriber<String> subscriber1 = new SyncSubscriber<>(1);
 publisher.subscribe(subscriber1);
@@ -255,48 +271,48 @@ The invocation log of this fragment shows that the synchronous Publisher sends a
 
 
 ```
-12:49:23.324  main                              (1) subscriber.subscribe: demo.reactivestreams.part1.SyncIteratorPublisher$SubscriptionImpl@7d907bac
-12:49:23.326  main                              subscription.request: 1
-12:49:23.326  main                              (1) subscriber.next: The
-12:49:23.326  main                              subscription.request: 1
-12:49:23.326  main                              (1) subscriber.next: quick
-12:49:23.326  main                              subscription.request: 1
-12:49:23.326  main                              (1) subscriber.next: brown
-12:49:23.326  main                              subscription.request: 1
-12:49:23.326  main                              (1) subscriber.next: fox
-12:49:23.326  main                              subscription.request: 1
-12:49:23.326  main                              (1) subscriber.next: jumps
-12:49:23.326  main                              subscription.request: 1
-12:49:23.326  main                              (1) subscriber.next: over
-12:49:23.327  main                              subscription.request: 1
-12:49:23.327  main                              (1) subscriber.next: the
-12:49:23.327  main                              subscription.request: 1
-12:49:23.327  main                              (1) subscriber.next: lazy
-12:49:23.327  main                              subscription.request: 1
-12:49:23.327  main                              (1) subscriber.next: dog.
-12:49:23.327  main                              subscription.request: 1
-12:49:23.327  main                              (1) subscriber.complete
-12:49:23.327  main                              (2) subscriber.subscribe: demo.reactivestreams.part1.SyncIteratorPublisher$SubscriptionImpl@5ae63ade
-12:49:23.327  main                              subscription.request: 1
-12:49:23.327  main                              (2) subscriber.next: The
-12:49:23.327  main                              subscription.request: 1
-12:49:23.327  main                              (2) subscriber.next: quick
-12:49:23.327  main                              subscription.request: 1
-12:49:23.327  main                              (2) subscriber.next: brown
-12:49:23.327  main                              subscription.request: 1
-12:49:23.327  main                              (2) subscriber.next: fox
-12:49:23.327  main                              subscription.request: 1
-12:49:23.327  main                              (2) subscriber.next: jumps
-12:49:23.327  main                              subscription.request: 1
-12:49:23.327  main                              (2) subscriber.next: over
-12:49:23.327  main                              subscription.request: 1
-12:49:23.327  main                              (2) subscriber.next: the
-12:49:23.327  main                              subscription.request: 1
-12:49:23.327  main                              (2) subscriber.next: lazy
-12:49:23.327  main                              subscription.request: 1
-12:49:23.327  main                              (2) subscriber.next: dog.
-12:49:23.327  main                              subscription.request: 1
-12:49:23.327  main                              (2) subscriber.complete
+16:49:28.973  main                              (1) subscriber.subscribe: demo.reactivestreams.part1.SyncIteratorPublisher$SubscriptionImpl@7791a895
+16:49:28.976  main                              subscription.request: 1
+16:49:28.976  main                              (1) subscriber.next: The
+16:49:28.976  main                              subscription.request: 1
+16:49:28.976  main                              (1) subscriber.next: quick
+16:49:28.976  main                              subscription.request: 1
+16:49:28.976  main                              (1) subscriber.next: brown
+16:49:28.976  main                              subscription.request: 1
+16:49:28.976  main                              (1) subscriber.next: fox
+16:49:28.976  main                              subscription.request: 1
+16:49:28.976  main                              (1) subscriber.next: jumps
+16:49:28.976  main                              subscription.request: 1
+16:49:28.976  main                              (1) subscriber.next: over
+16:49:28.976  main                              subscription.request: 1
+16:49:28.976  main                              (1) subscriber.next: the
+16:49:28.976  main                              subscription.request: 1
+16:49:28.976  main                              (1) subscriber.next: lazy
+16:49:28.976  main                              subscription.request: 1
+16:49:28.976  main                              (1) subscriber.next: dog.
+16:49:28.976  main                              subscription.request: 1
+16:49:28.976  main                              (1) subscriber.complete
+16:49:28.976  main                              (2) subscriber.subscribe: demo.reactivestreams.part1.SyncIteratorPublisher$SubscriptionImpl@610694f1
+16:49:28.977  main                              subscription.request: 1
+16:49:28.977  main                              (2) subscriber.next: The
+16:49:28.977  main                              subscription.request: 1
+16:49:28.977  main                              (2) subscriber.next: quick
+16:49:28.977  main                              subscription.request: 1
+16:49:28.977  main                              (2) subscriber.next: brown
+16:49:28.977  main                              subscription.request: 1
+16:49:28.977  main                              (2) subscriber.next: fox
+16:49:28.977  main                              subscription.request: 1
+16:49:28.977  main                              (2) subscriber.next: jumps
+16:49:28.977  main                              subscription.request: 1
+16:49:28.977  main                              (2) subscriber.next: over
+16:49:28.977  main                              subscription.request: 1
+16:49:28.977  main                              (2) subscriber.next: the
+16:49:28.977  main                              subscription.request: 1
+16:49:28.977  main                              (2) subscriber.next: lazy
+16:49:28.977  main                              subscription.request: 1
+16:49:28.977  main                              (2) subscriber.next: dog.
+16:49:28.977  main                              subscription.request: 1
+16:49:28.977  main                              (2) subscriber.complete
 ```
 
 
@@ -324,112 +340,23 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 
    @Override
    public void subscribe(Flow.Subscriber<? super T> subscriber) {
-       // By rule 1.11, a Publisher may support multiple Subscribers and decide whether each Subscription is unicast or multicast.
+       // By rule 1.11, a Publisher may support multiple Subscribers and decide
+       // whether each Subscription is unicast or multicast.
        new SubscriptionImpl(subscriber).init();
    }
 
    private class SubscriptionImpl implements Flow.Subscription, Runnable {
 
        private final Flow.Subscriber<? super T> subscriber;
+       private final AtomicLong demand = new AtomicLong(0);
+       private final AtomicBoolean cancelled = new AtomicBoolean(false);
 
        private Iterator<? extends T> iterator;
-       private long demand = 0;
-       private boolean cancelled = false;
 
        SubscriptionImpl(Flow.Subscriber<? super T> subscriber) {
-           // By rule 1.9, calling Publisher.subscribe must throw a NullPointerException when the given parameter is null.
+           // By rule 1.9, calling Publisher.subscribe(Subscriber)
+           // must throw a NullPointerException when the given parameter is null.
            this.subscriber = Objects.requireNonNull(subscriber);
-       }
-
-       private void doSubscribe() {
-           try {
-               iterator = iteratorSupplier.get();
-           } catch (Throwable throwable) {
-               // By rule 1.9, a Publisher must call onSubscribe prior onError if Publisher.subscribe(Subscriber) fails.
-               subscriber.onSubscribe(new Flow.Subscription() {
-                   @Override
-                   public void cancel() {
-                   }
-
-                   @Override
-                   public void request(long n) {
-                   }
-               });
-               // By rule 1.4, if a Publisher fails it must signal an onError.
-               doError(throwable);
-           }
-
-           if (!cancelled) {
-               subscriber.onSubscribe(this);
-
-               boolean hasNext = false;
-               try {
-                   hasNext = iterator.hasNext();
-               } catch (Throwable throwable) {
-                   // By rule 1.4, if a Publisher fails it must signal an onError.
-                   doError(throwable);
-               }
-
-               if (!hasNext) {
-                   doCancel();
-                   subscriber.onComplete();
-               }
-           }
-       }
-
-       private void doRequest(long n) {
-           if (n <= 0) {
-               // By rule 3.9, while the Subscription is not cancelled, Subscription.request(long) must signal onError with a IllegalArgumentException if the argument is <= 0.
-               doError(new IllegalArgumentException("non-positive subscription request"));
-           } else if (demand + n <= 0) {
-               // By rule 3.17, a Subscription must support a demand up to Long.MAX_VALUE.
-               demand = Long.MAX_VALUE;
-               doNext();
-           } else {
-               // By rule 3.8, while the Subscription is not cancelled, Subscription.request(long) must register the given number of additional elements to be produced to the respective Subscriber.
-               demand += n;
-               doNext();
-           }
-       }
-
-       // By rule 1.2, a Publisher may signal fewer onNext than requested and terminate the Subscription by calling onComplete or onError.
-       private void doNext() {
-           int batchLeft = batchSize;
-           do {
-               T next;
-               boolean hasNext;
-               try {
-                   next = iterator.next();
-                   hasNext = iterator.hasNext();
-               } catch (Throwable throwable) {
-                   // By rule 1.4, if a Publisher fails it must signal an onError.
-                   doError(throwable);
-                   return;
-               }
-               subscriber.onNext(next);
-
-               if (!hasNext) {
-                   // By rule 1.6, if a Publisher signals onComplete on a Subscriber, that Subscriber's Subscription must be considered cancelled.
-                   doCancel();
-                   // By rule 1.5, if a Publisher terminates successfully it must signal an onComplete.
-                   subscriber.onComplete();
-               }
-           } while (!cancelled && --batchLeft > 0 && --demand > 0);
-
-           if (!cancelled && demand > 0) {
-               signal(new Next());
-           }
-       }
-
-       private void doCancel() {
-           logger.info("subscription.cancelled");
-           cancelled = true;
-       }
-
-       private void doError(Throwable throwable) {
-           // By rule 1.6, if a Publisher signals onError on a Subscriber, that Subscriber's Subscription must be considered cancelled.
-           cancelled = true;
-           subscriber.onError(throwable);
        }
 
        private void init() {
@@ -446,6 +373,109 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
        public void cancel() {
            logger.info("subscription.cancel");
            signal(new Cancel());
+       }
+
+       private void doSubscribe() {
+           try {
+               iterator = iteratorSupplier.get();
+           } catch (Throwable t) {
+               // By rule 1.9, a Publisher must call onSubscribe prior onError if Publisher.subscribe(Subscriber) fails.
+               subscriber.onSubscribe(new Flow.Subscription() {
+                   @Override
+                   public void cancel() {
+                   }
+
+                   @Override
+                   public void request(long n) {
+                   }
+               });
+               // By rule 1.4, if a Publisher fails it must signal an onError.
+               doError(t);
+           }
+
+           if (!cancelled.get()) {
+               subscriber.onSubscribe(this);
+
+               boolean hasNext = false;
+               try {
+                   hasNext = iterator.hasNext();
+               } catch (Throwable t) {
+                   // By rule 1.4, if a Publisher fails it must signal an onError.
+                   doError(t);
+               }
+
+               if (!hasNext) {
+                   doCancel();
+                   subscriber.onComplete();
+               }
+           }
+       }
+
+       private void doRequest(long n) {
+           if (n <= 0) {
+               // By rule 3.9, while the Subscription is not cancelled, Subscription.request(long)
+               // must signal onError with a IllegalArgumentException if the argument is <= 0.
+               doError(new IllegalArgumentException("non-positive subscription request"));
+           } else {
+               if (demand.get() == Long.MAX_VALUE) {
+                   // By rule 3.17, a demand equal or greater than Long.MAX_VALUE
+                   // may be considered by the Publisher as "effectively unbounded".
+                   return;
+               }
+
+               if (demand.get() + n <= 0) {
+                   // By rule 3.17, a Subscription must support a demand up to Long.MAX_VALUE.
+                   demand.set(Long.MAX_VALUE);
+               } else {
+                   // By rule 3.8, while the Subscription is not cancelled, Subscription.request(long)
+                   // must register the given number of additional elements to be produced to the respective Subscriber.
+                   demand.addAndGet(n);
+               }
+
+               doNext();
+           }
+       }
+
+       // By rule 1.2, a Publisher may signal fewer onNext than requested
+       // and terminate the Subscription by calling onComplete or onError.
+       private void doNext() {
+           int batchLeft = batchSize;
+           do {
+               T next;
+               boolean hasNext;
+               try {
+                   next = iterator.next();
+                   hasNext = iterator.hasNext();
+               } catch (Throwable t) {
+                   // By rule 1.4, if a Publisher fails it must signal an onError.
+                   doError(t);
+                   return;
+               }
+               subscriber.onNext(next);
+
+               if (!hasNext) {
+                   // By rule 1.6, if a Publisher signals onComplete on a Subscriber,
+                   // that Subscriber's Subscription must be considered cancelled.
+                   doCancel();
+                   // By rule 1.5, if a Publisher terminates successfully it must signal an onComplete.
+                   subscriber.onComplete();
+               }
+           } while (!cancelled.get() && --batchLeft > 0 && demand.decrementAndGet() > 0);
+
+           if (!cancelled.get() && demand.get() > 0) {
+               signal(new Next());
+           }
+       }
+
+       private void doCancel() {
+           cancelled.set(true);
+       }
+
+       private void doError(Throwable t) {
+           // By rule 1.6, if a Publisher signals onError on a Subscriber,
+           // that Subscriber's Subscription must be considered cancelled.
+           cancelled.set(true);
+           subscriber.onError(t);
        }
 ```
 
@@ -499,13 +529,12 @@ The unbounded, thread-safe, non-blocking ConcurrentLinkedQueue queue transmits t
 
 ```java
        // The non-blocking queue to transmit signals in a thread-safe way.
-       private final ConcurrentLinkedQueue<Signal> signalsQueue = new ConcurrentLinkedQueue<>();
+       private final Queue<Signal> signalsQueue = new ConcurrentLinkedQueue<>();
 
        // The mutex to establish the happens-before relationship between asynchronous signal calls.
        private final AtomicBoolean mutex = new AtomicBoolean(false);
 
        private void signal(Signal signal) {
-           logger.debug("signal.offer {}", signal);
            if (signalsQueue.offer(signal)) {
                tryExecute();
            }
@@ -513,12 +542,12 @@ The unbounded, thread-safe, non-blocking ConcurrentLinkedQueue queue transmits t
 
        @Override
        public void run() {
-           // By rule 1.3, a Subscriber must ensure that all calls on its Subscriber's onSubscribe, onNext, onError, onComplete signaled to a Subscriber must be signaled serially.
+           // By rule 1.3, a Subscriber must ensure that all calls on its Subscriber's
+           // onSubscribe, onNext, onError, onComplete signaled to a Subscriber must be signaled serially.
            if (mutex.get()) {
                try {
                    Signal signal = signalsQueue.poll();
-                   logger.debug("signal.poll {}", signal);
-                   if (!cancelled) {
+                   if (!cancelled.get()) {
                        signal.run();
                    }
                } finally {
@@ -534,12 +563,12 @@ The unbounded, thread-safe, non-blocking ConcurrentLinkedQueue queue transmits t
            if (mutex.compareAndSet(false, true)) {
                try {
                    executor.execute(this);
-               } catch (Throwable throwable) {
-                   if (!cancelled) {
+               } catch (Throwable t) {
+                   if (!cancelled.get()) {
                        doCancel();
                        try {
                            // By rule 1.4, if a Publisher fails it must signal an onError.
-                           doError(new IllegalStateException(throwable));
+                           doError(new IllegalStateException(t));
                        } finally {
                            signalsQueue.clear();
                            mutex.set(false);
@@ -559,12 +588,13 @@ The following code sample demonstrates an asynchronous Subscriber that also _pul
 ```java
 public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 
+   private static final Logger logger = LoggerFactory.getLogger(AsyncSubscriber.class);
+
    private final int id;
+   private final AtomicReference<Flow.Subscription> subscription = new AtomicReference<>();
+   private final AtomicBoolean cancelled = new AtomicBoolean(false);
    private final CountDownLatch completed = new CountDownLatch(1);
    private final Executor executor;
-
-   private Flow.Subscription subscription;
-   private boolean cancelled = false;
 
    public AsyncSubscriber(int id, Executor executor) {
        this.id = id;
@@ -586,10 +616,10 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
    }
 
    @Override
-   public void onError(Throwable throwable) {
-       logger.error("({}) subscriber.error", id, throwable);
+   public void onError(Throwable t) {
+       logger.error("({}) subscriber.error", id, t);
        // By rule 2.13, calling onError must throw a NullPointerException when the given parameter is null.
-       signal(new OnError(Objects.requireNonNull(throwable)));
+       signal(new OnError(Objects.requireNonNull(t)));
    }
 
    @Override
@@ -602,13 +632,13 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
        completed.await();
    }
 
-   // This method is invoked when OnNext signals arrive and returns whether more elements are desired or not.
+   // This method is invoked when OnNext signals arrive and returns whether more elements are desired.
    protected boolean whenNext(T item) {
        return true;
    }
 
    // This method is invoked when an OnError signal arrives.
-   protected void whenError(Throwable throwable) {
+   protected void whenError(Throwable t) {
    }
 
    // This method is invoked when an OnComplete signal arrives.
@@ -617,22 +647,24 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
    }
 
    private void doSubscribe(Flow.Subscription subscription) {
-       if (this.subscription != null) {
-           // By rule 2.5, a Subscriber must call Subscription.cancel() on the given Subscription after an onSubscribe signal if it already has an active Subscription.
+       if (this.subscription.get() != null) {
+           // By rule 2.5, a Subscriber must call Subscription.cancel() on the given Subscription
+           // after an onSubscribe signal if it already has an active Subscription.
            subscription.cancel();
        } else {
-           this.subscription = subscription;
+           this.subscription.set(subscription);
            // By rule 2.1, a Subscriber must signal demand via Subscription.request(long) to receive onNext signals.
-           this.subscription.request(1);
+           this.subscription.get().request(1);
        }
    }
 
    private void doNext(T element) {
-       // By rule 2.8, a Subscriber must be prepared to receive one or more onNext signals after having called Subscription.cancel()
-       if (!cancelled) {
+       // By rule 2.8, a Subscriber must be prepared to receive one or more onNext signals
+       // after having called Subscription.cancel()
+       if (!cancelled.get()) {
            if (whenNext(element)) {
                // By rule 2.1, a Subscriber must signal demand via Subscription.request(long) to receive onNext signals.
-               subscription.request(1);
+               subscription.get().request(1);
            } else {
                // By rule 2.6, a Subscriber must call Subscription.cancel() if the Subscription is no longer needed.
                doCancel();
@@ -640,21 +672,23 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
        }
    }
 
-   private void doError(Throwable throwable) {
-       // By rule 2.4, Subscriber.onError(Throwable) must consider the Subscription cancelled after having received the signal.
-       cancelled = true;
-       whenError(throwable);
+   private void doError(Throwable t) {
+       // By rule 2.4, Subscriber.onError(Throwable) must consider the Subscription cancelled
+       // after having received the signal.
+       cancelled.set(true);
+       whenError(t);
    }
 
    private void doComplete() {
-       // By rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled after having received the signal.
-       cancelled = true;
+       // By rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled
+       // after having received the signal.
+       cancelled.set(true);
        whenComplete();
    }
 
    private void doCancel() {
-       cancelled = true;
-       subscription.cancel();
+       cancelled.set(true);
+       subscription.get().cancel();
    }
 ```
 
@@ -694,15 +728,15 @@ The classes that implement the Signal interface represent asynchronous signals s
    }
 
    private class OnError implements Signal {
-       private final Throwable throwable;
+       private final Throwable t;
 
-       OnError(Throwable throwable) {
-           this.throwable = throwable;
+       OnError(Throwable t) {
+           this.t = t;
        }
 
        @Override
        public void run() {
-           doError(throwable);
+           doError(t);
        }
    }
 
@@ -720,19 +754,19 @@ The asynchronous Consumer uses the same ConcurrentLinkedQueue queue and AtomicBo
 
 ```java
    // The non-blocking queue to transmit signals in a thread-safe way.
-   private final ConcurrentLinkedQueue<Signal> signalsQueue = new ConcurrentLinkedQueue<>();
+   private final Queue<Signal> signalsQueue = new ConcurrentLinkedQueue<>();
 
    // The mutex to establish the happens-before relationship between asynchronous signal calls.
    private final AtomicBoolean mutex = new AtomicBoolean(false);
 
    @Override
    public void run() {
-       // By rule 2.7, a Subscriber must ensure that all calls on its Subscription's request, cancel methods are performed serially.
+       // By rule 2.7, a Subscriber must ensure that all calls on its Subscription's request, cancel methods
+       // are performed serially.
        if (mutex.get()) {
            try {
                Signal signal = signalsQueue.poll();
-               logger.debug("({}) signal.poll {}", id, signal);
-               if (!cancelled) {
+               if (!cancelled.get()) {
                    signal.run();
                }
            } finally {
@@ -745,7 +779,6 @@ The asynchronous Consumer uses the same ConcurrentLinkedQueue queue and AtomicBo
    }
 
    private void signal(Signal signal) {
-       logger.debug("({}) signal.offer {}", id, signal);
        if (signalsQueue.offer(signal)) {
            tryExecute();
        }
@@ -755,8 +788,8 @@ The asynchronous Consumer uses the same ConcurrentLinkedQueue queue and AtomicBo
        if (mutex.compareAndSet(false, true)) {
            try {
                executor.execute(this);
-           } catch (Throwable throwable) {
-               if (!cancelled) {
+           } catch (Throwable t) {
+               if (!cancelled.get()) {
                    try {
                        doCancel();
                    } finally {
@@ -780,7 +813,8 @@ The following code fragment demonstrates that this _multicast_ asynchronous Publ
 ExecutorService executorService = Executors.newFixedThreadPool(3);
 
 List<String> words = List.of("The quick brown fox jumps over the lazy dog.".split(" "));
-AsyncIteratorPublisher<String> publisher = new AsyncIteratorPublisher<>(() -> List.copyOf(words).iterator(), 128, executorService);
+Supplier<Iterator<? extends String>> iteratorSupplier = () -> List.copyOf(words).iterator();
+AsyncIteratorPublisher<String> publisher = new AsyncIteratorPublisher<>(iteratorSupplier, 128, executorService);
 
 AsyncSubscriber<String> subscriber1 = new AsyncSubscriber<>(1, executorService);
 publisher.subscribe(subscriber1);
@@ -800,48 +834,48 @@ The invocation log of this fragment shows that the asynchronous Publisher sends 
 
 
 ```
-12:49:47.497  pool-1-thread-2                   (2) subscriber.subscribe: demo.reactivestreams.part2.AsyncIteratorPublisher$SubscriptionImpl@55f4365c
-12:49:47.497  pool-1-thread-1                   (1) subscriber.subscribe: demo.reactivestreams.part2.AsyncIteratorPublisher$SubscriptionImpl@3a4c8cf
-12:49:47.500  pool-1-thread-1                   subscription.request: 1
-12:49:47.500  pool-1-thread-3                   subscription.request: 1
-12:49:47.500  pool-1-thread-1                   (2) subscriber.next: The
-12:49:47.500  pool-1-thread-3                   (1) subscriber.next: The
-12:49:47.501  pool-1-thread-1                   subscription.request: 1
-12:49:47.501  pool-1-thread-2                   subscription.request: 1
-12:49:47.501  pool-1-thread-1                   (2) subscriber.next: quick
-12:49:47.501  pool-1-thread-3                   (1) subscriber.next: quick
-12:49:47.501  pool-1-thread-1                   subscription.request: 1
-12:49:47.501  pool-1-thread-3                   subscription.request: 1
-12:49:47.501  pool-1-thread-1                   (2) subscriber.next: brown
-12:49:47.501  pool-1-thread-1                   subscription.request: 1
-12:49:47.501  pool-1-thread-3                   (1) subscriber.next: brown
-12:49:47.501  pool-1-thread-1                   (2) subscriber.next: fox
-12:49:47.501  pool-1-thread-3                   subscription.request: 1
-12:49:47.501  pool-1-thread-2                   subscription.request: 1
-12:49:47.501  pool-1-thread-3                   (1) subscriber.next: fox
-12:49:47.501  pool-1-thread-2                   (2) subscriber.next: jumps
-12:49:47.501  pool-1-thread-1                   subscription.request: 1
-12:49:47.501  pool-1-thread-2                   subscription.request: 1
-12:49:47.501  pool-1-thread-1                   (1) subscriber.next: jumps
-12:49:47.501  pool-1-thread-2                   (2) subscriber.next: over
-12:49:47.501  pool-1-thread-3                   subscription.request: 1
-12:49:47.501  pool-1-thread-2                   subscription.request: 1
-12:49:47.501  pool-1-thread-3                   (1) subscriber.next: over
-12:49:47.501  pool-1-thread-2                   (2) subscriber.next: the
-12:49:47.501  pool-1-thread-3                   subscription.request: 1
-12:49:47.501  pool-1-thread-2                   subscription.request: 1
-12:49:47.501  pool-1-thread-3                   (1) subscriber.next: the
-12:49:47.501  pool-1-thread-1                   (2) subscriber.next: lazy
-12:49:47.502  pool-1-thread-1                   subscription.request: 1
-12:49:47.502  pool-1-thread-3                   subscription.request: 1
-12:49:47.502  pool-1-thread-1                   (2) subscriber.next: dog.
-12:49:47.502  pool-1-thread-3                   (1) subscriber.next: lazy
-12:49:47.502  pool-1-thread-1                   (2) subscriber.complete
-12:49:47.502  pool-1-thread-2                   subscription.request: 1
-12:49:47.502  pool-1-thread-3                   subscription.request: 1
-12:49:47.502  pool-1-thread-3                   (1) subscriber.next: dog.
-12:49:47.502  pool-1-thread-3                   (1) subscriber.complete
-12:49:47.502  pool-1-thread-2                   subscription.request: 1
+16:49:28.982  pool-1-thread-1                   (1) subscriber.subscribe: demo.reactivestreams.part2.AsyncIteratorPublisher$SubscriptionImpl@8cc3a44
+16:49:28.982  pool-1-thread-2                   (2) subscriber.subscribe: demo.reactivestreams.part2.AsyncIteratorPublisher$SubscriptionImpl@454972b8
+16:49:28.982  pool-1-thread-1                   subscription.request: 1
+16:49:28.983  pool-1-thread-3                   subscription.request: 1
+16:49:28.983  pool-1-thread-1                   (1) subscriber.next: The
+16:49:28.983  pool-1-thread-3                   (2) subscriber.next: The
+16:49:28.983  pool-1-thread-1                   subscription.request: 1
+16:49:28.983  pool-1-thread-3                   subscription.request: 1
+16:49:28.983  pool-1-thread-1                   (1) subscriber.next: quick
+16:49:28.983  pool-1-thread-2                   (2) subscriber.next: quick
+16:49:28.983  pool-1-thread-1                   subscription.request: 1
+16:49:28.983  pool-1-thread-1                   subscription.request: 1
+16:49:28.983  pool-1-thread-2                   (1) subscriber.next: brown
+16:49:28.983  pool-1-thread-1                   (2) subscriber.next: brown
+16:49:28.983  pool-1-thread-2                   subscription.request: 1
+16:49:28.983  pool-1-thread-1                   subscription.request: 1
+16:49:28.983  pool-1-thread-1                   (1) subscriber.next: fox
+16:49:28.983  pool-1-thread-2                   (2) subscriber.next: fox
+16:49:28.983  pool-1-thread-1                   subscription.request: 1
+16:49:28.983  pool-1-thread-2                   subscription.request: 1
+16:49:28.983  pool-1-thread-1                   (1) subscriber.next: jumps
+16:49:28.983  pool-1-thread-2                   (2) subscriber.next: jumps
+16:49:28.983  pool-1-thread-1                   subscription.request: 1
+16:49:28.983  pool-1-thread-2                   subscription.request: 1
+16:49:28.983  pool-1-thread-1                   (1) subscriber.next: over
+16:49:28.984  pool-1-thread-2                   (2) subscriber.next: over
+16:49:28.984  pool-1-thread-1                   subscription.request: 1
+16:49:28.984  pool-1-thread-2                   subscription.request: 1
+16:49:28.984  pool-1-thread-1                   (1) subscriber.next: the
+16:49:28.984  pool-1-thread-2                   (2) subscriber.next: the
+16:49:28.984  pool-1-thread-1                   subscription.request: 1
+16:49:28.984  pool-1-thread-3                   subscription.request: 1
+16:49:28.984  pool-1-thread-1                   (1) subscriber.next: lazy
+16:49:28.984  pool-1-thread-3                   subscription.request: 1
+16:49:28.984  pool-1-thread-2                   (2) subscriber.next: lazy
+16:49:28.984  pool-1-thread-2                   subscription.request: 1
+16:49:28.984  pool-1-thread-3                   (1) subscriber.next: dog.
+16:49:28.984  pool-1-thread-2                   (2) subscriber.next: dog.
+16:49:28.984  pool-1-thread-3                   (1) subscriber.complete
+16:49:28.984  pool-1-thread-2                   (2) subscriber.complete
+16:49:28.984  pool-1-thread-1                   subscription.request: 1
+16:49:28.984  pool-1-thread-1                   subscription.request: 1
 ```
 
 
@@ -938,18 +972,6 @@ public class WatchEventSubmissionProcessor extends SubmissionPublisher<String>
        subscription.request(1);
    }
 
-   private String decode(WatchEvent.Kind<Path> kind) {
-       if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
-           return "created";
-       } else if (kind == StandardWatchEventKinds.ENTRY_MODIFY) {
-           return "modified";
-       } else if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
-           return "deleted";
-       } else {
-           throw new RuntimeException();
-       }
-   }
-
    @Override
    public void onError(Throwable t) {
        logger.error("processor.error", t);
@@ -979,7 +1001,7 @@ try (SubmissionPublisher<WatchEvent<Path>> publisher = new WatchServiceSubmissio
    processor.subscribe(subscriber);
    publisher.subscribe(processor);
 
-   TimeUnit.SECONDS.sleep(180);
+   TimeUnit.SECONDS.sleep(60);
 
    publisher.close();
 
@@ -992,19 +1014,19 @@ The invocation log of this fragment shows that the Publisher and the Processor u
 
 
 ```
-21:38:08.926  ForkJoinPool.commonPool-worker-2  subscriber.subscribe: java.util.concurrent.SubmissionPublisher$BufferedSubscription@7650c966
-21:38:08.926  ForkJoinPool.commonPool-worker-3  processor.subscribe: java.util.concurrent.SubmissionPublisher$BufferedSubscription@7d9f8d6e
-21:38:24.215  ForkJoinPool.commonPool-worker-1  publisher.submit: path example.txt, action ENTRY_CREATE
-21:38:24.216  ForkJoinPool.commonPool-worker-3  processor.next: path example.txt, action ENTRY_CREATE
-21:38:24.219  ForkJoinPool.commonPool-worker-5  subscriber.next: file example.txt is created
-21:38:34.153  ForkJoinPool.commonPool-worker-1  publisher.submit: path example.txt, action ENTRY_MODIFY
-21:38:34.153  ForkJoinPool.commonPool-worker-5  processor.next: path example.txt, action ENTRY_MODIFY
-21:38:34.153  ForkJoinPool.commonPool-worker-3  subscriber.next: file example.txt is modified
-21:38:44.194  ForkJoinPool.commonPool-worker-1  publisher.submit: path example.txt, action ENTRY_DELETE
-21:38:44.194  ForkJoinPool.commonPool-worker-6  processor.next: path example.txt, action ENTRY_DELETE
-21:38:44.195  ForkJoinPool.commonPool-worker-3  subscriber.next: file example.txt is deleted
-21:39:08.928  main                              publisher.close
-21:39:08.928  ForkJoinPool.commonPool-worker-7  processor.completed
-21:39:08.928  ForkJoinPool.commonPool-worker-7  subscriber.complete
-21:39:08.928  main                              publisher.close
+16:49:28.988  ForkJoinPool.commonPool-worker-2  subscriber.subscribe: java.util.concurrent.SubmissionPublisher$BufferedSubscription@783e9d8b
+16:49:28.988  ForkJoinPool.commonPool-worker-3  processor.subscribe: java.util.concurrent.SubmissionPublisher$BufferedSubscription@27e4c4b3
+16:49:45.138  ForkJoinPool.commonPool-worker-1  publisher.submit: path example.txt, action ENTRY_CREATE
+16:49:45.139  ForkJoinPool.commonPool-worker-4  processor.next: path example.txt, action ENTRY_CREATE
+16:49:45.140  ForkJoinPool.commonPool-worker-4  subscriber.next: file example.txt is created
+16:49:55.149  ForkJoinPool.commonPool-worker-1  publisher.submit: path example.txt, action ENTRY_MODIFY
+16:49:55.149  ForkJoinPool.commonPool-worker-4  processor.next: path example.txt, action ENTRY_MODIFY
+16:49:55.149  ForkJoinPool.commonPool-worker-4  subscriber.next: file example.txt is modified
+16:50:05.151  ForkJoinPool.commonPool-worker-1  publisher.submit: path example.txt, action ENTRY_DELETE
+16:50:05.151  ForkJoinPool.commonPool-worker-4  processor.next: path example.txt, action ENTRY_DELETE
+16:50:05.151  ForkJoinPool.commonPool-worker-4  subscriber.next: file example.txt is deleted
+16:50:28.989  main                              publisher.close
+16:50:28.989  ForkJoinPool.commonPool-worker-7  processor.completed
+16:50:28.989  ForkJoinPool.commonPool-worker-7  subscriber.complete
+16:50:28.989  main                              publisher.close
 ```
