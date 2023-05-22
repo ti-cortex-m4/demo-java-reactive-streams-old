@@ -21,7 +21,8 @@ public class SubmissionPublisherRunner {
         SyncSubscriber<String> subscriber2 = new SyncSubscriber<>(2);
         publisher.subscribe(subscriber2);
 
-        Iterator<String> iterator = List.of("The quick brown fox jumps over the lazy dog.".split(" ")).iterator();
+        List<String> words = List.of("The quick brown fox jumps over the lazy dog.".split(" "));
+        Iterator<String> iterator = words.iterator();
         iterator.forEachRemaining(item -> {
             logger.info("publisher.submit: {}", item);
             publisher.submit(item);

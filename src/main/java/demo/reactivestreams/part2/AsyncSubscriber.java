@@ -97,13 +97,15 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
     }
 
     private void doError(Throwable t) {
-        // By rule 2.4, Subscriber.onError(Throwable) must consider the Subscription cancelled after having received the signal.
+        // By rule 2.4, Subscriber.onError(Throwable) must consider the Subscription cancelled
+        // after having received the signal.
         cancelled.set(true);
         whenError(t);
     }
 
     private void doComplete() {
-        // By rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled after having received the signal.
+        // By rule 2.4, Subscriber.onComplete() must consider the Subscription cancelled
+        // after having received the signal.
         cancelled.set(true);
         whenComplete();
     }
