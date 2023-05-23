@@ -5,7 +5,7 @@
 
 Reactive Streams is a cross-platform specification for processing a potentially infinite sequence of events across asynchronous boundaries (threads, processes, or network-connected computers) with non-blocking backpressure. A reactive stream contains a publisher, which sends forward _data_, _error_, _completion_ events, and subscribers, which send backward _request_ and _cancel_ backpressure events. There can also be intermediate processors between the publisher and the subscribers that filter or modify events.
 
-<sub>Backpressure is application-level flow control from the subscriber to the publisher to control the sending rate.</sub>
+<sub><em>Backpressure</em> is application-level flow control from the subscriber to the publisher to control the sending rate.</sub>
 
 The Reactive Streams specification is designed to efficiently process (in terms of CPU and memory usage) time-ordered sequences of events. For efficient CPU usage, the specification describes the contracts for asynchronous and non-blocking events processing in different stages (producers, processors, consumers). For efficient memory usage, the specification describes the contracts for switching between _push_ and _pull_ communication models based on the events processing rate, which avoids using unbounded buffers.
 
@@ -14,7 +14,7 @@ The Reactive Streams specification is designed to efficiently process (in terms 
 
 When designing systems for transferring items from a producer to a consumer, the goal is to send them with minimal latency and maximum throughput.
 
-<sub>Latency is the time between sending an item from the producer and its receiving by the consumer. Throughput is the number of items sent from producer to consumer per unit of time.</sub>
+<sub><em>Latency</em> is the time between sending an item from the producer and its receiving by the consumer. <em>Throughput</em> is the number of items sent from producer to consumer per unit of time.</sub>
 
 However, the producer and the consumer may have limitations that can prevent the system from achieving the best performance:
 
@@ -26,7 +26,7 @@ However, the producer and the consumer may have limitations that can prevent the
 * The producer and consumer may have a limited number of CPU cores to process items asynchronously and memory to buffer items.
 * The communication channel between the producer and the consumer may have limited bandwidth.
 
-There are several patterns for sequential item processing that solve some or most of the above limitations:
+There are several patterns for sequential item processing, that solve some or most of the above limitations:
 
 
 
@@ -170,7 +170,7 @@ Without the use of backpressure, the consumer has a few solutions to deal with e
 
 <sub>Any solution that includes dropping events on the consumer may be inefficient because these events still require I/O operations to send them from the producer.</sub>
 
-The backpressure in reactive streams is implemented as follows. To start receiving events from the producer, the consumer _pulls_ the number of items it wants to receive. Only then does the producer _push_ events to the consumer; the producer never sends them on its own initiative. After the consumer has processed all the requested events, the whole cycle repeats. In a particular case, if the consumer is known to be faster than the producer, it can work in a _push_ communication model and request all items immediately after subscribing. Or vice versa, if the consumer is known to be slower than the producer, it can work in a _pull_ communication model and request the next items only after the previous ones have been processed. Thus, the model in which reactive streams operate can be described as a _dynamic push/pull_ communication model. It works effectively if the producer is faster or slower than the consumer, or even when that ratio can change over time.
+The backpressure in Reactive Streams is implemented as follows. To start receiving events from the producer, the consumer _pulls_ the number of items it wants to receive. Only then does the producer _push_ events to the consumer; the producer never sends them on its own initiative. After the consumer has processed all the requested events, the whole cycle repeats. In a particular case, if the consumer is known to be faster than the producer, it can work in a _push_ communication model and request all items immediately after subscribing. Or vice versa, if the consumer is known to be slower than the producer, it can work in a _pull_ communication model and request the next items only after the previous ones have been processed. Thus, the model in which reactive streams operate can be described as a _dynamic push/pull_ communication model. It works effectively if the producer is faster or slower than the consumer or even when that ratio can change over time.
 
 With the use of backpressure, the producer has much more solutions to deal with excessive events:
 
@@ -189,21 +189,21 @@ Which solutions to use for a particular reactive stream depends on the nature of
 
 Reactive Streams is a [specification](https://www.reactive-streams.org/) to provide a standard for asynchronous stream processing with non-blocking backpressure for various runtime environments (JVM, .NET, and JavaScript) and network protocols. The Reactive Streams specification was created by engineers from Kaazing, Lightbend, Netflix, Pivotal, Red Hat, Twitter, and others.
 
-The specification describes the concept of a _reactive stream_ that has the following features:
+The specification describes the concept of _reactive streams_ that have the following features:
 
 
 
 * reactive streams can be _unicast_ and _multicast_: a publisher can send events to one or many consumers
 * reactive streams are potentially _unbounded_: they can handle zero, one, many, or an infinite number of events.
-* reactive streams are _sequential_: a consumer processes events in the same order that a producer sends them.
-* reactive streams can be _synchronous_ or _asynchronous_: they can use computing resources (CPU cores) for parallel processing in separate stream stages.
-* reactive streams are _non-blocking_: they do not waste computing resources if the performance of a producer and a consumer is different.
+* reactive streams are _sequential_: a consumer processes events in the same order in which a producer sends them.
+* reactive streams can be _synchronous_ or _asynchronous_: they can use computing resources for parallel processing in separate stream stages.
+* reactive streams are _non-blocking_: they do not waste computing resources if the performance of a producer and a consumer are different.
 * reactive streams use _mandatory backpressure_: a consumer can request events from a producer according to their processing rate.
 * reactive streams use _bounded buffers_: they can be implemented without unbounded buffers, avoiding memory out-of-memory errors.
 
 The Reactive Streams [specification for the JVM](https://github.com/reactive-streams/reactive-streams-jvm) (the latest version 1.0.4 was released on May 26th, 2022) contains the textual specification and the Java API, which contains four interfaces that must be implemented according to this specification. It also includes the Technology Compatibility Kit (TCK), a standard test suite for conformance testing of implementations.
 
-Importantly, the Reactive Streams specification was created after several mature but incompatible implementations of Reactive Streams already existed. Therefore, the specification is currently limited and contains only low-level APIs. Application developers should use this specification to provide _interoperability_ between existing implementations. To have high-level functional APIs (transform, filter, combine, etc.), application developers should use implementations of this specification (Lightbend Akka Streams, Pivotal Project Reactor, Netflix RxJava, etc.) through their native APIs.
+It is important to note that the Reactive Streams specification was created after several mature but incompatible implementations of Reactive Streams already existed. Therefore, the specification is currently limited and contains only low-level APIs. Application developers should use this specification to provide _interoperability_ between existing implementations. To have high-level functional APIs (transform, filter, combine, etc.), application developers should use implementations of this specification (Lightbend Akka Streams, Pivotal Project Reactor, Netflix RxJava, etc.) through their native APIs.
 
 
 ## The Reactive Streams API
@@ -224,7 +224,9 @@ The Reactive Streams API consists of four interfaces, which are located in the _
 
 The Publisher interface represents a producer of potentially infinite sequenced data and control events. A Publisher produces events according to the demand received from one or many Subscribers.
 
-<sub>Demand is the aggregated number of items requested by a Subscriber that is yet to be delivered by the Publisher.</sub>
+<sub><em>Demand</em> is the aggregated number of items requested by a Subscriber that have not yet been delivered by the Publisher.</sub>
+
+Publishers may vary about whether Subscribers receive events that were produced before they subscribed. Those publishers that can be repeated and do not start until they are subscribed to are _cold_ (in-memory iterators, file readings, database queries, etc). Those publishers that cannot be repeated and start immediately, regardless of the availability of subscribers, are _hot_ (keyboard and mouse events, sensor events, network requests, etc).
 
 
 ```java
@@ -289,7 +291,7 @@ This interface has the following methods:
 
 ### Processor
 
-The Processor interface represents a processing stage that extends the Subscriber and Publisher interfaces and obeys the contracts of both. It acts as a Subscriber for the previous stage of a reactive stream and as a publisher for the next one.
+The Processor interface represents a processing stage that extends the Subscriber and Publisher interfaces and is subject to the contracts of both. It acts as a Subscriber for the previous stage of a reactive stream and as a publisher for the next one.
 
 
 ```java
@@ -303,9 +305,11 @@ public interface Processor<T, R> extends Subscriber<T>, Publisher<R> {
 
 The Reactive Streams workflow consists of three steps: establishing a connection, exchanging data and control events, and successfully or exceptionally terminating a connection.
 
+![Reactive Streams workflow](/images/Reactive_Streams_workflow.png)
+
 When a Subscriber wants to start receiving events from a Publisher, it calls the _Publisher.subscribe(Subscriber)_ method. If the Publisher accepts the request, it creates a new Subscription instance and invokes the _Subscriber.onSubscribe(Subscription)_ method. If the Publisher rejects the request or otherwise fails, it invokes the _Subscriber.onError(Throwable)_ method.
 
-Once the Publisher and the Subscriber establish a connection with each other through the Subscription instance, the Subscriber can request events, and the Publisher can send them. When the Subscriber wants to receive events, it calls the _Subscription#request(long)_ method with the number of items requested. Typically, the first such call occurs in the _Subscriber.onSubscribe(Subscription)_ method. The Publisher sends each requested item by calling the _Subscriber.onNext(T)_ method only in response to a previous request. A Publisher can send fewer events than requested if the reactive stream ends but then must call either the _Subscriber.onComplete()_ or _Subscriber.onError(Throwable)_ methods.
+Once the Publisher and the Subscriber establish a connection with each other through the Subscription instance, the Subscriber can request events, and the Publisher can send them. When the Subscriber wants to receive events, it calls the _Subscription#request(long)_ method with the number of items requested. Typically, the first such call occurs in the _Subscriber.onSubscribe(Subscription)_ method. The Publisher sends each requested item by calling the _Subscriber.onNext(T)_ method only in response to a previous request. A Publisher can send fewer events than requested if the reactive stream ends, but then must call either the _Subscriber.onComplete()_ or _Subscriber.onError(Throwable)_ methods.
 
 If the Subscriber wants to stop receiving events, it calls the _Subscription.cancel()_ method. After calling this method, the Subscriber can continue to receive events to meet the previously requested demand. A canceled Subscription does not receive _Subscriber.onComplete()_ or _Subscriber.onError(Throwable)_ events.
 
@@ -314,7 +318,7 @@ When there are no more events, the Publisher completes the Subscription successf
 
 ## The JDK Flow API
 
-The JDK has supported the Reactive Streams specification since version 9 in the form of the Flow API. The [Flow](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/Flow.html) class contains nested static interfaces Publisher, Subscriber, Subscription, Processor, which are 100% semantically equivalent to their respective Reactive Streams counterparts. The Reactive Streams specification contains the [FlowAdapters](https://github.com/reactive-streams/reactive-streams-jvm/blob/master/api/src/main/java9/org/reactivestreams/FlowAdapters.java) class, which is a bridge between the Reactive Streams API in the _org.reactivestreams_ package and the JDK Flow API in the _java.util.concurrent.Flow_ class. The only implementation of the Reactive Streams specification that JDK provides so far is the [SubmissionPublisher](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/SubmissionPublisher.html) class that implements the Flow.Publisher interface.
+The JDK has supported the Reactive Streams specification since version 9 in the form of the Flow API. The [Flow](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/Flow.html) class contains nested static interfaces Publisher, Subscriber, Subscription, Processor, which are 100% semantically equivalent to their respective Reactive Streams counterparts. The Reactive Streams specification contains the [FlowAdapters](https://github.com/reactive-streams/reactive-streams-jvm/blob/master/api/src/main/java9/org/reactivestreams/FlowAdapters.java) class, which is a bridge between the Reactive Streams API (the _org.reactivestreams_ package) and the JDK Flow API (the _java.util.concurrent.Flow_ class). The only implementation of the Reactive Streams specification that JDK provides so far is the [SubmissionPublisher](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/SubmissionPublisher.html) class that implements the Publisher interface.
 
 
 ## Code examples
@@ -322,7 +326,7 @@ The JDK has supported the Reactive Streams specification since version 9 in the 
 
 ### Cold synchronous reactive stream
 
-The following class demonstrates a synchronous Publisher that sends a finite sequence of events from an Iterator. The _synchronous_ Publisher processes its _subscribe_ event, and the Subscription events _request_ and _cancel_ in the caller thread. This Publisher is _multicast_ and can send events to multiple Subscribers, storing information about each connection in a nested private implementation of the Subscription interface. The Subscription implementation contains the current Iterator instance, the demand, and the cancellation flag. To make a _cold_ Publisher that sends the same sequence of events for each Subscriber, the Publisher stores a Supplier that must return a new Iterator instance for each invocation. The Publisher uses different types of error handling (throwing an exception or calling the Subscriber _onError_ method) according to the Reactive Streams specification.
+The following class demonstrates a synchronous Publisher that sends a finite sequence of events from an Iterator. The _synchronous_ Publisher processes its _subscribe_ event, and the Subscription events _request_ and _cancel_ in the caller thread. This _multicast_ Publisher can send events to multiple Subscribers, storing information about each connection in a nested private implementation of the Subscription interface. The Subscription implementation contains the current Iterator instance, the demand, and the cancellation flag. To make a _cold_ Publisher that sends the same sequence of events for each Subscriber, the Publisher stores a Supplier that must return a new Iterator instance for each invocation. The Publisher uses different types of error handling (throwing an exception or calling the Subscriber _onError_ method) according to the Reactive Streams specification.
 
 
 ```java
@@ -583,7 +587,7 @@ subscriber2.awaitCompletion();
 ```
 
 
-The invocation log of this fragment shows that the synchronous Publisher sends a sequence of events in the caller thread, and the synchronous Subscribers receive a sequence of events in the Publisher thread (the same caller thread) _one at a time_.
+The invocation log of this fragment shows that the synchronous Publisher sends the sequence of events in the caller thread, and the synchronous Subscribers receive these events in the Publisher thread (the same caller thread) _one at a time_.
 
 
 ```
@@ -635,7 +639,7 @@ The invocation log of this fragment shows that the synchronous Publisher sends a
 
 ### Cold asynchronous reactive stream
 
-[code examples](https://github.com/aliakh/demo-java-reactive-streams/tree/main/src/main/java/demo/reactivestreams/part2)
+Examples of asynchronous Producer and asynchronous Consumer are given in a separate [document](https://github.com/aliakh/demo-java-reactive-streams/tree/main/src/main/java/demo/reactivestreams/part2).
 
 
 ### Hot asynchronous reactive stream
