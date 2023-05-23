@@ -6,7 +6,7 @@
 
 ### Cold asynchronous reactive stream
 
-The following class demonstrates an asynchronous Publisher that sends a finite sequence of events from an Iterator. Its structure is similar to the synchronous Producer mentioned earlier. The main difference from the synchronous Producer mentioned earlier is that this Publisher processes events in different threads than they were received. To transfer events between threads, the Publisher sends events in wrapper signal classes via a thread-safe queue.
+The following class demonstrates an asynchronous Publisher that sends a finite sequence of events from an Iterator. Its structure is similar to the synchronous Producer mentioned earlier. The main difference from the synchronous Producer is that this Publisher processes events in different threads than they were received. To transfer events between threads, the Publisher sends them in wrapper signal classes via a thread-safe queue.
 
 
 ```java
@@ -48,7 +48,7 @@ public class AsyncIteratorPublisher<T> implements Flow.Publisher<T> {
 ```
 
 
-These methods send the signals to process events _Publisher.subscribe_, _Subscription.request_, _Subscription.cancel_ from the caller thread.
+These methods send the signals to process the _Publisher.subscribe_, _Subscription.request_, _Subscription.cancel_ events.
 
 
 ```java
@@ -70,7 +70,7 @@ These methods send the signals to process events _Publisher.subscribe_, _Subscri
 ```
 
 
-These methods process these events in other worker threads of the given Executor instance.
+These methods process these events in worker threads of the given Executor instance.
 
 
 ```java
@@ -179,7 +179,7 @@ These methods process these events in other worker threads of the given Executor
 ```
 
 
-These classes, which implement the Signal interface, represent asynchronous signals sent from the caller thread to the Executor worker thread. The Subscribe class is a signal to create a new subscription. The Request and Cancel classes are signals for processing the Subscription events _request_ and _cancel_. The Next class is a signal to send multiple Subscriber _onNext_ events during a single asynchronous call to avoid frequent thread context switches.
+These classes, which implement the Signal interface, represent the asynchronous signals. The Subscribe class is a signal to create a new subscription. The Request and Cancel classes are signals for processing the Subscription’s events _request_ and _cancel_. The Next class is a signal to send multiple Subscriber _onNext_ events during a single asynchronous call to avoid frequent thread context switches.
 
 
 ```java
@@ -223,7 +223,7 @@ These classes, which implement the Signal interface, represent asynchronous sign
 ```
 
 
-The unbounded, thread-safe, non-blocking ConcurrentLinkedQueue queue transmits the signals between threads. The AtomicBoolean mutex ensures that these asynchronous signals are processed _serially_ in the Executor instance.
+The unbounded, thread-safe, non-blocking ConcurrentLinkedQueue queue transmits the signals between threads. The AtomicBoolean mutex ensures that these signals are processed _serially_ in the Executor instance.
 
 
 ```java
@@ -281,7 +281,7 @@ The unbounded, thread-safe, non-blocking ConcurrentLinkedQueue queue transmits t
 ```
 
 
-The following code sample demonstrates an asynchronous Subscriber that _pulls_ items one by one. As the asynchronous Publisher mentioned earlier, this asynchronous Subscriber processes events in different threads than they were received.
+The following class demonstrates an asynchronous Subscriber that _pulls_ items one by one. As the asynchronous Publisher mentioned earlier, this asynchronous Subscriber processes events in different threads than they were received.
 
 
 ```java
@@ -300,7 +300,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
 ```
 
 
-These methods send the signals to process Subscriber’s events _onSubscribe_, _onNext_, _onError_, _onComplete_ from the Publisher thread.
+These methods send the signals to process the Subscriber’s events _onSubscribe_, _onNext_, _onError_, _onComplete_.
 
 
 ```java
@@ -351,7 +351,7 @@ These methods send the signals to process Subscriber’s events _onSubscribe_, _
 ```
 
 
-These methods process these events in other worker threads of the given Executor instance.
+These methods process these events in worker threads of the given Executor instance.
 
 
 ```java
@@ -402,7 +402,7 @@ These methods process these events in other worker threads of the given Executor
 ```
 
 
-These classes, which implement the Signal interface, represent asynchronous signals sent from the Publisher thread to the Executor worker thread. The OnSubscribe, OnNext, OnError, OnComplete classes are signals for processing the correspondent Subscriber events.
+These classes, which implement the Signal interface, represent the asynchronous signals. The OnSubscribe, OnNext, OnError, OnComplete classes are signals for processing the correspondent Subscriber’s events.
 
 
 ```java
