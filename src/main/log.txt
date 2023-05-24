@@ -102,7 +102,7 @@
 12:00:30.085  ForkJoinPool.commonPool-worker-1  publisher.submit: path example.txt, action ENTRY_DELETE
 12:00:30.086  ForkJoinPool.commonPool-worker-6  processor.next: path example.txt, action ENTRY_DELETE
 12:00:30.086  ForkJoinPool.commonPool-worker-6  subscriber.next: file example.txt is deleted
-09:01:00.057  main                              publisher.close
-09:01:00.057  ForkJoinPool.commonPool-worker-7  processor.completed
-09:01:00.058  ForkJoinPool.commonPool-worker-7  subscriber.complete
-09:01:00.058  main                              publisher.close
+12:01:00.057  main                              publisher.close
+12:01:00.057  ForkJoinPool.commonPool-worker-7  processor.completed
+12:01:00.058  ForkJoinPool.commonPool-worker-7  subscriber.complete
+12:01:00.058  main                              publisher.close
