@@ -6,7 +6,7 @@
 
 ### Cold asynchronous reactive stream
 
-The following class demonstrates an asynchronous Publisher that sends a finite sequence of events from an Iterator. Its structure is similar to the synchronous Producer mentioned earlier. The main difference from the synchronous Producer is that this Publisher processes events in different threads than they were received. To transfer events between threads, the Publisher sends them in wrapper signal classes via a thread-safe queue.
+The following class demonstrates an asynchronous Publisher that sends a finite sequence of events from an Iterator. Its structure is similar to the synchronous Producer mentioned earlier. The main difference is that this Publisher processes events in different threads than they were received. To transmit events between threads, the Publisher sends them in signal classes via a thread-safe queue.
 
 
 ```java
@@ -515,7 +515,7 @@ The asynchronous Consumer uses the same ConcurrentLinkedQueue queue and AtomicBo
 
 <sub>The GitHub repository has <a href="https://github.com/aliakh/demo-java-reactive-streams/tree/main/src/test/java/demo/reactivestreams/part2">unit tests</a> to verify that the Publisher and Subscriber comply with all the Reactive Streams specification contracts that its TCK checks.</sub>
 
-The following code fragment demonstrates that this asynchronous Publisher sends the same sequence of events (the same pangram) to these two asynchronous Subscribers.
+The following code fragment demonstrates that this asynchronous Publisher transmits the same sequence of events (the same pangram) to these two asynchronous Subscribers.
 
 
 ```java
@@ -539,7 +539,7 @@ executorService.awaitTermination(60, TimeUnit.SECONDS);
 ```
 
 
-The invocation log of this fragment shows that the asynchronous Publisher sends the sequence of events in a separate thread, and the asynchronous Subscribers receive these events in other separate threads _at the same time_.
+The invocation log of this code fragment shows that the asynchronous Publisher sends the sequence of events in a separate thread, and the asynchronous Subscribers receive these events in other separate threads _at the same time_.
 
 
 ```
