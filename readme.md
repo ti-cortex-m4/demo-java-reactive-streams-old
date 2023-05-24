@@ -12,7 +12,7 @@ The Reactive Streams specification is designed to efficiently process (in terms 
 
 ## Problems and solutions
 
-When designing systems for transmitting items from a producer to a consumer, the goal is to send them with minimal latency and maximum throughput.
+When designing systems to transfer items from a producer to a consumer, the goal is to send them with minimal latency and maximum throughput.
 
 <sub><em>Latency</em> is the time between sending an item from the producer and its receiving by the consumer. <em>Throughput</em> is the number of items sent from producer to consumer per unit of time.</sub>
 
@@ -35,12 +35,12 @@ There are several patterns for sequential item processing, that solve some or mo
 * Reactive Extensions
 * Reactive Streams
 
-These patterns are divided into two groups: synchronous _pull_ communication models (in which the consumer determines when to receive items from the producer) and asynchronous _push_ communication models (in which the producer determines when to send items to the consumer).
+These patterns fall into two groups: synchronous _pull_ communication models (in which the consumer determines when to receive items from the producer) and asynchronous _push_ communication models (in which the producer determines when to send items to the consumer).
 
 
 ### Iterator
 
-In the Iterator pattern, the consumer synchronously _pulls_ items from the producer one by one. The producer sends an item only when the consumer requests it. If the producer has no item at the time of the request, it sends an empty response.
+In the Iterator pattern, the consumer synchronously _pulls_ items from the producer one by one. The producer sends an item only when the consumer requests it. If the producer does not have an item at the time of the request, he sends an empty response.
 
 ![Iterator](/images/Iterator.png)
 
@@ -60,7 +60,7 @@ Cons:
 * The throughput is not optimal because it takes one request-response to send each item.
 * The consumer cannot determine if the producer has finished generating items.
 
-When using the Iterator pattern, which transmits items one at a time, latency and throughput are often unsatisfactory. To improve these parameters with minimal changes, the same Iterator pattern can transmit items in batches rather than one at a time.
+When using the Iterator pattern, which transfers items one at a time, latency and throughput are often unsatisfactory. To improve these parameters with minimal changes, the same Iterator pattern can transfer items in batches rather than one at a time.
 
 ![Iterator with batching](/images/Iterator_with_batching.png)
 
@@ -226,7 +226,7 @@ The Publisher interface represents a producer of potentially infinite sequenced 
 
 <sub><em>Demand</em> is the aggregated number of items requested by a Subscriber that have not yet been delivered by the Publisher.</sub>
 
-Publishers may vary about whether Subscribers receive events that were produced before they subscribed. Those publishers that can be repeated and do not start until they are subscribed to are _cold_ (in-memory iterators, file readings, database queries, etc). Those publishers that cannot be repeated and start immediately, regardless of the availability of subscribers, are _hot_ (keyboard and mouse events, sensor events, network requests, etc).
+Publishers may vary about whether Subscribers receive events that were produced before they subscribed. _Cold_ publishers can be repeated and do not start until they are subscribed (in-memory iterators, file readings, database queries, etc.). _Hot_ publishers cannot be repeated and start immediately, regardless of the presence of subscribers (keyboard and mouse events, sensor events, network requests, etc.).
 
 
 ```java
@@ -568,7 +568,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 
 <sub>The GitHub repository has <a href="https://github.com/aliakh/demo-java-reactive-streams/tree/main/src/test/java/demo/reactivestreams/part1">unit tests</a> to verify that the Publisher and Subscriber comply with all the Reactive Streams specification contracts that its TCK checks.</sub>
 
-The following code fragment demonstrates that this synchronous Publisher transmits the same sequence of events (_[The quick brown fox jumps over the lazy dog](https://en.wikipedia.org/wiki/The_quick_brown_fox_jumps_over_the_lazy_dog)_ pangram) to these two synchronous Subscribers.
+The following code fragment demonstrates that this synchronous Publisher transfers the same sequence of events (_[The quick brown fox jumps over the lazy dog](https://en.wikipedia.org/wiki/The_quick_brown_fox_jumps_over_the_lazy_dog)_ pangram) to these two synchronous Subscribers.
 
 
 ```java
@@ -639,7 +639,7 @@ The invocation log of this code fragment shows that the synchronous Publisher se
 
 ### Cold asynchronous reactive stream
 
-Examples of asynchronous Producer and asynchronous Consumer are given in the separate [document](https://github.com/aliakh/demo-java-reactive-streams/tree/main/src/main/java/demo/reactivestreams/part2).
+Examples of an asynchronous Producer and an asynchronous Consumer are provided in a separate [document](https://github.com/aliakh/demo-java-reactive-streams/tree/main/src/main/java/demo/reactivestreams/part2).
 
 
 ### Hot asynchronous reactive stream
@@ -802,6 +802,6 @@ The invocation log of this code fragment shows that the Publisher and the Proces
 
 Before Reactive Streams appeared in the JDK, there were related CompletableFuture and Stream APIs. The CompletableFuture API uses the _push_ communication model but supports asynchronous computations of a single value. The Stream API supports synchronous or asynchronous computations of multiple values but uses the _pull_ communication model. Reactive Streams have taken a vacant place and support synchronous or asynchronous computations of multiple values and can also dynamically switch between the _push_ and _pull_ computations models. Therefore, Reactive Streams are suitable for processing sequences of events with unpredictable rates, such as mouse and keyboard events, sensor events, and latency-bound I/O events from a file or network.
 
-Crucially, application developers should not implement the interfaces of the Reactive Streams specification themselves. First, the specification is complex enough, especially in asynchronous contracts, to be easily implemented correctly. Second, the specification does not contain APIs for intermediate stream operations. Instead, application developers should implement the reactive stream stages (producers, processors, consumers) using existing frameworks (Lightbend Akka Streams, Pivotal Project Reactor, Netflix RxJava) with their much richer native APIs. They should use the Reactive Streams API only to combine heterogeneous stages into a single reactive stream.
+Crucially, application developers should not implement the interfaces of the Reactive Streams specification themselves. First, the specification is complex enough, especially in asynchronous contracts, and cannot be easily implemented correctly. Second, the specification does not contain APIs for intermediate stream operations. Instead, application developers should implement the reactive stream stages (producers, processors, consumers) using existing frameworks (Lightbend Akka Streams, Pivotal Project Reactor, Netflix RxJava) with their much richer native APIs. They should use the Reactive Streams API only to combine heterogeneous stages into a single reactive stream.
 
 Complete code examples are available in the [GitHub repository](https://github.com/aliakh/demo-java-reactive-streams).
