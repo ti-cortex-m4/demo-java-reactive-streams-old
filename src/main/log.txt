@@ -1,10 +1,3 @@
-8:59:59 AM: Executing ':Runner.main()'...
-
-> Task :compileJava UP-TO-DATE
-> Task :processResources UP-TO-DATE
-> Task :classes UP-TO-DATE
-
-> Task :Runner.main()
 09:00:00.034  main                              (1) subscriber.subscribe: demo.reactivestreams.part1.SyncIteratorPublisher$SubscriptionImpl@7791a895
 09:00:00.037  main                              subscription.request: 1
 09:00:00.037  main                              (1) subscriber.next: The
@@ -47,6 +40,9 @@
 09:00:00.037  main                              (2) subscriber.next: dog.
 09:00:00.037  main                              subscription.request: 1
 09:00:00.037  main                              (2) subscriber.complete
+
+
+
 09:00:00.043  pool-1-thread-2                   (2) subscriber.subscribe: demo.reactivestreams.part2.AsyncIteratorPublisher$SubscriptionImpl@3f2b429a
 09:00:00.043  pool-1-thread-1                   (1) subscriber.subscribe: demo.reactivestreams.part2.AsyncIteratorPublisher$SubscriptionImpl@1282a13d
 09:00:00.044  pool-1-thread-1                   subscription.request: 1
@@ -89,6 +85,9 @@
 09:00:00.046  pool-1-thread-2                   (2) subscriber.next: dog.
 09:00:00.046  pool-1-thread-2                   (2) subscriber.complete
 09:00:00.046  pool-1-thread-1                   subscription.request: 1
+
+
+
 09:00:00.052  ForkJoinPool.commonPool-worker-3  processor.subscribe: java.util.concurrent.SubmissionPublisher$BufferedSubscription@6f753c95
 09:00:00.052  ForkJoinPool.commonPool-worker-2  subscriber.subscribe: java.util.concurrent.SubmissionPublisher$BufferedSubscription@1668d43d
 09:00:10.058  ForkJoinPool.commonPool-worker-1  publisher.submit: path example.txt, action ENTRY_CREATE
@@ -103,19 +102,7 @@
 09:00:30.085  ForkJoinPool.commonPool-worker-1  publisher.submit: path example.txt, action ENTRY_DELETE
 09:00:30.086  ForkJoinPool.commonPool-worker-6  processor.next: path example.txt, action ENTRY_DELETE
 09:00:30.086  ForkJoinPool.commonPool-worker-6  subscriber.next: file example.txt is deleted
-09:00:42.541  ForkJoinPool.commonPool-worker-1  publisher.submit: path ntuser.dat.LOG1, action ENTRY_MODIFY
-09:00:42.542  ForkJoinPool.commonPool-worker-7  processor.next: path ntuser.dat.LOG1, action ENTRY_MODIFY
 09:01:00.057  main                              publisher.close
 09:01:00.057  ForkJoinPool.commonPool-worker-7  processor.completed
 09:01:00.058  ForkJoinPool.commonPool-worker-7  subscriber.complete
 09:01:00.058  main                              publisher.close
-
-Deprecated Gradle features were used in this build, making it incompatible with Gradle 8.0.
-
-You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
-
-See https://docs.gradle.org/7.6.1/userguide/command_line_interface.html#sec:command_line_warnings
-
-BUILD SUCCESSFUL in 1m
-3 actionable tasks: 1 executed, 2 up-to-date
-9:01:00 AM: Execution finished ':Runner.main()'.
