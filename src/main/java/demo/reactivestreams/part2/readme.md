@@ -6,7 +6,7 @@
 
 ### Cold asynchronous reactive stream
 
-The following class demonstrates an asynchronous Publisher that sends a finite sequence of events from an Iterator. Its structure is similar to the synchronous Producer mentioned earlier. The main difference is that this Publisher processes events in different threads than they were received. To transmit events between threads, the Publisher sends them in signal classes via a thread-safe queue.
+The following class demonstrates an asynchronous Publisher that sends a finite sequence of events from an Iterator. Its structure is similar to the synchronous Producer mentioned earlier. The main difference is that this Publisher processes events in different threads than they were received. To transmit events between threads, the Publisher sends them in wrapper signal classes via a thread-safe queue.
 
 
 ```java
@@ -179,7 +179,7 @@ These methods process these events in worker threads of the given Executor insta
 ```
 
 
-These classes, which implement the Signal interface, represent the asynchronous signals. The Subscribe class is a signal to create a new subscription. The Request and Cancel classes are signals for processing the Subscription’s events _request_ and _cancel_. The Next class is a signal to send multiple Subscriber _onNext_ events during a single asynchronous call to avoid frequent thread context switches.
+These classes, which implement the Signal interface, represent the asynchronous signals. The Subscribe class is a signal to create a new Subscription instance. The Request and Cancel classes are signals for processing the Subscription’s events _request_ and _cancel_. The Next class is a signal to send multiple Subscriber _onNext_ events during a single asynchronous call to avoid frequent thread context switches.
 
 
 ```java
@@ -543,46 +543,46 @@ The invocation log of this code fragment shows that the asynchronous Publisher s
 
 
 ```
-16:49:28.982  pool-1-thread-1                   (1) subscriber.subscribe: demo.reactivestreams.part2.AsyncIteratorPublisher$SubscriptionImpl@8cc3a44
-16:49:28.982  pool-1-thread-2                   (2) subscriber.subscribe: demo.reactivestreams.part2.AsyncIteratorPublisher$SubscriptionImpl@454972b8
-16:49:28.982  pool-1-thread-1                   subscription.request: 1
-16:49:28.983  pool-1-thread-3                   subscription.request: 1
-16:49:28.983  pool-1-thread-1                   (1) subscriber.next: The
-16:49:28.983  pool-1-thread-3                   (2) subscriber.next: The
-16:49:28.983  pool-1-thread-1                   subscription.request: 1
-16:49:28.983  pool-1-thread-3                   subscription.request: 1
-16:49:28.983  pool-1-thread-1                   (1) subscriber.next: quick
-16:49:28.983  pool-1-thread-2                   (2) subscriber.next: quick
-16:49:28.983  pool-1-thread-1                   subscription.request: 1
-16:49:28.983  pool-1-thread-1                   subscription.request: 1
-16:49:28.983  pool-1-thread-2                   (1) subscriber.next: brown
-16:49:28.983  pool-1-thread-1                   (2) subscriber.next: brown
-16:49:28.983  pool-1-thread-2                   subscription.request: 1
-16:49:28.983  pool-1-thread-1                   subscription.request: 1
-16:49:28.983  pool-1-thread-1                   (1) subscriber.next: fox
-16:49:28.983  pool-1-thread-2                   (2) subscriber.next: fox
-16:49:28.983  pool-1-thread-1                   subscription.request: 1
-16:49:28.983  pool-1-thread-2                   subscription.request: 1
-16:49:28.983  pool-1-thread-1                   (1) subscriber.next: jumps
-16:49:28.983  pool-1-thread-2                   (2) subscriber.next: jumps
-16:49:28.983  pool-1-thread-1                   subscription.request: 1
-16:49:28.983  pool-1-thread-2                   subscription.request: 1
-16:49:28.983  pool-1-thread-1                   (1) subscriber.next: over
-16:49:28.984  pool-1-thread-2                   (2) subscriber.next: over
-16:49:28.984  pool-1-thread-1                   subscription.request: 1
-16:49:28.984  pool-1-thread-2                   subscription.request: 1
-16:49:28.984  pool-1-thread-1                   (1) subscriber.next: the
-16:49:28.984  pool-1-thread-2                   (2) subscriber.next: the
-16:49:28.984  pool-1-thread-1                   subscription.request: 1
-16:49:28.984  pool-1-thread-3                   subscription.request: 1
-16:49:28.984  pool-1-thread-1                   (1) subscriber.next: lazy
-16:49:28.984  pool-1-thread-3                   subscription.request: 1
-16:49:28.984  pool-1-thread-2                   (2) subscriber.next: lazy
-16:49:28.984  pool-1-thread-2                   subscription.request: 1
-16:49:28.984  pool-1-thread-3                   (1) subscriber.next: dog.
-16:49:28.984  pool-1-thread-2                   (2) subscriber.next: dog.
-16:49:28.984  pool-1-thread-3                   (1) subscriber.complete
-16:49:28.984  pool-1-thread-2                   (2) subscriber.complete
-16:49:28.984  pool-1-thread-1                   subscription.request: 1
-16:49:28.984  pool-1-thread-1                   subscription.request: 1
+12:00:00.043  pool-1-thread-2                   (2) subscriber.subscribe: demo.reactivestreams.part2.AsyncIteratorPublisher$SubscriptionImpl@3f2b429a
+12:00:00.043  pool-1-thread-1                   (1) subscriber.subscribe: demo.reactivestreams.part2.AsyncIteratorPublisher$SubscriptionImpl@1282a13d
+12:00:00.044  pool-1-thread-1                   subscription.request: 1
+12:00:00.044  pool-1-thread-3                   subscription.request: 1
+12:00:00.045  pool-1-thread-3                   (1) subscriber.next: The
+12:00:00.045  pool-1-thread-1                   (2) subscriber.next: The
+12:00:00.045  pool-1-thread-3                   subscription.request: 1
+12:00:00.045  pool-1-thread-1                   subscription.request: 1
+12:00:00.045  pool-1-thread-3                   (1) subscriber.next: quick
+12:00:00.045  pool-1-thread-1                   (2) subscriber.next: quick
+12:00:00.045  pool-1-thread-3                   subscription.request: 1
+12:00:00.045  pool-1-thread-1                   subscription.request: 1
+12:00:00.045  pool-1-thread-2                   (1) subscriber.next: brown
+12:00:00.045  pool-1-thread-1                   (2) subscriber.next: brown
+12:00:00.045  pool-1-thread-3                   subscription.request: 1
+12:00:00.045  pool-1-thread-2                   subscription.request: 1
+12:00:00.045  pool-1-thread-3                   (1) subscriber.next: fox
+12:00:00.045  pool-1-thread-1                   (2) subscriber.next: fox
+12:00:00.045  pool-1-thread-3                   subscription.request: 1
+12:00:00.045  pool-1-thread-1                   subscription.request: 1
+12:00:00.045  pool-1-thread-2                   (1) subscriber.next: jumps
+12:00:00.046  pool-1-thread-3                   subscription.request: 1
+12:00:00.046  pool-1-thread-1                   (2) subscriber.next: jumps
+12:00:00.046  pool-1-thread-2                   (1) subscriber.next: over
+12:00:00.046  pool-1-thread-2                   subscription.request: 1
+12:00:00.046  pool-1-thread-1                   subscription.request: 1
+12:00:00.046  pool-1-thread-2                   (2) subscriber.next: over
+12:00:00.046  pool-1-thread-3                   (1) subscriber.next: the
+12:00:00.046  pool-1-thread-2                   subscription.request: 1
+12:00:00.046  pool-1-thread-3                   subscription.request: 1
+12:00:00.046  pool-1-thread-2                   (2) subscriber.next: the
+12:00:00.046  pool-1-thread-3                   (1) subscriber.next: lazy
+12:00:00.046  pool-1-thread-2                   subscription.request: 1
+12:00:00.046  pool-1-thread-3                   subscription.request: 1
+12:00:00.046  pool-1-thread-2                   (2) subscriber.next: lazy
+12:00:00.046  pool-1-thread-3                   (1) subscriber.next: dog.
+12:00:00.046  pool-1-thread-2                   subscription.request: 1
+12:00:00.046  pool-1-thread-3                   (1) subscriber.complete
+12:00:00.046  pool-1-thread-1                   subscription.request: 1
+12:00:00.046  pool-1-thread-2                   (2) subscriber.next: dog.
+12:00:00.046  pool-1-thread-2                   (2) subscriber.complete
+12:00:00.046  pool-1-thread-1                   subscription.request: 1
 ```
