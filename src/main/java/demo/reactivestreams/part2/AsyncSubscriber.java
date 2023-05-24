@@ -167,7 +167,7 @@ public class AsyncSubscriber<T> implements Flow.Subscriber<T>, Runnable {
         }
     }
 
-    // The non-blocking queue to transmit signals in a thread-safe way.
+    // The non-blocking queue to transfer signals in a thread-safe way.
     private final Queue<Signal> signalsQueue = new ConcurrentLinkedQueue<>();
 
     // The mutex to establish the happens-before relationship between asynchronous signal calls.
