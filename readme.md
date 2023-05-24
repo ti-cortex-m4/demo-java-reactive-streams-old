@@ -3,7 +3,7 @@
 
 ## Introduction
 
-Reactive Streams is a cross-platform specification for processing a potentially infinite sequence of events across asynchronous boundaries (threads, processes, or network-connected computers) with non-blocking backpressure. A reactive stream contains a publisher, which sends forward _data_, _error_, _completion_ events, and subscribers, which send backward _request_ and _cancel_ backpressure events. There can also be intermediate processors between the publisher and the subscribers that filter or modify events.
+Reactive Streams is a cross-platform specification for processing a potentially infinite sequence of events across asynchronous boundaries (threads, processes, or network-connected computers) with non-blocking backpressure. A reactive stream contains a publisher, which sends forward _data_, _error_, _completion_ events, and subscribers, which send backward _request_ and _cancel_ backpressure events. There can also be intermediate processors between the publisher and the subscribers that filter or transform events.
 
 <sub><em>Backpressure</em> is application-level flow control from the subscriber to the publisher to control the sending rate.</sub>
 
@@ -12,7 +12,7 @@ The Reactive Streams specification is designed to efficiently process (in terms 
 
 ## Problems and solutions
 
-When designing systems for transferring items from a producer to a consumer, the goal is to send them with minimal latency and maximum throughput.
+When designing systems for transmitting items from a producer to a consumer, the goal is to send them with minimal latency and maximum throughput.
 
 <sub><em>Latency</em> is the time between sending an item from the producer and its receiving by the consumer. <em>Throughput</em> is the number of items sent from producer to consumer per unit of time.</sub>
 
@@ -60,7 +60,7 @@ Cons:
 * The throughput is not optimal because it takes one request-response to send each item.
 * The consumer cannot determine if the producer has finished generating items.
 
-When using the Iterator pattern, which transfers items one at a time, latency and throughput are often unsatisfactory. To improve these parameters with minimal changes, the same Iterator pattern can transfer items in batches rather than one at a time.
+When using the Iterator pattern, which transmits items one at a time, latency and throughput are often unsatisfactory. To improve these parameters with minimal changes, the same Iterator pattern can transmit items in batches rather than one at a time.
 
 ![Iterator with batching](/images/Iterator_with_batching.png)
 
@@ -106,7 +106,7 @@ Cons:
 
 Reactive Extensions (ReactiveX) is a family of multi-platform frameworks for handling synchronous or asynchronous event streams, originally created by Erik Meijer at Microsoft. The implementation of Reactive Extensions for Java is the Netflix RxJava framework.
 
-In simplified terms, Reactive Extensions are a combination of the Observer and Iterator patterns and functional programming. From the Observer pattern, they took the consumer’s ability to subscribe to the producer’s events. From the Iterator pattern, they took the ability to handle event streams of three types (data, error, completion). From functional programming, they took the ability to handle event streams with chained methods (transform, filter, combine, etc.).
+In simplified terms, Reactive Extensions are a combination of the Observer and Iterator patterns and functional programming. From the Observer pattern, they took the consumer’s ability to subscribe to the producer’s events. From the Iterator pattern, they took the ability to handle event streams of three types (data, error, completion). From functional programming, they took the ability to handle event streams with chained methods (filter, transform, combine, etc.).
 
 ![Reactive Extensions](/images/Reactive_Extensions.png)
 
@@ -170,7 +170,7 @@ Without the use of backpressure, the consumer has a few solutions to deal with e
 
 <sub>Any solution that includes dropping events on the consumer may be inefficient because these events still require I/O operations to send them from the producer.</sub>
 
-The backpressure in Reactive Streams is implemented as follows. To start receiving events from the producer, the consumer _pulls_ the number of items it wants to receive. Only then does the producer _push_ events to the consumer; the producer never sends them on its own initiative. After the consumer has processed all the requested events, the whole cycle repeats. In a particular case, if the consumer is known to be faster than the producer, it can work in a _push_ communication model and request all items immediately after subscribing. Or vice versa, if the consumer is known to be slower than the producer, it can work in a _pull_ communication model and request the next items only after the previous ones have been processed. Thus, the model in which reactive streams operate can be described as a _dynamic push/pull_ communication model. It works effectively if the producer is faster or slower than the consumer or even when that ratio can change over time.
+The backpressure in Reactive Streams is implemented as follows. To start receiving events from the producer, the consumer _pulls_ the number of items it wants to receive. Only then does the producer _push_ events to the consumer; the producer never sends them on its initiative. After the consumer has processed all the requested events, the whole cycle repeats. In a particular case, if the consumer is known to be faster than the producer, it can work in the _push_ communication model and request all items immediately after subscribing. Or vice versa, if the consumer is known to be slower than the producer, it can work in the _pull_ communication model and request the next items only after the previous ones have been processed. Thus, the model in which reactive streams operate can be described as a _dynamic push/pull_ communication model. It works effectively if the producer is faster or slower than the consumer or even when that ratio can change over time.
 
 With the use of backpressure, the producer has much more solutions to deal with excessive events:
 
@@ -193,17 +193,17 @@ The specification describes the concept of _reactive streams_ that have the foll
 
 
 
-* reactive streams can be _unicast_ and _multicast_: a publisher can send events to one or many consumers
+* reactive streams can be _unicast_ and _multicast_: a publisher can send events to one or many consumers.
 * reactive streams are potentially _unbounded_: they can handle zero, one, many, or an infinite number of events.
 * reactive streams are _sequential_: a consumer processes events in the same order in which a producer sends them.
-* reactive streams can be _synchronous_ or _asynchronous_: they can use computing resources for parallel processing in separate stream stages.
+* reactive streams can be _synchronous_ or _asynchronous_: they can use computing resources for parallel processing in separate stages.
 * reactive streams are _non-blocking_: they do not waste computing resources if the performance of a producer and a consumer are different.
 * reactive streams use _mandatory backpressure_: a consumer can request events from a producer according to their processing rate.
 * reactive streams use _bounded buffers_: they can be implemented without unbounded buffers, avoiding memory out-of-memory errors.
 
 The Reactive Streams [specification for the JVM](https://github.com/reactive-streams/reactive-streams-jvm) (the latest version 1.0.4 was released on May 26th, 2022) contains the textual specification and the Java API, which contains four interfaces that must be implemented according to this specification. It also includes the Technology Compatibility Kit (TCK), a standard test suite for conformance testing of implementations.
 
-It is important to note that the Reactive Streams specification was created after several mature but incompatible implementations of Reactive Streams already existed. Therefore, the specification is currently limited and contains only low-level APIs. Application developers should use this specification to provide _interoperability_ between existing implementations. To have high-level functional APIs (transform, filter, combine, etc.), application developers should use implementations of this specification (Lightbend Akka Streams, Pivotal Project Reactor, Netflix RxJava, etc.) through their native APIs.
+It is important to note that the Reactive Streams specification was created _after_ several mature but incompatible implementations of Reactive Streams already existed. Therefore, the specification is currently limited and contains only low-level APIs. Application developers should use this specification to provide interoperability between existing implementations. To have high-level functional APIs (filter, transform, combine, etc.), application developers should use implementations of this specification (Lightbend Akka Streams, Pivotal Project Reactor, Netflix RxJava, etc.) through their native APIs.
 
 
 ## The Reactive Streams API
@@ -303,7 +303,7 @@ public interface Processor<T, R> extends Subscriber<T>, Publisher<R> {
 
 ## The Reactive Streams workflow
 
-The Reactive Streams workflow consists of three steps: establishing a connection, exchanging data and control events, and successfully or exceptionally terminating a connection.
+The Reactive Streams workflow consists of three steps: establishing a connection, exchanging data and control events, and successfully or exceptionally terminating the connection.
 
 ![Reactive Streams workflow](/images/Reactive_Streams_workflow.png)
 
@@ -326,7 +326,7 @@ The JDK has supported the Reactive Streams specification since version 9 in the 
 
 ### Cold synchronous reactive stream
 
-The following class demonstrates a synchronous Publisher that sends a finite sequence of events from an Iterator. The _synchronous_ Publisher processes its _subscribe_ event, and the Subscription events _request_ and _cancel_ in the caller thread. This _multicast_ Publisher can send events to multiple Subscribers, storing information about each connection in a nested private implementation of the Subscription interface. The Subscription implementation contains the current Iterator instance, the demand, and the cancellation flag. To make a _cold_ Publisher that sends the same sequence of events for each Subscriber, the Publisher stores a Supplier that must return a new Iterator instance for each invocation. The Publisher uses different types of error handling (throwing an exception or calling the Subscriber _onError_ method) according to the Reactive Streams specification.
+The following class demonstrates a synchronous Publisher that sends a finite sequence of events from an Iterator. The _synchronous_ Publisher processes its _subscribe_ event, and the Subscription’s events _request_ and _cancel_ in the caller thread. This _multicast_ Publisher can send events to multiple Subscribers, storing information about each connection in a nested private implementation of the Subscription interface. The Subscription implementation contains the current Iterator instance, the demand, and the cancellation flag. To make a _cold_ Publisher that sends the same sequence of events for each Subscriber, the Publisher stores a Supplier that must return a new Iterator instance for each invocation. The Publisher uses different types of error handling (throwing an exception or calling the Subscriber _onError_ method) according to the Reactive Streams specification.
 
 
 ```java
@@ -568,7 +568,7 @@ public class SyncSubscriber<T> implements Flow.Subscriber<T> {
 
 <sub>The GitHub repository has <a href="https://github.com/aliakh/demo-java-reactive-streams/tree/main/src/test/java/demo/reactivestreams/part1">unit tests</a> to verify that the Publisher and Subscriber comply with all the Reactive Streams specification contracts that its TCK checks.</sub>
 
-The following code fragment demonstrates that this synchronous Publisher sends the same sequence of events (_[The quick brown fox jumps over the lazy dog](https://en.wikipedia.org/wiki/The_quick_brown_fox_jumps_over_the_lazy_dog)_ pangram) to these two synchronous Subscribers.
+The following code fragment demonstrates that this synchronous Publisher transmits the same sequence of events (_[The quick brown fox jumps over the lazy dog](https://en.wikipedia.org/wiki/The_quick_brown_fox_jumps_over_the_lazy_dog)_ pangram) to these two synchronous Subscribers.
 
 
 ```java
@@ -587,64 +587,64 @@ subscriber2.awaitCompletion();
 ```
 
 
-The invocation log of this fragment shows that the synchronous Publisher sends the sequence of events in the caller thread, and the synchronous Subscribers receive these events in the Publisher thread (the same caller thread) _one at a time_.
+The invocation log of this code fragment shows that the synchronous Publisher sends the sequence of events in one thread, and the synchronous Subscribers receive these events in the same thread _one at a time_.
 
 
 ```
-16:49:28.973  main                              (1) subscriber.subscribe: demo.reactivestreams.part1.SyncIteratorPublisher$SubscriptionImpl@7791a895
-16:49:28.976  main                              subscription.request: 1
-16:49:28.976  main                              (1) subscriber.next: The
-16:49:28.976  main                              subscription.request: 1
-16:49:28.976  main                              (1) subscriber.next: quick
-16:49:28.976  main                              subscription.request: 1
-16:49:28.976  main                              (1) subscriber.next: brown
-16:49:28.976  main                              subscription.request: 1
-16:49:28.976  main                              (1) subscriber.next: fox
-16:49:28.976  main                              subscription.request: 1
-16:49:28.976  main                              (1) subscriber.next: jumps
-16:49:28.976  main                              subscription.request: 1
-16:49:28.976  main                              (1) subscriber.next: over
-16:49:28.976  main                              subscription.request: 1
-16:49:28.976  main                              (1) subscriber.next: the
-16:49:28.976  main                              subscription.request: 1
-16:49:28.976  main                              (1) subscriber.next: lazy
-16:49:28.976  main                              subscription.request: 1
-16:49:28.976  main                              (1) subscriber.next: dog.
-16:49:28.976  main                              subscription.request: 1
-16:49:28.976  main                              (1) subscriber.complete
-16:49:28.976  main                              (2) subscriber.subscribe: demo.reactivestreams.part1.SyncIteratorPublisher$SubscriptionImpl@610694f1
-16:49:28.977  main                              subscription.request: 1
-16:49:28.977  main                              (2) subscriber.next: The
-16:49:28.977  main                              subscription.request: 1
-16:49:28.977  main                              (2) subscriber.next: quick
-16:49:28.977  main                              subscription.request: 1
-16:49:28.977  main                              (2) subscriber.next: brown
-16:49:28.977  main                              subscription.request: 1
-16:49:28.977  main                              (2) subscriber.next: fox
-16:49:28.977  main                              subscription.request: 1
-16:49:28.977  main                              (2) subscriber.next: jumps
-16:49:28.977  main                              subscription.request: 1
-16:49:28.977  main                              (2) subscriber.next: over
-16:49:28.977  main                              subscription.request: 1
-16:49:28.977  main                              (2) subscriber.next: the
-16:49:28.977  main                              subscription.request: 1
-16:49:28.977  main                              (2) subscriber.next: lazy
-16:49:28.977  main                              subscription.request: 1
-16:49:28.977  main                              (2) subscriber.next: dog.
-16:49:28.977  main                              subscription.request: 1
-16:49:28.977  main                              (2) subscriber.complete
+12:00:00.034  main                              (1) subscriber.subscribe: demo.reactivestreams.part1.SyncIteratorPublisher$SubscriptionImpl@7791a895
+12:00:00.037  main                              subscription.request: 1
+12:00:00.037  main                              (1) subscriber.next: The
+12:00:00.037  main                              subscription.request: 1
+12:00:00.037  main                              (1) subscriber.next: quick
+12:00:00.037  main                              subscription.request: 1
+12:00:00.037  main                              (1) subscriber.next: brown
+12:00:00.037  main                              subscription.request: 1
+12:00:00.037  main                              (1) subscriber.next: fox
+12:00:00.037  main                              subscription.request: 1
+12:00:00.037  main                              (1) subscriber.next: jumps
+12:00:00.037  main                              subscription.request: 1
+12:00:00.037  main                              (1) subscriber.next: over
+12:00:00.037  main                              subscription.request: 1
+12:00:00.037  main                              (1) subscriber.next: the
+12:00:00.037  main                              subscription.request: 1
+12:00:00.037  main                              (1) subscriber.next: lazy
+12:00:00.037  main                              subscription.request: 1
+12:00:00.037  main                              (1) subscriber.next: dog.
+12:00:00.037  main                              subscription.request: 1
+12:00:00.037  main                              (1) subscriber.complete
+12:00:00.037  main                              (2) subscriber.subscribe: demo.reactivestreams.part1.SyncIteratorPublisher$SubscriptionImpl@610694f1
+12:00:00.037  main                              subscription.request: 1
+12:00:00.037  main                              (2) subscriber.next: The
+12:00:00.037  main                              subscription.request: 1
+12:00:00.037  main                              (2) subscriber.next: quick
+12:00:00.037  main                              subscription.request: 1
+12:00:00.037  main                              (2) subscriber.next: brown
+12:00:00.037  main                              subscription.request: 1
+12:00:00.037  main                              (2) subscriber.next: fox
+12:00:00.037  main                              subscription.request: 1
+12:00:00.037  main                              (2) subscriber.next: jumps
+12:00:00.037  main                              subscription.request: 1
+12:00:00.037  main                              (2) subscriber.next: over
+12:00:00.037  main                              subscription.request: 1
+12:00:00.037  main                              (2) subscriber.next: the
+12:00:00.037  main                              subscription.request: 1
+12:00:00.037  main                              (2) subscriber.next: lazy
+12:00:00.037  main                              subscription.request: 1
+12:00:00.037  main                              (2) subscriber.next: dog.
+12:00:00.037  main                              subscription.request: 1
+12:00:00.037  main                              (2) subscriber.complete
 ```
 
 
 
 ### Cold asynchronous reactive stream
 
-Examples of asynchronous Producer and asynchronous Consumer are given in a separate [document](https://github.com/aliakh/demo-java-reactive-streams/tree/main/src/main/java/demo/reactivestreams/part2).
+Examples of asynchronous Producer and asynchronous Consumer are given in the separate [document](https://github.com/aliakh/demo-java-reactive-streams/tree/main/src/main/java/demo/reactivestreams/part2).
 
 
 ### Hot asynchronous reactive stream
 
-The following class demonstrates an asynchronous Publisher that sends an infinite sequence of events from a [WatchService](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/nio/file/WatchService.html) implementation for a file system. The _asynchronous_ Publisher is inherited from the [SubmissionPublisher](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/SubmissionPublisher.html) class and reuses its Executor for asynchronous invocations. This Publisher is _hot_ and sends "live" events about file changes in the given folder.
+The following class demonstrates an asynchronous Publisher that sends an infinite sequence of events from a [WatchService](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/nio/file/WatchService.html) implementation for a file system. The _asynchronous_ Publisher is inherited from the [SubmissionPublisher](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/SubmissionPublisher.html) class and reuses its Executor for asynchronous invocations. This Publisher is _hot_ and sends events about file changes in the given folder.
 
 
 ```java
@@ -703,7 +703,7 @@ public class WatchServiceSubmissionPublisher extends SubmissionPublisher<WatchEv
 ```
 
 
-The following class demonstrates an asynchronous Processor that filters events (by the given file extension) and transforms them (from WatchEvent&lt;Path> to String). As a Subscriber, this Processor implements the Subscriber methods _onSubscribe_, _onNext_, _onError_, _onComplete_ to connect to an upstream Producer and _pull_ items one by one. As a Publisher, this Processor uses the SubmissionPublisher _submit_ method to send items to a downstream Subscriber.
+The following class demonstrates an asynchronous Processor that filters events (by the given file extension) and transforms them (from WatchEvent to String). As a Subscriber, this Processor implements the Subscriber methods _onSubscribe_, _onNext_, _onError_, _onComplete_ to connect to an upstream Producer and _pull_ items one by one. As a Publisher, this Processor uses the SubmissionPublisher _submit_ method to send items to a downstream Subscriber.
 
 
 ```java
@@ -772,25 +772,28 @@ try (SubmissionPublisher<WatchEvent<Path>> publisher = new WatchServiceSubmissio
 ```
 
 
-The invocation log of this fragment shows that the Publisher and the Processor use the internal implementation of the Subscription interface, the nested package-private SubmissionPublisher.BufferedSubscription class. These classes process events asynchronously by default in the worker threads of the common Fork/Join thread pool.
+The invocation log of this code fragment shows that the Publisher and the Processor use the internal implementation of the Subscription interface, the nested package-private SubmissionPublisher.BufferedSubscription class. These classes process events asynchronously by default in the worker threads of the common Fork/Join thread pool.
 
 
 ```
-16:49:28.988  ForkJoinPool.commonPool-worker-2  subscriber.subscribe: java.util.concurrent.SubmissionPublisher$BufferedSubscription@783e9d8b
-16:49:28.988  ForkJoinPool.commonPool-worker-3  processor.subscribe: java.util.concurrent.SubmissionPublisher$BufferedSubscription@27e4c4b3
-16:49:45.138  ForkJoinPool.commonPool-worker-1  publisher.submit: path example.txt, action ENTRY_CREATE
-16:49:45.139  ForkJoinPool.commonPool-worker-4  processor.next: path example.txt, action ENTRY_CREATE
-16:49:45.140  ForkJoinPool.commonPool-worker-4  subscriber.next: file example.txt is created
-16:49:55.149  ForkJoinPool.commonPool-worker-1  publisher.submit: path example.txt, action ENTRY_MODIFY
-16:49:55.149  ForkJoinPool.commonPool-worker-4  processor.next: path example.txt, action ENTRY_MODIFY
-16:49:55.149  ForkJoinPool.commonPool-worker-4  subscriber.next: file example.txt is modified
-16:50:05.151  ForkJoinPool.commonPool-worker-1  publisher.submit: path example.txt, action ENTRY_DELETE
-16:50:05.151  ForkJoinPool.commonPool-worker-4  processor.next: path example.txt, action ENTRY_DELETE
-16:50:05.151  ForkJoinPool.commonPool-worker-4  subscriber.next: file example.txt is deleted
-16:50:28.989  main                              publisher.close
-16:50:28.989  ForkJoinPool.commonPool-worker-7  processor.completed
-16:50:28.989  ForkJoinPool.commonPool-worker-7  subscriber.complete
-16:50:28.989  main                              publisher.close
+12:00:00.052  ForkJoinPool.commonPool-worker-3  processor.subscribe: java.util.concurrent.SubmissionPublisher$BufferedSubscription@6f753c95
+12:00:00.052  ForkJoinPool.commonPool-worker-2  subscriber.subscribe: java.util.concurrent.SubmissionPublisher$BufferedSubscription@1668d43d
+12:00:10.058  ForkJoinPool.commonPool-worker-1  publisher.submit: path example.txt, action ENTRY_CREATE
+12:00:10.058  ForkJoinPool.commonPool-worker-4  processor.next: path example.txt, action ENTRY_CREATE
+12:00:10.064  ForkJoinPool.commonPool-worker-5  subscriber.next: file example.txt is created
+12:00:20.072  ForkJoinPool.commonPool-worker-1  publisher.submit: path example.txt, action ENTRY_MODIFY
+12:00:20.073  ForkJoinPool.commonPool-worker-5  processor.next: path example.txt, action ENTRY_MODIFY
+12:00:20.073  ForkJoinPool.commonPool-worker-1  publisher.submit: path example.txt, action ENTRY_MODIFY
+12:00:20.073  ForkJoinPool.commonPool-worker-4  subscriber.next: file example.txt is modified
+12:00:20.073  ForkJoinPool.commonPool-worker-2  processor.next: path example.txt, action ENTRY_MODIFY
+12:00:20.073  ForkJoinPool.commonPool-worker-6  subscriber.next: file example.txt is modified
+12:00:30.085  ForkJoinPool.commonPool-worker-1  publisher.submit: path example.txt, action ENTRY_DELETE
+12:00:30.086  ForkJoinPool.commonPool-worker-6  processor.next: path example.txt, action ENTRY_DELETE
+12:00:30.086  ForkJoinPool.commonPool-worker-6  subscriber.next: file example.txt is deleted
+12:01:00.057  main                              publisher.close
+12:01:00.057  ForkJoinPool.commonPool-worker-7  processor.completed
+12:01:00.058  ForkJoinPool.commonPool-worker-7  subscriber.complete
+12:01:00.058  main                              publisher.close
 ```
 
 
@@ -799,6 +802,6 @@ The invocation log of this fragment shows that the Publisher and the Processor u
 
 Before Reactive Streams appeared in the JDK, there were related CompletableFuture and Stream APIs. The CompletableFuture API uses the _push_ communication model but supports asynchronous computations of a single value. The Stream API supports synchronous or asynchronous computations of multiple values but uses the _pull_ communication model. Reactive Streams have taken a vacant place and support synchronous or asynchronous computations of multiple values and can also dynamically switch between the _push_ and _pull_ computations models. Therefore, Reactive Streams are suitable for processing sequences of events with unpredictable rates, such as mouse and keyboard events, sensor events, and latency-bound I/O events from a file or network.
 
-Crucially, application developers should not implement the interfaces of the Reactive Streams specification themselves. First, the specification is complex enough, especially in asynchronous contracts, to be easily implemented correctly. Second, the specification does not contain APIs for intermediate stream operations. Instead, application developers should implement the stages (producers, processors, consumers) from existing frameworks (Lightbend Akka Streams, Pivotal Project Reactor, Netflix RxJava) with their much richer native APIs. They should use the Reactive Streams API only to combine heterogeneous stages into a single reactive stream.
+Crucially, application developers should not implement the interfaces of the Reactive Streams specification themselves. First, the specification is complex enough, especially in asynchronous contracts, to be easily implemented correctly. Second, the specification does not contain APIs for intermediate stream operations. Instead, application developers should implement the reactive stream stages (producers, processors, consumers) using existing frameworks (Lightbend Akka Streams, Pivotal Project Reactor, Netflix RxJava) with their much richer native APIs. They should use the Reactive Streams API only to combine heterogeneous stages into a single reactive stream.
 
 Complete code examples are available in the [GitHub repository](https://github.com/aliakh/demo-java-reactive-streams).
